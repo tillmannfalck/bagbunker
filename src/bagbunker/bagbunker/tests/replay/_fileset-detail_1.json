@@ -1,0 +1,205 @@
+{
+  "data": {
+    "comments": [], 
+    "id": 1, 
+    "name": "prefix-2015-02-20-13-54-41", 
+    "storage_id": 1, 
+    "tags": [], 
+    "type": "bag", 
+    "widgets": [
+      {
+        "rows": [
+          {
+            "columns": [
+              {
+                "formatter": "string", 
+                "name": "name", 
+                "title": "Name", 
+                "value": "prefix-2015-02-20-13-54-41"
+              }, 
+              {
+                "formatter": "string", 
+                "name": "md5", 
+                "title": "Md5", 
+                "value": "7c2d04b105b06e92b81175a3ca9985ea"
+              }, 
+              {
+                "formatter": "size", 
+                "name": "size", 
+                "title": "Size", 
+                "value": 53112
+              }, 
+              {
+                "formatter": "string", 
+                "name": "file_count", 
+                "title": "# files", 
+                "value": 1
+              }
+            ]
+          }
+        ], 
+        "sort": null, 
+        "state": null, 
+        "title": "Fileset Meta", 
+        "type": "table"
+      }, 
+      {
+        "rows": [
+          {
+            "columns": [
+              {
+                "formatter": "link", 
+                "name": "name", 
+                "title": "Name", 
+                "value": {
+                  "href": "/marv/download/aed68c401fedcb04fc0c856ca68661ed", 
+                  "target": "_blank", 
+                  "title": "prefix-2015-02-20-13-54-41.bag"
+                }
+              }, 
+              {
+                "formatter": "icon", 
+                "list": true, 
+                "name": "status", 
+                "title": "Status", 
+                "value": []
+              }, 
+              {
+                "formatter": "string", 
+                "name": "md5", 
+                "title": "MD5", 
+                "value": "aed68c401fedcb04fc0c856ca68661ed"
+              }, 
+              {
+                "formatter": "size", 
+                "name": "size", 
+                "title": "Size", 
+                "value": 53112
+              }
+            ]
+          }
+        ], 
+        "sort": null, 
+        "state": "collapsed", 
+        "title": "File Meta", 
+        "type": "table"
+      }, 
+      {
+        "rows": [
+          {
+            "columns": [
+              {
+                "formatter": "string", 
+                "name": "topic", 
+                "title": "Topic", 
+                "value": "/rosout_agg"
+              }, 
+              {
+                "formatter": "string", 
+                "name": "type", 
+                "title": "Type", 
+                "value": "rosgraph_msgs/Log"
+              }, 
+              {
+                "formatter": "string", 
+                "name": "message_count", 
+                "title": "Message Count", 
+                "value": 85
+              }
+            ]
+          }, 
+          {
+            "columns": [
+              {
+                "formatter": "string", 
+                "name": "topic", 
+                "title": "Topic", 
+                "value": "/rosout"
+              }, 
+              {
+                "formatter": "string", 
+                "name": "type", 
+                "title": "Type", 
+                "value": "rosgraph_msgs/Log"
+              }, 
+              {
+                "formatter": "string", 
+                "name": "message_count", 
+                "title": "Message Count", 
+                "value": 87
+              }
+            ]
+          }, 
+          {
+            "columns": [
+              {
+                "formatter": "string", 
+                "name": "topic", 
+                "title": "Topic", 
+                "value": "/chatter"
+              }, 
+              {
+                "formatter": "string", 
+                "name": "type", 
+                "title": "Type", 
+                "value": "std_msgs/String"
+              }, 
+              {
+                "formatter": "string", 
+                "name": "message_count", 
+                "title": "Message Count", 
+                "value": 78
+              }
+            ]
+          }
+        ], 
+        "sort": "topic", 
+        "state": null, 
+        "title": "Bag Topics", 
+        "type": "table"
+      }, 
+      {
+        "rows": [
+          {
+            "columns": [
+              {
+                "formatter": "string", 
+                "name": "robot", 
+                "title": "Robot", 
+                "value": "bagbunker_bag"
+              }, 
+              {
+                "formatter": "string", 
+                "name": "use_case", 
+                "title": "Use Case", 
+                "value": "unknown"
+              }, 
+              {
+                "formatter": "date", 
+                "name": "starttime", 
+                "title": "Starttime", 
+                "value": "Fri, 20 Feb 2015 13:54:42 GMT"
+              }, 
+              {
+                "formatter": "date", 
+                "name": "endtime", 
+                "title": "Endtime", 
+                "value": "Fri, 20 Feb 2015 13:54:51 GMT"
+              }, 
+              {
+                "formatter": "string", 
+                "name": "duration (s)", 
+                "title": "Duration (s)", 
+                "value": 8.905799
+              }
+            ]
+          }
+        ], 
+        "sort": null, 
+        "state": null, 
+        "title": "Deepfield Metadata", 
+        "type": "table"
+      }
+    ]
+  }
+}

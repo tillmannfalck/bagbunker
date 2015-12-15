@@ -1,0 +1,40 @@
+{
+  "widgets": [
+    {
+      "rows": [
+        {
+          "columns": [
+            {
+              "formatter": "string", 
+              "name": "fileset_count", 
+              "title": "Fileset Count", 
+              "value": 3
+            }, 
+            {
+              "formatter": "string", 
+              "name": "file_count", 
+              "title": "File Count", 
+              "value": 8
+            }, 
+            {
+              "formatter": "size", 
+              "name": "total_size", 
+              "title": "Total Size", 
+              "value": 241334
+            }, 
+            {
+              "formatter": "string", 
+              "name": "duration", 
+              "title": "Duration (s)", 
+              "value": 29.389967
+            }
+          ]
+        }
+      ], 
+      "sort": null, 
+      "state": null, 
+      "title": "", 
+      "type": "table"
+    }
+  ]
+}

@@ -1,0 +1,279 @@
+{
+  "ascending": false, 
+  "rows": [
+    {
+      "columns": [
+        {
+          "formatter": "route", 
+          "name": "name", 
+          "title": "Name", 
+          "value": {
+            "id": "7c2d04b105b06e92b81175a3ca9985ea", 
+            "route": "bagbunker.detail", 
+            "title": "prefix-2015-02-20-13-54-41"
+          }
+        }, 
+        {
+          "formatter": "string", 
+          "name": "md5", 
+          "title": "Abbr. MD5", 
+          "value": "7c2d04b"
+        }, 
+        {
+          "formatter": "size", 
+          "name": "size", 
+          "title": "Size", 
+          "value": 53112
+        }, 
+        {
+          "formatter": "string", 
+          "name": "file_count", 
+          "title": "# files", 
+          "value": 1
+        }, 
+        {
+          "formatter": "icon", 
+          "list": true, 
+          "name": "status", 
+          "title": "Status", 
+          "value": []
+        }, 
+        {
+          "formatter": "string", 
+          "name": "job_count", 
+          "title": "# jobs", 
+          "value": 1
+        }, 
+        {
+          "formatter": "string", 
+          "name": "comment_count", 
+          "title": "# comments", 
+          "value": 0
+        }, 
+        {
+          "formatter": "pill", 
+          "list": true, 
+          "name": "tags", 
+          "title": "Tags", 
+          "value": []
+        }, 
+        {
+          "formatter": "date", 
+          "name": "starttime", 
+          "title": "Starttime", 
+          "value": "2015-02-20T13:54:42.696565"
+        }, 
+        {
+          "formatter": "date", 
+          "name": "endtime", 
+          "title": "Endtime", 
+          "value": "2015-02-20T13:54:51.602364"
+        }, 
+        {
+          "formatter": "float", 
+          "name": "duration (s)", 
+          "title": "Duration (s)", 
+          "value": 8.905799
+        }, 
+        {
+          "formatter": "string", 
+          "name": "robot", 
+          "title": "Robot", 
+          "value": "bagbunker_bag"
+        }, 
+        {
+          "formatter": "string", 
+          "name": "use_case", 
+          "title": "Use Case", 
+          "value": "unknown"
+        }
+      ], 
+      "id": 1, 
+      "storage_id": 1, 
+      "type": "bag"
+    }, 
+    {
+      "columns": [
+        {
+          "formatter": "route", 
+          "name": "name", 
+          "title": "Name", 
+          "value": {
+            "id": "28b6a7839c69dc9adff31676bedf39ba", 
+            "route": "bagbunker.detail", 
+            "title": "prefix_2015-03-06-14-32-20"
+          }
+        }, 
+        {
+          "formatter": "string", 
+          "name": "md5", 
+          "title": "Abbr. MD5", 
+          "value": "28b6a78"
+        }, 
+        {
+          "formatter": "size", 
+          "name": "size", 
+          "title": "Size", 
+          "value": 62209
+        }, 
+        {
+          "formatter": "string", 
+          "name": "file_count", 
+          "title": "# files", 
+          "value": 1
+        }, 
+        {
+          "formatter": "icon", 
+          "list": true, 
+          "name": "status", 
+          "title": "Status", 
+          "value": []
+        }, 
+        {
+          "formatter": "string", 
+          "name": "job_count", 
+          "title": "# jobs", 
+          "value": 1
+        }, 
+        {
+          "formatter": "string", 
+          "name": "comment_count", 
+          "title": "# comments", 
+          "value": 0
+        }, 
+        {
+          "formatter": "pill", 
+          "list": true, 
+          "name": "tags", 
+          "title": "Tags", 
+          "value": []
+        }, 
+        {
+          "formatter": "date", 
+          "name": "starttime", 
+          "title": "Starttime", 
+          "value": "2015-03-06T14:32:21.020911"
+        }, 
+        {
+          "formatter": "date", 
+          "name": "endtime", 
+          "title": "Endtime", 
+          "value": "2015-03-06T14:32:32.041124"
+        }, 
+        {
+          "formatter": "float", 
+          "name": "duration (s)", 
+          "title": "Duration (s)", 
+          "value": 11.020213
+        }, 
+        {
+          "formatter": "string", 
+          "name": "robot", 
+          "title": "Robot", 
+          "value": "bagbunker_bag"
+        }, 
+        {
+          "formatter": "string", 
+          "name": "use_case", 
+          "title": "Use Case", 
+          "value": "unknown"
+        }
+      ], 
+      "id": 2, 
+      "storage_id": 1, 
+      "type": "bag"
+    }, 
+    {
+      "columns": [
+        {
+          "formatter": "route", 
+          "name": "name", 
+          "title": "Name", 
+          "value": {
+            "id": "cf72dca53687072b2f6f70837eed4c43", 
+            "route": "bagbunker.detail", 
+            "title": "test_2015-02-05-12-59-06"
+          }
+        }, 
+        {
+          "formatter": "string", 
+          "name": "md5", 
+          "title": "Abbr. MD5", 
+          "value": "cf72dca"
+        }, 
+        {
+          "formatter": "size", 
+          "name": "size", 
+          "title": "Size", 
+          "value": 126013
+        }, 
+        {
+          "formatter": "string", 
+          "name": "file_count", 
+          "title": "# files", 
+          "value": 6
+        }, 
+        {
+          "formatter": "icon", 
+          "list": true, 
+          "name": "status", 
+          "title": "Status", 
+          "value": []
+        }, 
+        {
+          "formatter": "string", 
+          "name": "job_count", 
+          "title": "# jobs", 
+          "value": 1
+        }, 
+        {
+          "formatter": "string", 
+          "name": "comment_count", 
+          "title": "# comments", 
+          "value": 0
+        }, 
+        {
+          "formatter": "pill", 
+          "list": true, 
+          "name": "tags", 
+          "title": "Tags", 
+          "value": []
+        }, 
+        {
+          "formatter": "date", 
+          "name": "starttime", 
+          "title": "Starttime", 
+          "value": "2015-02-05T12:59:07.254540"
+        }, 
+        {
+          "formatter": "date", 
+          "name": "endtime", 
+          "title": "Endtime", 
+          "value": "2015-02-05T12:59:16.718495"
+        }, 
+        {
+          "formatter": "float", 
+          "name": "duration (s)", 
+          "title": "Duration (s)", 
+          "value": 9.463955
+        }, 
+        {
+          "formatter": "string", 
+          "name": "robot", 
+          "title": "Robot", 
+          "value": "bagbunker_bag"
+        }, 
+        {
+          "formatter": "string", 
+          "name": "use_case", 
+          "title": "Use Case", 
+          "value": "unknown"
+        }
+      ], 
+      "id": 3, 
+      "storage_id": 1, 
+      "type": "bag"
+    }
+  ], 
+  "sort": "endtime"
+}

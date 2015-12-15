@@ -1,0 +1,18 @@
+bb:
+    extends:
+        file: base.yml
+        service: bb
+    ports:
+        - ${BB_DEV_LISTEN}:5000
+    volumes:
+        - ../..:/opt/bagbunker
+        - ../../.home:/home
+    links:
+        - bbdb:postgres
+    environment:
+        BB_DEV_LISTEN:
+
+bbdb:
+    extends:
+        file: base.yml
+        service: bbdb

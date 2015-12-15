@@ -1,0 +1,11 @@
+bb:
+    extends:
+        file: base.yml
+        service: bb
+    links:
+        - bbdb:postgres
+
+bbdb:
+    extends:
+        file: base.yml
+        service: bbdb

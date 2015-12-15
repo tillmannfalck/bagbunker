@@ -1,0 +1,12 @@
+[Unit]
+Description=Bagbunker %I database container
+Requires=docker.service
+After=docker.service
+
+[Service]
+Restart=always
+ExecStart=/usr/bin/docker start -a %I-db
+ExecStop=/usr/bin/docker stop -t 60 %I-db
+
+[Install]
+WantedBy=multi-user.target

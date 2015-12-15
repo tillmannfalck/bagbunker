@@ -1,0 +1,42 @@
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#nav" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            {{#link-to "bagbunker" class="navbar-brand"}}BagBunker{{/link-to}}
+        </div>
+
+        <div class="collapse navbar-collapse" id="nav">
+            <p class="navbar-text">
+                <div class="loader {{if loading "loading"}}">
+                    <div class="dot dot1"></div>
+                    <div class="dot dot2"></div>
+                    <div class="dot dot3"></div>
+                </div>
+            </p>
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    {{#if session.username}}
+                        <a href="#" {{action "signout"}}>Sign out <strong>{{session.username}}</strong></a>
+                    {{else}}
+                        <a href="#" {{action "show_signin"}}>Sign in</a>
+                    {{/if}}
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="main bagbunker">
+    {{outlet}}
+</div>
+
+<div class="footer">
+    <p class="muted credit text-center">
+    Copyright 2015 <a href="http://ternaris.com">Ternaris</a>, Munich, Germany · <a href="https://github.com/bosch-ros-pkg/bagbunker">Code</a> · <a href="https://github.com/bosch-ros-pkg/bagbunker/issues">Issues</a>
+    </p>
+</div>

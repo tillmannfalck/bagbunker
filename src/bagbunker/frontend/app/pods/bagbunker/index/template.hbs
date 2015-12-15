@@ -1,0 +1,168 @@
+<div class="panel-group">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a role="button" {{action "showFilters"}}>
+                    Filters
+                </a>
+            </h4>
+        </div>
+        <div class="panel-collapse collapse filter-collapse {{if showfiltersInitial "in"}}">
+            <div class="panel-body">
+                <form {{action "applyFilter" on="submit"}}>
+                    {{filter-fields model=filterObj filters=bagbunker.model.filters filterUpdated="updateJSON"}}
+                    <div class="filter-controls">
+                        {{#if debugfilters}}
+                            <h4>Filter Debug</h4>
+                            <pre>{{filterJSON}}</pre>
+                        {{/if}}
+
+                        <!--div class="checkbox">
+                            <label>
+                                {{input type="checkbox" checked=autoupdate}} Apply automatically
+                            </label>
+                        </div-->
+                        {{#unless autoupdate}}
+                            <button type="submit" class="btn btn-default" disabled={{isFilterApplied}}>apply filter</button>
+                        {{/unless}}
+                        <button class="btn btn-default" disabled={{isFilterSet}} {{action "resetFilters"}}>reset filters</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3>Summary</h3>
+{{#each model.summary.widgets as |widget|}}
+    {{widget-base model=widget}}
+{{/each}}
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h4 class="panel-title">Datasets ({{model.rows.length}} found)</h4>
+    </div>
+    <div class="panel-body">
+        <button class="btn btn-xs btn-success {{if isSelecting "active"}}" {{action "toggleSelecting"}}>bulk operations</button>
+
+        {{#if isSelecting}}
+            {{#if session.username}}
+                <button class="btn btn-xs btn-default" disabled={{isNothingChecked}} {{action "bulkTag"}}>tag</button>
+                <button class="btn btn-xs btn-default" disabled={{isNothingChecked}} {{action "bulkComment"}}>comment</button>
+            {{else}}
+                <button class="btn btn-xs btn-default" disabled=true>sign in to tag</button>
+            {{/if}}
+            <button class="btn btn-xs btn-default" disabled={{isNothingChecked}} {{action "downloadFileList"}}>download file list</button>
+            <button class="btn btn-xs btn-default" disabled={{isNothingChecked}} {{action "downloadUrlList"}}>download url list</button>
+        {{/if}}
+
+        {{widget-table model=model.listing rowClicked="show" link=true isSelecting=isSelecting checked="checked"}}
+    </div>
+</div>
+
+<div class="modal fade modal-bulk-tagging">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Bulk tagging</h4>
+            </div>
+            <div class="modal-body">
+                {{#if bulkTagCommonMerged.length}}
+                    <h6>Tags on all selected</h6>
+                    <ul class="list-unstyled">
+                        {{#each bulkTagCommonMerged as |tag|}}
+                            <li>
+                                <button class="btn btn-xs btn-danger" {{action "bulkTagRemove" tag}} title="remove from all" data-toggle="tooltip" data-placement="left" data-trigger="hover">
+                                    <span class="glyphicon glyphicon-minus"></span>
+                                </button>
+                                <span class="badge">{{tag}}</span>
+                            </li>
+                        {{/each}}
+                    </ul>
+                {{/if}}
+
+                {{#if bulkTagIndividualMerged.length}}
+                    <h6>Tags on some selected</h6>
+                    <ul class="list-unstyled">
+                        {{#each bulkTagIndividualMerged as |tag|}}
+                            <li>
+                                <button class="btn btn-xs btn-primary" {{action "bulkTagAdd" tag}} title="add to all" data-toggle="tooltip" data-placement="left" data-trigger="hover">
+                                    <span class="glyphicon glyphicon-plus"></span>
+                                </button>
+                                <button class="btn btn-xs btn-danger" {{action "bulkTagRemove" tag}} title="remove from all" data-toggle="tooltip" data-placement="left" data-trigger="hover">
+                                    <span class="glyphicon glyphicon-minus"></span>
+                                </button>
+                                <span class="badge">{{tag}}</span>
+                            </li>
+                        {{/each}}
+                    </ul>
+                {{/if}}
+
+                <h6>New tags</h6>
+                <div class="input-group">
+                    {{input class="form-control" value=newTag}}
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" type="button" {{action "bulkTagAdd" newTag}}>Add</button>
+                    </span>
+                </div>
+
+                <h6>Queued changes</h6>
+                {{#each bulkTagAdd as |tag|}}
+                    <span class="badge">
+                        +{{tag}}
+                        <span {{action "bulkTagUnqueue" tag}}>x</span>
+                    </span>
+                {{/each}}
+                {{#each bulkTagRemove as |tag|}}
+                    <span class="badge">
+                        -{{tag}}
+                        <span {{action "bulkTagUnqueue" tag}}>x</span>
+                    </span>
+                {{/each}}
+            </div>
+            <div class="modal-footer">
+                {{#if application.loading}}
+                    Please wait, saving in progress. Remaining sets {{bulkTagBeingSaved}}
+                    <span class="loader loading">
+                        <div class="dot dot1"></div>
+                        <div class="dot dot2"></div>
+                        <div class="dot dot3"></div>
+                    </span>
+                {{else}}
+                    <button type="submit" class="btn btn-primary" {{action "bulkTagApply"}}>Apply tags</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                {{/if}}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade modal-bulk-commenting">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Bulk commenting</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    {{textarea class="form-control" placeholder="Leave a comment" value=bulkComment disabled=hasNoSession}}
+                </div>
+            </div>
+            <div class="modal-footer">
+                {{#if application.loading}}
+                    Please wait, saving in progress. Remaining sets {{bulkCommentBeingSaved}}
+                    <span class="loader loading">
+                        <div class="dot dot1"></div>
+                        <div class="dot dot2"></div>
+                        <div class="dot dot3"></div>
+                    </span>
+                {{else}}
+                    <button type="submit" class="btn btn-primary" {{action "bulkCommentApply"}}>Add comment</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                {{/if}}
+            </div>
+        </div>
+    </div>
+</div>

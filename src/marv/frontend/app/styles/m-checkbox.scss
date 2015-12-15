@@ -1,0 +1,23 @@
+.m-checkbox {
+    position: relative;
+    top: 4px;
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border: 2px solid;
+    border-radius: 2px;
+    border-color: rgba(0, 0, 0, 0.54);
+    cursor: pointer;
+
+    &.checked:after {
+        position: absolute;
+        left: 2px;
+        top: 2px;
+        width: 10px;
+        height: 10px;
+        border-radius: 2px;
+        opacity: 0.54;
+        background-color: #000;
+        content: ' ';
+    }
+}

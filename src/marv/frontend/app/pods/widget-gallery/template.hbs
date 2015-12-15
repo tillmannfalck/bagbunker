@@ -1,0 +1,35 @@
+{{#if showTitle}}
+    <h4 class="text-center">Image {{oneindex}} of {{model.images.length}} <small>{{image.alt}}</small></h4>
+{{/if}}
+<div class="row">
+    <div class="{{if hasBlock "col-xs-9" "col-xs-12"}}">
+        <div class="carousel">
+            <div class="carousel-inner" role="listbox">
+                {{#each model.images as |image i|}}
+                    <div class="item {{if (is-equal i index) "active"}}">
+                        <img class="img-responsive center-block" src={{image.src}} alt={{image.alt}}>
+                    </div>
+                {{/each}}
+            </div>
+            <a class="left carousel-control" {{action "setIndex" "-1"}}>
+                <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+                <span class="sr-only">Previous</span>
+            </a>
+            <a class="right carousel-control" {{action "setIndex" "+1"}}>
+                <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+                <span class="sr-only">Next</span>
+            </a>
+        </div>
+    </div>
+    {{#if hasBlock}}<div class="col-xs-3">{{yield}}</div>{{/if}}
+</div>
+<ul class="image-stripe">
+    {{#each model.images as |image i|}}
+        <li>
+            <div class="img-thumbnail-wrapper {{if (is-equal i index) "active"}}" {{action "setIndex" i}}>
+                <img src={{image.src}} alt={{image.alt}}>
+            </div>
+            {{! <div>{{{image.alt}\}\}</div> }}
+        </li>
+    {{/each}}
+</ul>

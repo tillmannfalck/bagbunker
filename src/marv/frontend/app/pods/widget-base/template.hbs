@@ -1,0 +1,24 @@
+<div class="panel-group">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a role="button" {{action "toggleCollapse"}}>
+                    {{model.title}} <small class="pull-right">{{model.job}}</small>
+                </a>
+            </h4>
+        </div>
+        <div class="panel-collapse collapse {{collapseState}}">
+            <div class="panel-body">
+                {{#if model.headerText}}
+                    <p>{{{model.headerText}}}</p>
+                {{/if}}
+
+                {{component ("concat" "widget-" model.type) model=model}}
+
+                {{#if model.footerText}}
+                    <p>{{{model.footerText}}}</p>
+                {{/if}}
+            </div>
+        </div>
+    </div>
+</div>

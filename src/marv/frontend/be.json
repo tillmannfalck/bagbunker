@@ -1,0 +1,14 @@
+{
+    "name": "Bagbunker",
+    "proxy": [{"pattern": "^/marv", "target": "http://localhost:5000"}],
+    "csp": {
+        "styleSrc": ["'self'", "'unsafe-inline'"]
+    },
+    "overlays": [
+        "../../bagbunker/frontend"
+    ],
+    "stylefiles": [
+        "main.scss",
+        "bagbunker.scss"
+    ]
+}

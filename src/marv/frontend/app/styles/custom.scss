@@ -1,0 +1,296 @@
+/*
+ * Custom styles
+ */
+
+/*  Type */
+
+ h2.sub-header {
+   font-size: 24px;
+ }
+
+
+/*  Page structure */
+/* TODO
+html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+*/
+
+.centered {
+  text-align: center;
+}
+
+.nav-tabs {
+  margin-left:-1px;
+}
+
+.box {
+  box-sizing: border-box;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 40px!important;
+  padding: 10px 10px 30px 10px;
+  overflow: hidden;
+}
+
+.box h2 {
+  margin-top: 0;
+}
+
+.search-tabs {
+  margin-bottom: 30px;
+}
+
+.left {
+  float: left;
+}
+
+.nav-pills, .box-options li a, .modal-body li a {
+  padding: 5px 10px;
+}
+
+.sub-header {
+  border-bottom: none;
+}
+
+.clearfix:after {
+  content: ".";
+  display: block;
+  height: 0;
+  clear: both;
+  visibility: hidden;}
+
+.clearfix {
+  display: inline-block;
+  width: 100%;
+}
+
+.input-day input {
+  width: 36px;
+}
+
+.bottom {
+  position: absolute;
+  bottom: 0;
+  margin-bottom: 20px;
+}
+
+.bottom-right {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  margin-bottom: 20px;
+}
+
+.fadeout {
+-webkit-mask-image: -webkit-linear-gradient(black 82%, transparent 100%);
+}
+
+
+/*  Buttons */
+
+ .btn-outline-inverse {
+     color: #000;
+     background-color: transparent;
+     border-color: #000;
+ }
+
+ .btn-search {
+   margin-bottom: 20px;
+ }
+
+
+/*  Sidebar */
+/* TODO
+.sidebar > ul > li > ul > li > a {
+  padding-right: 20px;
+  padding-left: 50px;
+}
+
+.sidebar .btn {
+  padding-left: 20px;
+  padding-right: 20px;
+}
+*/
+
+/* Tables */
+
+.table {
+  margin-bottom: 0;
+}
+
+table a {
+  color: #333;
+  margin-right: 10px;
+}
+
+table a:hover {
+  color: #333;
+}
+
+
+.table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th {
+  padding: 4px;
+}
+
+.table-responsive .btn {
+  margin: 20px 0 10px 0;
+}
+
+.table th {
+  border-bottom: 1px solid #ddd !important;
+}
+
+.table-overview {
+  margin-bottom: 40px;
+}
+
+.table-overview th {
+  border-bottom: none !important;
+}
+
+/* Modal */
+
+/* TODO
+.modal-body .nav-pills, .modal-body .nav-tabs {
+  padding: 0;
+  margin-bottom: 15px;
+}
+
+.modal-body hr {
+  margin: 10px 0;
+}
+
+.modal-body .form-control {
+  padding: 6px;
+  margin: 0 0 10px 0;
+}
+
+.modal-body .btn {
+  margin-bottom: 10px;
+}
+
+.modal-gallery {
+    width: auto;
+    max-width: 80%;
+    margin: 30px auto 0 auto;
+}
+*/
+/* Prevent double scrollbar modal weirdness */
+
+/* TODO
+body.modal-open {
+   overflow: hidden;
+   position:fixed;
+   width: 100%;
+}
+*/
+
+/*
+.modal.in {
+    -webkit-transform: translateZ(0);
+            transform: translateZ(0);
+}
+*/
+
+
+/* Icons */
+
+a.icon {
+  color: #333;
+}
+
+.icon-big {
+  color: #333;
+  font-size: 125%;
+}
+
+.icon-small {
+  color: #333;
+  font-size: 75%;
+  margin-right: 5px;
+}
+
+
+/* Global Colors */
+
+.navbar, .navbar-brand {
+  color: white !important;
+  background-color: #5ead64;
+}
+
+.navbar-inverse .navbar-nav>li>a {
+  color: white !important;
+}
+
+.nav-tabs>li.active>a, .nav-tabs>li.active>a:hover {
+  color: white;
+}
+
+a:hover {
+  color: #5ead64;
+}
+
+a {
+  color: #5ead64;
+}
+
+li.active a {
+  background-color: #5ead64 !important;
+}
+
+.glyphicon-remove {
+  margin-left: 10px;
+  margin-right: 0;
+}
+
+.btn-remove, .glyphicon-remove-all {
+  color: red;
+  border-color: #ff8080;
+  margin-left: 0;
+}
+
+.btn-remove:hover {
+  color: red;
+  border-color: #ff8080;
+}
+
+.box-options a {
+  color: #333;
+  margin-right: 5px;
+}
+
+.box.filter a {
+  color: #333;
+}
+
+/* Colors for Infographics */
+
+/*
+
+#CCFBFF
+#F19F46
+#A4ED73
+#F8A9ED
+#BD7F71
+#5D9C6B
+#959730
+#5CA5D4
+#D0F5BD
+#969D99
+#2DDEF9
+#F4F891
+#C28EAE
+#C6C9FB
+#BE7D41
+#93A35D
+#94F6BD
+#E3A377
+#BC983B
+#2FBAC6
+#F6A1BD
+#BDE864
+#E7AC51
+#B5CEF6
+
+*/

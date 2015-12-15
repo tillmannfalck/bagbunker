@@ -1,0 +1,22 @@
+<div class="dropdown {{if resultsVisible "open"}}" {{action "focus"}}>
+    <div class="form-control {{if focused "focus"}}">
+        {{#each tags as |tag|}}
+            <span class="badge">
+                {{tag}}
+                {{#unless disabled}}
+                    <span {{action "remove" tag}}>x</span>
+                {{/unless}}
+            </span>
+        {{/each}}
+        {{input value=search disabled=disabled placeholder=placeholder}}
+    </div>
+    <ul class="dropdown-menu" style="width:100%">
+        {{#each results as |result|}}
+            <li class="{{if result.active "active"}}" {{action "highlight" result on="mouseEnter"}}>
+                <a href="#" {{action "add" result on="click"}}>
+                    {{result.tag}}
+                </a>
+            </li>
+        {{/each}}
+    </ul>
+</div>

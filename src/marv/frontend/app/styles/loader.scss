@@ -1,0 +1,41 @@
+.loader {
+    margin-top: 2px;
+    width: 70px;
+
+    &.loading .dot {
+        background-color: #ffffff;
+        float: left;
+        height: 15px;
+        margin-left: 8px;
+        width: 15px;
+        border-radius: 10px;
+        animation-name: fade_dot;
+        animation-duration: 1.95s;
+        animation-iteration-count: infinite;
+        animation-direction: normal;
+    }
+
+    .dot1 {
+        animation-delay: 0.39s;
+    }
+
+    .dot2 {
+        animation-delay: 0.91s;
+    }
+
+    .dot3 {
+        animation-delay: 1.17s;
+    }
+}
+
+@keyframes fade_dot {
+    0% {
+    }
+
+    50% {
+        background-color:#5E5E5E
+    }
+
+    100% {
+    }
+}

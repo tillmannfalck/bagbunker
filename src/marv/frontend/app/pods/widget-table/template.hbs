@@ -1,0 +1,53 @@
+{{#if sorted.length}}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                {{#if isSelecting}}
+                    <th>
+                        <span class="m-checkbox {{if allChecked "checked"}}" data-index=-1></span>
+                        all
+                    </th>
+                {{/if}}
+                {{#each columns as |col index|}}
+                    <th {{action "sort" index}}>
+                        {{col.title}}
+                        {{#if (is-equal index sort)}}
+                            <span class="glyphicon glyphicon-sort-by-attributes{{if ascending "" "-alt"}}"></span>
+                        {{/if}}
+                    </th>
+                {{/each}}
+            </tr>
+        </thead>
+        <tbody>
+            {{#if (is-equal turbo 2)}}
+                {{{tbody}}}
+            {{else if (is-equal turbo 1)}}
+                {{#each sorted as |row|}}
+                    <tr>
+                        {{#each row.columns as |col|}}
+                            <td>mediocre
+                                {{{col.formatted}}}
+                            </td>
+                        {{/each}}
+                    </tr>
+                {{/each}}
+            {{else}}
+                {{#each sorted as |row|}}
+                    <tr>
+                        {{#each row.columns as |col|}}
+                            <td>slow
+                                {{#if col.list}}
+                                    {{#each col.value as |val|}}
+                                        {{helper (concat "formatter-" col.formatter) val context=this}}
+                                    {{/each}}
+                                {{else}}
+                                    {{helper (concat "formatter-" col.formatter) col.value context=this}}
+                                {{/if}}
+                            </td>
+                        {{/each}}
+                    </tr>
+                {{/each}}
+            {{/if}}
+        </tbody>
+    </table>
+{{/if}}

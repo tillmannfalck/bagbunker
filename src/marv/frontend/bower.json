@@ -1,0 +1,13 @@
+{
+  "name": "bagbunker",
+  "dependencies": {
+    "bootstrap": "^3.3.5",
+    "c3": "^0.4.10",
+    "d3": "^3.5.0",
+    "ember": "^2.1.0",
+    "ember-data": "^2.1.0",
+    "eonasdan-bootstrap-datetimepicker": "^4.17.37",
+    "jquery": "^2.1.4",
+    "three.js": "^0.72.0"
+  }
+}

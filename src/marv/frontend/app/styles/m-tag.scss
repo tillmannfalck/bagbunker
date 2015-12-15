@@ -1,0 +1,28 @@
+.m-tag {
+    input {
+        border-width: 0;
+        outline-width: 0;
+    }
+
+    input[disabled] {
+        background-color: #fff;
+    }
+
+    .form-control {
+        cursor: text;
+        &.focus {
+            border-color: #66afe9;
+            outline: 0;
+            -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, .6);
+            box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, .6);
+        }
+    }
+
+    span.badge {
+        position: relative;
+        top: -1px;
+        span {
+            cursor: pointer;
+        }
+    }
+}

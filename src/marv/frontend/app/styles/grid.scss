@@ -1,0 +1,17 @@
+.frow {
+    display: flex;
+    margin-left: -15px;
+    margin-right: -15px;
+}
+
+@for $i from 1 through 12 {
+    .fcol-#{$i} {
+        padding-left: 15px;
+        padding-right: 15px;
+        width: #{100%/12*$i};
+    }
+}
+
+.fcol-vcenter {
+    align-self: center;
+}

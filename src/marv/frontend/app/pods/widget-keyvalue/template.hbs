@@ -1,0 +1,29 @@
+{{#if vertical}}
+    <table class="table table-overview">
+        <tbody>
+            {{#each model.items as |item|}}
+                <tr>
+                    <th>{{item.key}}</th>
+                    <td>{{helper ("concat" "formatter-" item.formatter) item.value context=this}}</td>
+                </tr>
+            {{/each}}
+        </tbody>
+    </table>
+{{else}}
+    <table class="table table-overview">
+        <thead>
+            <tr>
+                {{#each model.items as |item|}}
+                    <th>{{item.key}}</th>
+                {{/each}}
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                {{#each model.items as |item|}}
+                    <td>{{helper ("concat" "formatter-" item.formatter) item.value context=this}}</td>
+                {{/each}}
+            </tr>
+        </tbody>
+    </table>
+{{/if}}

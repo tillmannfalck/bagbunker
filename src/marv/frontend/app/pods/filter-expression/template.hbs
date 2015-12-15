@@ -1,0 +1,58 @@
+{{#if model.and}}
+    <div class="row">
+        <div class="col-xs-1">
+            <button class="btn btn-danger" {{action "remove" model}}>-</button>
+            &&
+        </div>
+        <div class="col-xs-11">
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-1"></div>
+        <div class="col-xs-11">
+            <ul class="list-unstyled">
+                {{#each model.and as |filter|}}
+                    <li>
+                        {{filter-expression model=filter columns=columns filterUpdated="filterUpdated"}}
+                    </li>
+                {{/each}}
+                <button class="btn btn-primary" {{action "add" model.and}}>add && expr</button>
+            </ul>
+        </div>
+    </div>
+{{else if model.or}}
+    <div class="row">
+        <div class="col-xs-1">
+            <button class="btn btn-danger" {{action "remove" model}}>-</button>
+            ||
+        </div>
+        <div class="col-xs-11">
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-1"></div>
+        <div class="col-xs-11">
+            <ul class="list-unstyled">
+                {{#each model.or as |filter|}}
+                    <li>
+                        {{filter-expression model=filter columns=columns filterUpdated="filterUpdated"}}
+                    </li>
+                {{/each}}
+                <button class="btn btn-primary" {{action "add" model.or}}>add || expr</button>
+            </ul>
+        </div>
+    </div>
+{{else if model.op}}
+    <div class="row">
+        <div class="col-xs-10">
+            {{filter-primitive model=model columns=columns}}
+        </div>
+        <div class="col-xs-2">
+            <button type="button" class="btn btn-danger" {{action "remove" model}}>-</button>
+            <button type="button" class="btn btn-default" {{action "convert" "or"}}>||</button>
+            <button type="button" class="btn btn-default" {{action "convert" "and"}}>&&</button>
+        </div>
+    </div>
+{{else}}
+    <button class="btn btn-primary" {{action "initialize"}}>add filter</button>
+{{/if}}

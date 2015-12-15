@@ -1,0 +1,16 @@
+{{#each fields as |field|}}
+    <div class="row form-group {{if field.error "has-error"}}">
+        <label class="col-xs-2 control-label">
+            {{field.title}}
+        </label>
+        <div class="col-xs-2">
+            {{m-select content=field.operators selectedValue=field.op action=(action (mut field.op)) disabled=(if (is-greater field.operators.length 1) undefined true)}}
+        </div>
+        <div class="col-xs-8">
+            {{component (concat "field-" field.value_type) field=field}}
+            {{#if field.error}}
+                <span class="help-block">{{field.error}}</span>
+            {{/if}}
+        </div>
+    </div>
+{{/each}}

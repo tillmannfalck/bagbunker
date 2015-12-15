@@ -186,13 +186,15 @@ def job(fileset, messages):
 
     for gps_topic in gps_topics:
         gps = np.array(gpsMap[gps_topic].gps)
-        orientation = np.array(imu.orientation)
+
         if not len(gps):
             logger.error('Aborting due to missing gps messages on topic %s', gps_topic)
             continue
 
-        if not len(orientation):
-            logger.error('Aborting due to missing imu messages on topic %s', IMU_TOPIC)
+        if imu.orientation:
+            orientation = np.array(imu.orientation)
+        else:
+            logger.warn('No imu messages on topic %s', IMU_TOPIC)
             continue
 
         # plotting
@@ -210,9 +212,11 @@ def job(fileset, messages):
 
         # timeseries for x-axis
         timeseries = plot_convert_time(gps[:, 0])
-        timeseries_yaw = plot_convert_time(orientation[:, 0])
 
-        imu_yaw = map(yaw_angle, orientation)
+        if imu.orientation:
+            timeseries_yaw = plot_convert_time(orientation[:, 0])
+
+            imu_yaw = map(yaw_angle, orientation)
 
         # precompute plot vars
         c = cm.prism(gps[:, 7]/2)
@@ -220,9 +224,10 @@ def job(fileset, messages):
         ax1.scatter(gps[:, 4], gps[:, 5], c=c, edgecolor='none', s=3,
                     label="green: RTK\nyellow: DGPS\nred: Single")
 
-        ax2.scatter(timeseries_yaw, imu_yaw, edgecolor='none', s=3)
-        ax2.set_xlim([timeseries_yaw.min(), timeseries_yaw.max()])
-        ax2.xaxis.set_major_formatter(dates.DateFormatter('%H:%M:%S'))
+        if imu.orientation:
+            ax2.scatter(timeseries_yaw, imu_yaw, edgecolor='none', s=3)
+            ax2.set_xlim([timeseries_yaw.min(), timeseries_yaw.max()])
+            ax2.xaxis.set_major_formatter(dates.DateFormatter('%H:%M:%S'))
 
         ax3.scatter(timeseries, gps[:, 4], c=c, edgecolor='none', s=3)
         ax3.set_xlim([timeseries.min(), timeseries.max()])

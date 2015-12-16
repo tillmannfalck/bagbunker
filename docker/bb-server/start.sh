@@ -11,7 +11,7 @@ if [ ! -f "$STATE_DIR/pip-tools" ]; then
     pip install --upgrade pip
     pip install --upgrade setuptools
     pip install --upgrade wheel
-    pip install --upgrade https://github.com/ternaris/pip-tools/archive/1.3.0-3-ternaris.tar.gz
+    pip install --upgrade 'pip-tools>=1.4.2'
     touch $STATE_DIR/pip-tools
 fi
 

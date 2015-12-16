@@ -34,9 +34,9 @@ test -e bungle-ember || ln -s $HOME/bngl/bungle-ember/bin/bungle-ember
 
 cd $FRONTEND
 if [ ! -e dist/.built ]; then
-    sudo mkdir -p dist
-    sudo chown -R :$MARV_USER dist
-    sudo chmod -R g+w dist
+    sudo mkdir -p bower_components dist
+    sudo chown -R :$MARV_USER bower_components dist
+    sudo chmod -R g+w bower_components dist
     bungle-ember build
     touch dist/.built
 fi

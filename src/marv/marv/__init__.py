@@ -217,6 +217,7 @@ def create_app(config_obj, **kw):
             return flask.abort(400)
 
         return filter_query(db.session.query(Fileset)
+                            .filter(Fileset.type =='bag')
                             .filter(Fileset.deleted.op('IS NOT')(True))
                             .options(db.subqueryload(Fileset.files))
                             .options(db.subqueryload(Fileset.tags))

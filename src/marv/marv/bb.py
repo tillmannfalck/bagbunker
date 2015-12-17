@@ -24,8 +24,8 @@ from __future__ import absolute_import, division
 
 from .decorators import fileset, job_model               # noqa
 from .decorators import summary, listing, detail      # noqa
-from .decorators import (table_widget, text_widget, image_widget,   # noqa
-                         gallery_widget)    # noqa
+from .decorators import table_widget, text_widget, image_widget,   # noqa
+from .decorators import gallery_widget, c3_widget    # noqa
 from .decorators import column    # noqa
 from .decorators import filter, filter_input    # noqa
 

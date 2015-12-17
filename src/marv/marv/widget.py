@@ -121,9 +121,7 @@ class Widget(object):
 
 class C3(Widget):
     def serialize(self, dct, c3_data):
-        dct.update({
-            'c3_data': c3_data
-        })
+        dct.update(c3_data)
         return dct
 
 

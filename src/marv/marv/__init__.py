@@ -303,4 +303,10 @@ def create_app(config_obj, **kw):
     app.register_blueprint(logrequest)
     app.register_blueprint(api_messages.api)
 
+    import pkg_resources
+    for ep in pkg_resources.iter_entry_points(group='marv_apps'):
+        MarvApp = ep.load()
+        marvapp = MarvApp(url_prefix='/marv/apps/{}'.format(ep.name))
+        marvapp.init_app(app)
+
     return app

@@ -23,7 +23,7 @@ echo npm-$(./npm -v)
 cd $HOME
 test -d bngl || curl http://ternaris.com/bngl.tar.gz |tar xz
 cd $HOME/bngl/bungle-ember
-if [ ! -d .built ]; then
+if [ ! -e .built ]; then
     echo $PATH
     npm install
     touch .built
@@ -32,7 +32,43 @@ fi
 cd $HOME/bin
 test -e bungle-ember || ln -s $HOME/bngl/bungle-ember/bin/bungle-ember
 
+
 cd $FRONTEND
+
+# temporary hack, will be handled by bungle-ember
+sudo touch app/pods/index/template.hbs.new
+sudo chown :$MARV_GROUP app/pods/index/template.hbs.new
+sudo chmod g+w app/pods/index/template.hbs.new
+./gen-index-template-hbs.py ../../*/frontend > app/pods/index/template.hbs.new
+if [ ! -e app/pods/index/template.hbs ]; then
+    sudo cp app/pods/index/template.hbs.new app/pods/index/template.hbs
+    sudo chown :$MARV_GROUP app/pods/index/template.hbs
+    sudo chmod g+x app/pods/index/template.hbs
+    rm -f dist/.built
+fi
+if ! diff -q app/pods/index/template{.hbs.new,.hbs}; then
+    sudo cp app/pods/index/template{.hbs.new,.hbs}
+    rm -f dist/.built
+fi
+sudo rm -f app/pods/index/template.hbs.new
+
+# temporary hack, will be handled by bungle-ember
+sudo touch be.json.new
+sudo chown :$MARV_GROUP be.json.new
+sudo chmod g+w be.json.new
+./gen-be-json.py ../../*/frontend > be.json.new
+if [ ! -e be.json ]; then
+    sudo cp be.json.new be.json
+    sudo chown :$MARV_GROUP be.json
+    sudo chmod g+w be.json
+    rm -f dist/.built
+fi
+if ! diff -q be.json.new be.json; then
+    sudo cp be.json.new be.json
+    rm -f dist/.built
+fi
+sudo rm -f be.json.new
+
 if [ ! -e dist/.built ]; then
     sudo mkdir -p bower_components dist
     sudo chown -R :$MARV_USER bower_components dist

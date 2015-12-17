@@ -316,8 +316,9 @@ def run_jobs(ctx, all, force, fileset, job):
     for fileset in filesets:
         bag = fileset.bag
         if bag is None:
-            continue
-        fileset_topics = set([x.topic.name for x in bag.topics])
+            fileset_topics = set()
+        else:
+            fileset_topics = set([x.topic.name for x in bag.topics])
         topics = set()
         cmds = []
         jobruns = Jobrun.query.filter(Jobrun.fileset == fileset)

@@ -41,6 +41,8 @@ class Metadata(object):
 @bb.job()
 @bb_bag.messages(topics=())
 def job(fileset, messages):
+    if not fileset.bag:
+        return
     path = fileset.dirpath.split(os.sep)
     robot_name = path[3] if len(path) > 3 else 'unknown'
     use_case = path[6] if len(path) > 6 else 'unknown'

@@ -11,6 +11,7 @@ bb:
         - ${BB_BAGS}:/mnt/bags:ro
     environment:
         BRANCH:
+        COMPILE_REQTXTS:
         DEBUG_START_SH:
         BB_BAGS:
         BB_DATA:

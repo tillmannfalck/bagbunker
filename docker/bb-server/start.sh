@@ -106,7 +106,11 @@ for pkg in $MARV_PKGS_DIR/*; do
 done
 
 if [ -n "$COMPILE_REQTXTS" ]; then
+    echo "Compiling requirements.txt files"
     for reqin in $MARV_PKGS_DIR/*/requirements.in; do
+        sudo chown :$MARV_GROUP $(dirname $reqin)
+        sudo chmod g+w $(dirname $reqin)
+        echo "Compiling $reqin..."
         pip-compile $reqin
     done
 fi

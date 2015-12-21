@@ -4,7 +4,7 @@ Getting started
 Using a proxy
 -------------
 
-All tools should honor the ``http_proxy`` and ``https_proxy`` environment variables. If this does not work, please open a `new issue <https://github.com/bosch-ros-pkg/bagbunker/issues/new>`_.
+All tools should honor the ``http_proxy`` and ``https_proxy`` environment variables. If this does not work, please open a `new issue <https://github.com/bosch-ros-pkg/bagbunker/issues/new>`_. Make sure the proxy variables point to an IP address that is reachable from within the docker container, ``127.0.0.1` inside your docker container is a different ``127.0.0.1`` than outside. The IP address of the ``docker0`` interface works.
 
 
 System requirements

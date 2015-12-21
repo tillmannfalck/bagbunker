@@ -69,7 +69,7 @@ setup(name='bagbunker',
       entry_points={
           'console_scripts': [
               'bagbunker = bagbunker.cli:cli',
-              'bbat = bagbunker.bbat:cli',
+              'bbmsg = bagbunker.bbmsg:cli',
           ],
           'marv_formats': [
               'bag = bagbunker',

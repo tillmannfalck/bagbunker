@@ -27,6 +27,7 @@ import logging
 import requests
 import rosbag
 import rospy
+import socket
 from roslib.message import get_message_class
 from rosgraph_msgs.msg import Clock
 from marv.log import loglevel_option
@@ -35,8 +36,17 @@ from .reader import MessageStreamClient
 
 @click.group()
 @loglevel_option(default='info')
-def bbat(loglevel):
-    rospy.set_param('use_sim_time', True)
+@click.pass_context
+def bbat(ctx, loglevel):
+    try:
+        rospy.set_param('use_sim_time', True)
+    except socket.error, e:
+        if e.errno == 111:
+            click.echo('Error connecting to roscore, has it been started?')
+        else:
+            import traceback
+            click.echo(traceback.format_exc(e))
+        ctx.exit(e.errno)
     rospy.init_node('bbat')
     formatter = logging.Formatter('%(asctime)s %(levelname)s %(name)s %(message)s')
     handler = logging.StreamHandler()

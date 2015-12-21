@@ -37,7 +37,7 @@ from .reader import MessageStreamClient
 @click.group()
 @loglevel_option(default='info')
 @click.pass_context
-def bbat(ctx, loglevel):
+def bbmsg(ctx, loglevel):
     try:
         rospy.set_param('use_sim_time', True)
     except socket.error, e:
@@ -47,7 +47,7 @@ def bbat(ctx, loglevel):
             import traceback
             click.echo(traceback.format_exc(e))
         ctx.exit(e.errno)
-    rospy.init_node('bbat')
+    rospy.init_node('bbmsg')
     formatter = logging.Formatter('%(asctime)s %(levelname)s %(name)s %(message)s')
     handler = logging.StreamHandler()
     handler.setFormatter(formatter)
@@ -56,7 +56,7 @@ def bbat(ctx, loglevel):
     logger.setLevel(loglevel)
 
 
-@bbat.command()
+@bbmsg.command()
 @click.argument('url', required=True)
 @click.pass_context
 def play(ctx, url):
@@ -68,7 +68,7 @@ def play(ctx, url):
     http://bagbunker.int.bosppaa.com/api/messages/<md5>?topic=/foo
     http://bagbunker.int.bosppaa.com/api/messages/<md5>?topic=/foo&topic=/bar
     """
-    logger = logging.getLogger('bbat.play')
+    logger = logging.getLogger('bbmsg.play')
 
     resp = requests.get(url, stream=True,
                         headers={'Accept': 'application/x-ros-bag-msgs'})
@@ -106,7 +106,7 @@ def play(ctx, url):
     rospy.spin()
 
 
-@bbat.command('fetch-bag')
+@bbmsg.command('fetch-bag')
 @click.option('--lz4/--no-lz4', help='Use lz4 compression in saved bag')
 @click.argument('url', required=True)
 @click.pass_context
@@ -119,7 +119,7 @@ def fetch_bag(ctx, lz4, url):
     http://bagbunker.int.bosppaa.com/api/messages/<md5>?topic=/foo
     http://bagbunker.int.bosppaa.com/api/messages/<md5>?topic=/foo&topic=/bar
     """
-    logger = logging.getLogger('bbat.fetch-bag')
+    logger = logging.getLogger('bbmsg.fetch-bag')
 
     resp = requests.get(url, stream=True,
                         headers={'Accept': 'application/x-ros-bag-msgs'})
@@ -147,7 +147,7 @@ def fetch_bag(ctx, lz4, url):
 
 
 def cli():
-    bbat(auto_envvar_prefix='BBAT')
+    bbmsg(auto_envvar_prefix='BBMSG')
 
 
 if __name__ == '__main__':

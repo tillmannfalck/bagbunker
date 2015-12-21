@@ -294,7 +294,7 @@ In development setups, the coverage report is created in ``./cover/index.htm``l 
 Build docker image
 ==================
 
-In case you want to build the docker image yourself, see the instructions in `base.yml <docker/compose/base.yml>`_.
+In case you want to build the docker image yourself, see the instructions in `base.yml <docker/compose/base.yml>`_. If you need a proxy to access the internet see https://github.com/bosch-ros-pkg/bagbunker/blob/master/Dockerfile#L35.
 
 
 Python version

@@ -29,7 +29,7 @@ import rosbag
 import rospy
 from roslib.message import get_message_class
 from rosgraph_msgs.msg import Clock
-from .log import loglevel_option
+from marv.log import loglevel_option
 from .reader import MessageStreamClient
 
 

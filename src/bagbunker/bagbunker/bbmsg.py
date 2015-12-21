@@ -64,9 +64,11 @@ def play(ctx, url):
 
     example URLs:
 
-    http://bagbunker.int.bosppaa.com/api/messages/<md5>
-    http://bagbunker.int.bosppaa.com/api/messages/<md5>?topic=/foo
-    http://bagbunker.int.bosppaa.com/api/messages/<md5>?topic=/foo&topic=/bar
+    http://bagbunker.int.bosppaa.com/marv/api/messages/<md5>
+
+    http://bagbunker.int.bosppaa.com/marv/api/messages/<md5>?topic=/foo
+
+    http://bagbunker.int.bosppaa.com/marv/api/messages/<md5>?topic=/foo&topic=/bar
     """
     logger = logging.getLogger('bbmsg.play')
 
@@ -115,9 +117,11 @@ def fetch_bag(ctx, lz4, url):
 
     example URLS:
 
-    http://bagbunker.int.bosppaa.com/api/messages/<md5>
-    http://bagbunker.int.bosppaa.com/api/messages/<md5>?topic=/foo
-    http://bagbunker.int.bosppaa.com/api/messages/<md5>?topic=/foo&topic=/bar
+    http://bagbunker.int.bosppaa.com/marv/api/messages/<md5>
+
+    http://bagbunker.int.bosppaa.com/marv/api/messages/<md5>?topic=/foo
+
+    http://bagbunker.int.bosppaa.com/marv/api/messages/<md5>?topic=/foo&topic=/bar
     """
     logger = logging.getLogger('bbmsg.fetch-bag')
 

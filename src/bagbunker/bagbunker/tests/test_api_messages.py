@@ -47,7 +47,7 @@ class TestCase(FlaskTestCase):
     @default_from_self
     def test_pick_mimetype(self, client):
         # pick first known, honoring quality
-        resp = client.get('/api/messages/{}'.format(MD5), headers=Headers([
+        resp = client.get('/marv/api/messages/{}'.format(MD5), headers=Headers([
             ('Accept',
              'foo/foo;q=1.2,application/x-ros-bag-msgs;q=0.5,foo/bar')]))
         self.assert200(resp)
@@ -56,14 +56,14 @@ class TestCase(FlaskTestCase):
     @default_from_self
     def test_no_valid_mimetype(self, client):
         # no valid mimetype
-        resp = client.get('/api/messages/{}'.format(MD5), headers=Headers([
+        resp = client.get('/marv/api/messages/{}'.format(MD5), headers=Headers([
             ('Accept', 'foo/foo')]))
         self.assert400(resp)
 
     @default_from_self
     def test_all(self, client):
         # default handler
-        resp = client.get('/api/messages/{}'.format(MD5))
+        resp = client.get('/marv/api/messages/{}'.format(MD5))
         self.assert200(resp)
         self.assertEqual(resp.headers['Content-type'], 'application/x-ros-bag-msgs')
         msc = MessageStreamClient(chunks=iter([resp.data]))
@@ -79,7 +79,7 @@ class TestCase(FlaskTestCase):
 
     @default_from_self
     def test_one_topic(self, client):
-        resp = client.get('/api/messages/{}?topic=/chatter'.format(MD5))
+        resp = client.get('/marv/api/messages/{}?topic=/chatter'.format(MD5))
         self.assert200(resp)
         msc = MessageStreamClient(chunks=iter([resp.data]))
         self.assertEqual(msc.topics,
@@ -89,7 +89,7 @@ class TestCase(FlaskTestCase):
 
     @default_from_self
     def test_multiple_topic(self, client):
-        resp = client.get('/api/messages/{}?topic=/chatter&topic=/rosout'.format(MD5))
+        resp = client.get('/marv/api/messages/{}?topic=/chatter&topic=/rosout'.format(MD5))
         self.assert200(resp)
         msc = MessageStreamClient(chunks=iter([resp.data]))
         self.assertEqual(msc.topics,
@@ -101,7 +101,7 @@ class TestCase(FlaskTestCase):
 
     # @default_from_self
     # def test_msg_type(self, client):
-    #     resp = client.get('/api/messages/{}?msg_type=std_msgs/String'.format(MD5))
+    #     resp = client.get('/marv/api/messages/{}?msg_type=std_msgs/String'.format(MD5))
     #     self.assert200(resp)
     #     topics = pickle.loads(resp.data)
     #     self.assertEqual(topics, {u'/chatter': (2, u'std_msgs/String')})

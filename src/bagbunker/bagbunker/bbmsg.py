@@ -80,7 +80,7 @@ def play(ctx, url):
     msc = MessageStreamClient(resp.iter_content(chunk_size=512))
     topics = msc.topics
     if '/clock' in topics:
-        raise ValueError('/clock may not be streamed from server')
+        raise ValueError('/clock must not be streamed from server')
 
     # XXX: verify md5 sum
     pubs = {topic_id: rospy.Publisher(topic, get_message_class(msg_type), queue_size=1)

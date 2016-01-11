@@ -10,7 +10,6 @@ bb:
         - ${BB_DATA}:/var/lib/bagbunker
         - ${BB_BAGS}:/mnt/bags:ro
     environment:
-        BRANCH:
         COMPILE_REQTXTS:
         DEBUG_START_SH:
         BB_BAGS:

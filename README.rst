@@ -58,6 +58,8 @@ All other branches are feature branches and are likely to be rebased. For your c
 
 Branching model based on http://nvie.com/posts/a-successful-git-branching-model/.
 
+The docker image contains the latest master branch of the bagbunker repository, suitable for production. For development setups, the bagbunker repository is mounted as a volume which gives you full control over which branch is used and enables you to develop new jobs (more on this further down).
+
 
 Setup
 =====
@@ -77,8 +79,6 @@ While it is possible to pass all configuration variables on the command-line, it
 Adjust the variables to your needs and then source the profile::
 
   % source bb_production-profile.sh
-
-The docker images contains the full bagbunker repository. For server setups you specify the branch you want to use via the ``$BB_BRANCH`` environment variable, usually ``master`` or ``release`` to test an upcoming release. For development setups, the bagbunker repository is mounted as a volume which gives you full control over which branch is used and enables you to develop new jobs (more on this further down).
 
 
 Create and run containers

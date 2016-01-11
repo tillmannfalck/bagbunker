@@ -25,13 +25,6 @@ if [ -z "$CENV" ]; then
     mkdir -p $HOME/bin
     PATH="$HOME/bin:$PATH"
 
-    # Only change branch if asked to and do so only once
-    if [ -e "$MARV_ROOT_CHECKOUT_BRANCH" ]; then
-        cd $MARV_ROOT
-        git checkout "$BRANCH"
-        rm $MARV_ROOT_CHECKOUT_BRANCH
-    fi
-
     # Invalidate state and venv if docker image is newer than venv
     if [ -f "$STATE_DIR/venv" ] && [ "$IMAGE_TIMESTAMP" -nt "$STATE_DIR/venv" ]; then
         echo "Invalidating outdated venv..."

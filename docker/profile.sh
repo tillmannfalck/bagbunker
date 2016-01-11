@@ -8,10 +8,6 @@ export COMPOSE_FILE=$HOME/bagbunker/docker/compose/production.yml
 #export COMPOSE_PROJECT_NAME=bb_dev    # development
 export COMPOSE_PROJECT_NAME=bb_production
 
-# By default the master branch is used, uncomment to test an upcoming release
-# This only affects production.yml
-#export BRANCH=release
-
 # Listen address for apache
 #export BB_LISTEN=127.0.0.1:8000       # development
 export BB_LISTEN=80

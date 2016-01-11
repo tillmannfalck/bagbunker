@@ -26,9 +26,7 @@ ENV MARV_GID 65533
 ENV MARV_USER bagbunker
 ENV MARV_GROUP bagbunker
 ENV MARV_ROOT /opt/bagbunker
-ENV MARV_ROOT_CHECKOUT_BRANCH $MARV_ROOT/.checkout-branch
 ENV MARV_ROOT_INSIDE_CONTAINER $MARV_ROOT/.inside-container
-ENV BRANCH master
 ENV BASH_ENV /env.sh
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -43,7 +41,7 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN groupadd -g $MARV_UID $MARV_GROUP && \
     useradd -m -u $MARV_UID -g $MARV_GID $MARV_USER
 
-RUN echo 'Defaults env_keep += "APACHE_RUN_USER APACHE_RUN_GROUP APACHE_LOG_DIR APACHE_PID_FILE APACHE_RUN_DIR APACHE_LOCK_DIR APACHE_SERVERADMIN APACHE_SERVERNAME APACHE_SERVERALIAS IMAGE_TIMESTAMP MARV_INSTANCE_PATH MARV_UID MARV_GID MARV_USER MARV_GROUP MARV_ROOT MARV_PKGS_DIR BRANCH POSTGRES_PORT_5432_TCP_ADDR http_proxy https_proxy"\nALL ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+RUN echo 'Defaults env_keep += "APACHE_RUN_USER APACHE_RUN_GROUP APACHE_LOG_DIR APACHE_PID_FILE APACHE_RUN_DIR APACHE_LOCK_DIR APACHE_SERVERADMIN APACHE_SERVERNAME APACHE_SERVERALIAS IMAGE_TIMESTAMP MARV_INSTANCE_PATH MARV_UID MARV_GID MARV_USER MARV_GROUP MARV_ROOT MARV_PKGS_DIR POSTGRES_PORT_5432_TCP_ADDR http_proxy https_proxy"\nALL ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 RUN apt-get update && \
     apt-get install -y \
@@ -73,12 +71,9 @@ RUN mkdir -p $MARV_ROOT && \
     git remote add bb /tmp/bb.git && \
     git fetch bb && \
     git checkout master && \
-    git checkout release && \
-    git checkout $BRANCH && \
     git remote rm bb && \
     git gc --aggressive && \
     rm -rf /tmp/bb.git
-RUN touch $MARV_ROOT_CHECKOUT_BRANCH
 RUN touch $MARV_ROOT_INSIDE_CONTAINER
 RUN chown -R $MARV_USER:$MARV_GROUP $MARV_ROOT
 

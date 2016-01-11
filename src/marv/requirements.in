@@ -3,6 +3,7 @@ Flask-Login
 Flask-Restless==0.17.0-45-fix
 Flask-SQLAlchemy
 Flask-Testing
+Sphinx
 alembic
 click
 coverage

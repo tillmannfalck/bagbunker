@@ -50,6 +50,9 @@ requires = [
     'nose',
     'coverage',
     'ipdbplugin',
+
+    # documentation
+    'Sphinx'
     ]
 
 setup(name='marv',

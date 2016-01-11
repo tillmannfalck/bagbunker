@@ -72,7 +72,7 @@ The configurations use environment variables (see below).
 Create and source profile
 -------------------------
 
-While it is possible to pass all configuration variables on the command-line, it is recommended to create a profile that is sourced, here by example of profile named for your production setup::
+While it is possible to pass all configuration variables on the command-line, it is recommended to create a profile that is sourced, here by example of profile meant for production::
 
   % cp docker/profile.sh bb_production-profile.sh
 
@@ -216,7 +216,7 @@ Stop again and start via systemd::
 Development
 ===========
 
-In addition to everything explained above, there are a couple of things relevant for development.
+In addition to everything explained above, there are a couple of things relevant only for development.
 
 As mentioned earlier the development setup uses your local clone of the bagbunker repository (in contrast to the one contained in the pre-built docker image).
 

@@ -105,16 +105,6 @@ for pkg in $MARV_PKGS_DIR/*; do
     init_pkg "$pkg"
 done
 
-if [ -n "$COMPILE_REQTXTS" ]; then
-    echo "Compiling requirements.txt files"
-    for reqin in $MARV_PKGS_DIR/*/requirements.in; do
-        sudo chown :$MARV_GROUP $(dirname $reqin)
-        sudo chmod g+w $(dirname $reqin)
-        echo "Compiling $reqin..."
-        pip-compile $reqin
-    done
-fi
-
 if [ -n "$BEFORE_REQ_INSTALL" ]; then
     if [ "$1" = "apache2" ]; then
         exec bash

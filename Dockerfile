@@ -2,7 +2,7 @@ FROM ubuntu
 MAINTAINER Ternaris
 
 EXPOSE 80
-VOLUME ["/home", "/mnt/bags", "/var/lib/bagbunker"]
+VOLUME ["/mnt/bags", "/var/lib/bagbunker"]
 
 RUN locale-gen en_US.UTF-8; dpkg-reconfigure -f noninteractive locales
 RUN echo "Europe/Berlin" > /etc/timezone; dpkg-reconfigure -f noninteractive tzdata
@@ -62,6 +62,19 @@ RUN a2enmod rewrite
 RUN pip install --upgrade virtualenv
 RUN chmod -x $(which pip)
 
+USER $MARV_USER
+
+WORKDIR /home/$MARV_USER
+RUN mkdir bin
+RUN curl https://nodejs.org/dist/v5.2.0/node-v5.2.0-linux-x64.tar.gz |tar xz
+RUN cd bin && ln -s ../node-v*/bin/node && ln -s ../node-v*/bin/npm
+RUN export PATH=$HOME/bin:$PATH; node -v && npm -v
+RUN curl https://ternaris.com/bngl.tar.gz |tar xz
+RUN export PATH=$HOME/bin:$PATH; cd bngl/bungle-ember && npm install
+RUN cd bin && ln -s ../bngl/bungle-ember/bin/bungle-ember
+
+USER root
+
 # All branches that are supposed to be included need to be checked out here,
 # before the desired branch is checked out.
 COPY .git /tmp/bb.git
@@ -84,8 +97,8 @@ COPY docker/bb-server/start.sh /
 RUN chmod 0755 /start.sh
 
 USER $MARV_USER
-WORKDIR $MARV_ROOT
 
+WORKDIR $MARV_ROOT
 ENTRYPOINT ["/start.sh"]
 CMD ["apache2"]
 

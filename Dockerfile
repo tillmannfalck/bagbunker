@@ -75,16 +75,15 @@ RUN cd bin && ln -s ../bngl/bungle-ember/bin/bungle-ember
 
 USER root
 
-# All branches that are supposed to be included need to be checked out here,
-# before the desired branch is checked out.
 COPY .git /tmp/bb.git
 RUN mkdir -p $MARV_ROOT && \
     cd $MARV_ROOT && \
     git init && \
     git remote add bb /tmp/bb.git && \
     git fetch bb && \
-    git checkout master && \
+    git checkout $(cut -d/ -f3 < /tmp/bb.git/HEAD) && \
     git remote rm bb && \
+    rm .git/FETCH_HEAD && \
     git gc --aggressive && \
     rm -rf /tmp/bb.git
 RUN touch $MARV_ROOT_INSIDE_CONTAINER

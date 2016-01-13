@@ -36,7 +36,7 @@ ENV DEBIAN_FRONTEND noninteractive
 # from a registry and environment variables can be set during runime
 # (see README.md)
 #ENV http_proxy http://172.17.0.1:3128/
-#ENV https_proxy https://172.17.0.1:3128/
+#ENV https_proxy http://172.17.0.1:3128/
 
 RUN groupadd -g $MARV_UID $MARV_GROUP && \
     useradd -m -u $MARV_UID -g $MARV_GID $MARV_USER

@@ -79,8 +79,8 @@ def filter_use_case(query, use_case):
 
 
 @bb.listing()
-@bb.column('robot')
-@bb.column('use_case')
+@bb.listing_column('robot')
+@bb.listing_column('use_case')
 def listing(fileset):
     jobrun = fileset.get_latest_jobrun('deepfield::metadata')
     if jobrun is None:

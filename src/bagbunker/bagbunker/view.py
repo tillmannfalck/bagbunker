@@ -48,9 +48,9 @@ def dt_from_timestamp(timestamp):
 
 
 @bb.listing()
-@bb.column('starttime', formatter='date')
-@bb.column('endtime', formatter='date')
-@bb.column('duration (s)', formatter='float')
+@bb.listing_column('starttime', formatter='date')
+@bb.listing_column('endtime', formatter='date')
+@bb.listing_column('duration (s)', formatter='float')
 def listing(fileset):
     bag = fileset.bag
     if not bag:

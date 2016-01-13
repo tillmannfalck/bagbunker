@@ -24,12 +24,15 @@ from __future__ import absolute_import, division
 
 from collections import OrderedDict
 from .job import Job
+from .listing import ListingCallback, LISTING_CALLBACKS
 from .reader import READER, reader    # noqa  -- registry should be an instance
 from .scanner import SCANNER, scanner    # noqa  -- registry should be an instance
 from .widgeting import make_register, MODULE_NAME_MAP
 
 JOB = OrderedDict()
 job = make_register('job', registry=JOB, cls=Job)
+
+listing = make_register('listing', registry=LISTING_CALLBACKS, cls=ListingCallback)
 
 
 FORMATS_LOADED = False

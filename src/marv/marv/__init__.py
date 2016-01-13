@@ -39,6 +39,7 @@ from . import monkeypatch as _  # noqa
 from . import view as _         # noqa
 from .filtering import filter_config, filter_query
 from .frontend import frontend
+from .listing import generate_listing_model, populate_listing_cache
 from .logrequest import logrequest
 from .model import db, Comment, File, Fileset, Jobrun, Storage, Tag, User
 
@@ -76,7 +77,7 @@ def create_app(config_obj, **kw):
     if app.config.get('USE_X_SENDFILE'):
         app.use_x_sendfile = True
 
-    app.config['SQLALCHEMY_BINDS'] = {'cachedb': 'sqlite://'}
+    app.config['SQLALCHEMY_BINDS'] = {'cache': 'sqlite://'}
 
     #if not os.path.exists(app.config['FILE_STORAGE_PATH']):
     #    os.makedirs(app.config['FILE_STORAGE_PATH'])
@@ -270,10 +271,18 @@ def create_app(config_obj, **kw):
                 description='Not Authorized', code=401)
 
     with app.app_context():
+        # Create Listing model
+        ListingEntry = generate_listing_model()
+        populate_listing_cache()
+
         # Create API endpoints, which will be available at /api/<tablename> by
         # default. Allowed HTTP methods can be specified as well.
         kw = {'app': app, 'url_prefix': '/marv/api'}
         apimanager.create_api(Storage, **kw)
+        apimanager.create_api(ListingEntry, **kw)
+        from .listing import Relations
+        for rel in Relations.values():
+            apimanager.create_api(rel, **kw)
         apimanager.create_api(File,
                               max_page_size=1000,
                               page_size=1000,

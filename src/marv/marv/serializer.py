@@ -53,10 +53,6 @@ class Summary(Base):
     pass
 
 
-class Listing(Base):
-    pass
-
-
 class Detail(Base):
     pass
 

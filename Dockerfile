@@ -62,18 +62,12 @@ RUN a2enmod rewrite
 RUN pip install --upgrade virtualenv
 RUN chmod -x $(which pip)
 
-USER $MARV_USER
-
-WORKDIR /home/$MARV_USER
-RUN mkdir bin
-RUN curl https://nodejs.org/dist/v5.2.0/node-v5.2.0-linux-x64.tar.gz |tar xz
-RUN cd bin && ln -s ../node-v*/bin/node && ln -s ../node-v*/bin/npm
-RUN export PATH=$HOME/bin:$PATH; node -v && npm -v
-RUN curl https://ternaris.com/bngl.tar.gz |tar xz
-RUN export PATH=$HOME/bin:$PATH; cd bngl/bungle-ember && npm install
-RUN cd bin && ln -s ../bngl/bungle-ember/bin/bungle-ember
-
-USER root
+RUN cd /opt && curl https://nodejs.org/dist/v5.2.0/node-v5.2.0-linux-x64.tar.gz |tar xz
+RUN cd /usr/local/bin && ln -s /opt/node-v*/bin/node && ln -s /opt/node-v*/bin/npm
+RUN node -v && npm -v
+RUN cd /opt && curl https://ternaris.com/bngl.tar.gz |tar xz
+RUN cd /opt/bngl/bungle-ember && npm install
+RUN cd /usr/local/bin && ln -s /opt/bngl/bungle-ember/bin/bungle-ember
 
 COPY .git /tmp/bb.git
 RUN mkdir -p $MARV_ROOT && \

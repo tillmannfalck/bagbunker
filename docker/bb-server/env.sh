@@ -22,8 +22,6 @@ if [ -z "$CENV" ]; then
         sudo chown $MARV_USER:$MARV_GROUP $HOME
         sudo chmod 775 $HOME
     fi
-    mkdir -p $HOME/bin
-    PATH="$HOME/bin:$PATH"
 
     # Invalidate state and venv if docker image is newer than venv
     if [ -f "$STATE_DIR/venv" ] && [ "$IMAGE_TIMESTAMP" -nt "$STATE_DIR/venv" ]; then

@@ -22,6 +22,7 @@
 
 from __future__ import absolute_import, division
 
+import json
 import re
 from collections import OrderedDict
 from flask.ext.sqlalchemy import _BoundDeclarativeMeta as model_metaclass
@@ -139,6 +140,30 @@ def update_listing_entry(fileset):
 
 
 def populate_listing_cache():
-    for fileset in Fileset.query.filter(Fileset.type =='bag'):
+    for fileset in Fileset.query.filter(Fileset.type == 'bag'):
         update_listing_entry(fileset)
     db.session.commit()
+
+
+def serialize_listing_entry(fileset):
+    entry = ListingEntry.query.get(fileset.md5)
+    columns = []
+    for callback in LISTING_CALLBACKS.values():
+        for col in callback.columns:
+            if not col.hidden:
+                value = getattr(entry, col.name)
+                if col.json:
+                    value = json.loads(value)
+                columns.append({
+                    'formatter': col.formatter,
+                    'name': col.name,
+                    'list': col.list,
+                    'title': col.title,
+                    'value': value,
+                })
+    return {
+        'id': fileset.id,
+        'type': fileset.type,
+        'storage_id': fileset.storage_id,
+        'columns': columns,
+    }

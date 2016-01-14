@@ -39,12 +39,12 @@ from . import monkeypatch as _  # noqa
 from . import view as _         # noqa
 from .filtering import filter_config, filter_query
 from .frontend import frontend
-from .listing import generate_listing_model, populate_listing_cache
+from .listing import generate_listing_model, populate_listing_cache, serialize_listing_entry
 from .logrequest import logrequest
 from .model import db, Comment, File, Fileset, Jobrun, Storage, Tag, User
 
 from .registry import load_formats, load_jobs   # noqa
-from .serializer import fileset_detail, fileset_listing, fileset_summary
+from .serializer import fileset_detail, fileset_summary
 
 
 apimanager = flask.ext.restless.APIManager()
@@ -236,7 +236,7 @@ def create_app(config_obj, **kw):
         return flask.jsonify({
             'sort': 'endtime',
             'ascending': False,
-            'rows': [fileset_listing(r) for r in filtered_fileset()]
+            'rows': [serialize_listing_entry(r) for r in filtered_fileset()]
         })
 
     @app.route('/marv/api/_fileset/<int:fileset_id>', methods=['DELETE'])

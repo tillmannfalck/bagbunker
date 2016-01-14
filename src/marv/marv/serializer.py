@@ -57,16 +57,6 @@ class Detail(Base):
     pass
 
 
-def fileset_listing(fileset):
-    return {
-        'id': fileset.id,
-        'type': fileset.type,
-        'storage_id': fileset.storage_id,
-        'columns': [x for row in (proxy(fileset) for proxy in LISTING)
-                    for x in row['columns']]
-    }
-
-
 def fileset_detail(fileset, only=None):
     return {
         'id': fileset.id,

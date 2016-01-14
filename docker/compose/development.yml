@@ -6,7 +6,6 @@ bb:
         - ${BB_DEV_LISTEN}:5000
     volumes:
         - ../..:/opt/bagbunker
-        - ../../.home:/home
     links:
         - bbdb:postgres
     environment:

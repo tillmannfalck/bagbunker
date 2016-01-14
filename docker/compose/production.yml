@@ -4,6 +4,7 @@ bb:
         service: bb
     links:
         - bbdb:postgres
+    image: docker.ternaris.com/bagbunker/bagbunker
 
 bbdb:
     extends:

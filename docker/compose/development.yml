@@ -2,6 +2,7 @@ bb:
     extends:
         file: base.yml
         service: bb
+    image: docker.ternaris.com/bagbunker-develop/bagbunker
     ports:
         - ${BB_DEV_LISTEN}:5000
     volumes:

@@ -36,7 +36,7 @@ Relations = {}
 
 class ListingColumn(object):
     def __init__(self, name, title=None, formatter='string',
-                 type=db.String, json=False, hidden=False, relation=False):
+                 type=db.String, json=False, hidden=False, relation=False, list=False):
         self.name = name
         self.title = title \
             if title is not None \
@@ -47,6 +47,7 @@ class ListingColumn(object):
         self.json = json
         self.hidden = hidden
         self.relation = relation
+        self.list = list
 
 
 class ListingCallback(object):

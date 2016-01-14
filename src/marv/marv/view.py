@@ -56,10 +56,10 @@ def fileset_size(fileset):
 @bb.listing_column('md5', title='Abbr. MD5')
 @bb.listing_column('size', formatter='size', type=db.Integer)
 @bb.listing_column('file_count', title='# files', type=db.Integer)
-@bb.listing_column('status', formatter='icon', json=True)
+@bb.listing_column('status', formatter='icon', list=True, json=True)
 @bb.listing_column('job_count', title='# jobs', type=db.Integer)
 @bb.listing_column('comment_count', title='# comments', type=db.Integer)
-@bb.listing_column('tags', formatter='pill', json=True)
+@bb.listing_column('tags', formatter='pill', list=True, json=True)
 @bb.listing_column('tags_relation', hidden=True, relation=True)
 # @bb.column('downloads', title="Download Parts", formatter='link', list=True)
 def base_listing(fileset):

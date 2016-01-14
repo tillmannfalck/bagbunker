@@ -109,6 +109,8 @@ export default Ember.Component.extend({
             if (typeof l === 'object') {
                 if (l instanceof Array) {
                     l = l.length;
+                } else if (l === null) {
+                    l = '';
                 } else {
                     l = l.title;
                 }
@@ -118,6 +120,8 @@ export default Ember.Component.extend({
             if (typeof r === 'object') {
                 if (r instanceof Array) {
                     r = r.length;
+                } else if (r === null) {
+                    r = '';
                 } else {
                     r = r.title;
                 }

@@ -8,6 +8,7 @@
     "ember-data": "^2.1.0",
     "eonasdan-bootstrap-datetimepicker": "^4.17.37",
     "jquery": "^2.1.4",
+    "moment": "^2.10.6",
     "three.js": "^0.72.0"
   }
 }

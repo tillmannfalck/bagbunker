@@ -22,33 +22,33 @@
 
 from __future__ import absolute_import, division
 
+import click
 import os
+from .site import Site
 
 
-POSTGRESQL_URI = 'postgresql://bagbunker:bagbunker@{}/bagbunker' \
-    .format(os.environ.get('POSTGRES_PORT_5432_TCP_ADDR'))
+@click.group()
+def marv():
+    pass
 
 
-class _Base(object):
-    # XXX: set to True after ugrade to 2.1 to silence warnings
-    # Needs evaluation whether False is ok for us.
-    SQLALCHEMY_TRACK_MODIFICATIONS = True
+@marv.command()
+@click.argument('directory', default=os.getcwd(),
+                type=click.Path(file_okay=False, resolve_path=True))
+def init(directory):
+    """Create a Marv site or reinitialize an existing one"""
+    site = Site.find_site(directory)
+    if not site:
+        site = Site(directory)
+    site.init_root()
 
 
-class Development(_Base):
-    DEVELOPMENT = True
-    SQLALCHEMY_DATABASE_URI = POSTGRESQL_URI
+def cli():
+    # from ipdb import launch_ipdb_on_exception
+    # with launch_ipdb_on_exception():
+    #     bagbunker(auto_envvar_prefix='MARV')
+    marv(auto_envvar_prefix='MARV')
 
 
-class Production(_Base):
-    PRODUCTION = True
-    USE_X_SENDFILE = True
-    SQLALCHEMY_DATABASE_URI = POSTGRESQL_URI
-
-
-class Testing(_Base):
-    SQLALCHEMY_ECHO = bool(os.environ.get('SQLALCHEMY_ECHO', False))
-    SQLALCHEMY_DATABASE_URI = 'sqlite://'
-    DB_SQLITE = None
-    TESTING = True
-    DB_CREATE_ALL = True
+if __name__ == '__main__':
+    cli()

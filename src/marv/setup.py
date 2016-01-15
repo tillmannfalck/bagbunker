@@ -82,4 +82,7 @@ setup(name='marv',
       tests_require=['nose'],
       install_requires=requires,
       entry_points={
+          'console_scripts': [
+              'marv = marv.cli:cli',
+          ],
       })

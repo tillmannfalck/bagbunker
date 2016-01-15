@@ -62,7 +62,8 @@ def create_app(config_obj, **kw):
     #if not os.path.exists(app.instance_path):
     #    os.makedirs(app.instance_path)
 
-    app.config['FILE_STORAGE_PATH'] = os.sep.join([app.instance_path, 'storage'])
+    app.config['FILE_STORAGE_PATH'] = os.path.join(app.instance_path, 'storage')
+    app.config['FRONTEND_PATH'] = os.path.join(app.instance_path, 'frontend', 'dist')
 
     app.config.from_object(config_obj)               # default settings
     app.config.from_pyfile('app.cfg', silent=True)   # instance-specific config

@@ -100,6 +100,11 @@ if [ -n "$BEFORE_INIT" ]; then
     fi
 fi
 
+if [ $(stat -c "%G" $MARV_INSTANCE_PATH) != "$MARV_GROUP" ]; then
+    sudo chown :$MARV_GROUP $MARV_INSTANCE_PATH
+    sudo chmod g+w $MARV_INSTANCE_PATH
+fi
+
 # Initialize packages to install system dependencies among others
 for pkg in $MARV_PKGS_DIR/*; do
     init_pkg "$pkg"
@@ -150,6 +155,16 @@ if [ -n "$AFTER_INSTALL" ]; then
 fi
 
 
+# Initialize marv instance path and build frontend
+marv init $MARV_INSTANCE_PATH
+cd $MARV_INSTANCE_PATH/frontend
+if [ ! -e dist/.built ]; then
+    bungle-ember build
+    touch dist/.built
+fi
+cd $MARV_ROOT
+
+
 if [ -z "$BB_DATA" ]; then
     echo "start.sh called during image build - done"
     exit 0
@@ -164,12 +179,6 @@ if [ -n "$POSTGRES_PORT_5432_TCP_ADDR" ]; then
         sleep 0.1
     done
     echo "Done waiting for Postgresql."
-fi
-
-# might be mounted as a volume
-if [ $(stat -c "%G" $MARV_INSTANCE_PATH) != "$MARV_GROUP" ]; then
-    sudo chown :$MARV_GROUP $MARV_INSTANCE_PATH
-    sudo chmod g+w $MARV_INSTANCE_PATH
 fi
 
 if [ ! -d "$MARV_INSTANCE_PATH/log" ]; then

@@ -58,6 +58,21 @@ RUN apt-get update && \
 
 RUN a2enmod rewrite
 
+
+# Include bagbunker init.sh for the time being
+RUN bash -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" \
+    > /etc/apt/sources.list.d/ros-latest.list'
+RUN apt-key adv --keyserver hkp://pool.sks-keyservers.net --recv-key 0xB01FA116
+RUN apt-get update && \
+    apt-get install -y \
+     ros-indigo-rosbag \
+     ros-indigo-rostest \
+     ros-indigo-common-msgs \
+     ros-indigo-cv-bridge
+RUN rosdep init
+RUN su -c "rosdep update" $MARV_USER
+
+
 # Use system-wide pip only to install virtualenv, then deactivate it
 RUN pip install --upgrade virtualenv
 RUN chmod -x $(which pip)

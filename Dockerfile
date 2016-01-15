@@ -127,6 +127,8 @@ WORKDIR $MARV_ROOT
 ENTRYPOINT ["/start.sh"]
 CMD ["apache2"]
 
+# Clean tmp
+RUN sudo rm -rf /tmp/*
 RUN sudo touch $IMAGE_TIMESTAMP
 
 # Initialize extensions

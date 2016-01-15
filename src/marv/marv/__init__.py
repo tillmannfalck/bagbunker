@@ -39,7 +39,8 @@ from . import monkeypatch as _  # noqa
 from . import view as _         # noqa
 from .filtering import filter_config, filter_query
 from .frontend import frontend
-from .listing import generate_listing_model, populate_listing_cache, serialize_listing_entry
+from .listing import (generate_listing_model, populate_listing_cache,
+                      serialize_listing_entry, get_local_listing, set_remote_listing)
 from .logrequest import logrequest
 from .model import db, Comment, File, Fileset, Jobrun, Storage, Tag, User
 
@@ -247,6 +248,17 @@ def create_app(config_obj, **kw):
     def jobrun(filename):
         jobrundir = os.path.join(app.instance_path, 'jobruns')
         return flask.send_from_directory(jobrundir, filename)
+
+    @app.route('/marv/listing', methods=['GET'])
+    def get_listing():
+        res = {}
+        res[flask.request.headers.get('Host')] = get_local_listing()
+        return flask.jsonify(res)
+
+    @app.route('/marv/listing', methods=['POST'])
+    def set_listing():
+        listing = flask.request.get_json()
+        return flask.jsonify(set_remote_listing(listing))
 
     @app.route('/marv/download/<path:md5>')
     def download(md5):

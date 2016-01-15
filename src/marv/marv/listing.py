@@ -24,7 +24,9 @@ from __future__ import absolute_import, division
 
 import json
 import re
+import os
 from collections import OrderedDict
+from flask import current_app as app
 from flask.ext.sqlalchemy import _BoundDeclarativeMeta as model_metaclass, inspect
 from .model import db, Fileset
 from ._utils import title_from_name
@@ -152,6 +154,10 @@ def populate_listing_cache():
         update_listing_entry(fileset)
     db.session.commit()
 
+    remotepath = os.path.join(app.instance_path, 'remotes')
+    for name in os.listdir(remotepath):
+        load_remote_listing(name)
+
 
 def serialize_listing_entry(entry):
     columns = [{
@@ -183,3 +189,55 @@ def serialize_listing_entry(entry):
         'storage_id': entry.storage_id,
         'columns': columns,
     }
+
+
+def get_local_listing():
+    entries = ListingEntry.query.filter(ListingEntry.remote.is_(None))
+    results = {}
+    for entry in entries:
+        results[entry.id] = result = {}
+        for callback in LISTING_CALLBACKS.values():
+            for col in callback.columns:
+                value = getattr(entry, col.name)
+                if col.relation:
+                    value = [v.value for v in value]
+                result[col.name] = value
+    return results
+
+
+def load_remote_listing(name):
+    filename = os.path.join(app.instance_path, 'remotes', name)
+    with open(filename, 'r') as f:
+        data = json.load(f)
+    ids = data.keys()
+
+    outdated = (ListingEntry.query
+                            .filter(ListingEntry.remote.isnot(None))
+                            .filter(ListingEntry.id.in_(ids)))
+
+    for o in outdated:
+        db.session.delete(o)
+    db.session.commit()
+
+    local = [l.md5 for l in ListingEntry.query.filter(ListingEntry.id.in_(ids))]
+
+    for id_, entry in data.items():
+        if entry['md5'] not in local:
+            for callback in LISTING_CALLBACKS.values():
+                for col in callback.columns:
+                    if col.relation:
+                        entry[col.name] = [Relations[col.name](value=e)
+                                           for e in entry[col.name]]
+            db.session.add(ListingEntry(id=id_, remote=name, **entry))
+
+    db.session.commit()
+    return {}
+
+
+def set_remote_listing(listing):
+    for remote, data in listing.items():
+        filename = os.path.join(app.instance_path, 'remotes', remote)
+        with open(filename, 'w') as f:
+            json.dump(data, f)
+        load_remote_listing(remote)
+    return {}

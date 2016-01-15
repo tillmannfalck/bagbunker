@@ -121,11 +121,13 @@ ALEMBIC_CONFIG = None
 
 
 @bagbunker.group()
-def admin():
+@click.pass_context
+def admin(ctx):
     """Administrative tasks"""
     global ALEMBIC_CONFIG
     from alembic import config
-    ini = os.path.join(os.path.dirname(__file__), '..', '..', '..', 'alembic.ini')
+    app = ctx.obj
+    ini = os.path.join(app.instance_path, 'alembic.ini')
     ALEMBIC_CONFIG = config.Config(ini)
 
 

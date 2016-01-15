@@ -115,3 +115,9 @@ class Site(object):
         ]))
         with open(self.template_hbs, 'wb') as f:
             f.write(template_hbs)
+
+        alembic_ini = resource_stream('marv', 'alembic.ini.in').read()
+        alembic_ini = alembic_ini.replace('ALEMBIC_LOCATION',
+                                          resource_filename('marv', 'alembic'))
+        with open(os.path.join(root, 'alembic.ini'), 'wb') as f:
+            f.write(alembic_ini)

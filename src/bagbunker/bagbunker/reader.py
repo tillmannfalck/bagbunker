@@ -28,7 +28,6 @@ from collections import OrderedDict, defaultdict
 from datetime import datetime
 from functools import partial
 from logging import getLogger
-from roslib.message import get_message_class
 from .model import Bag, BagMsgType, BagTopic, BagTopics
 
 
@@ -91,6 +90,7 @@ def http_messages(fileset, topic=(), msg_type=(), start_time=None,
     """
     import flask
     import rosbag
+    from roslib.message import get_message_class
 
     topics = {name: (topic_id, msg_type, get_message_class(msg_type)._md5sum)
               for topic_id, (name, msg_type)

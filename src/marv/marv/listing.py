@@ -154,7 +154,16 @@ def populate_listing_cache():
 
 
 def serialize_listing_entry(entry):
-    columns = []
+    columns = [{
+        'formatter': 'icon',
+        'name': 'Location',
+        'title': '',
+        'value': {
+            'icon': 'hdd',
+            'title': 'Location: {}'.format(entry.remote or 'local'),
+            'classes': 'text-warning' if entry.remote else 'text-success'
+        }
+    }]
     for callback in LISTING_CALLBACKS.values():
         for col in callback.columns:
             if not col.hidden:

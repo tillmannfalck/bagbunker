@@ -79,7 +79,7 @@ UUID_FILE = None
 @click.group()
 @loglevel_option()
 @click.option('--instance-path', type=click.Path(resolve_path=True, file_okay=False),
-              expose_value=False, callback=config_option('INSTANCE_PATH'))
+              default=os.getcwd(), expose_value=False, callback=config_option('INSTANCE_PATH'))
 @click.option('--debug/--no-debug', default=None,
               expose_value=False, callback=config_option('DEBUG'))
 @click.option('--echo-sql/--no-echo-sql', default=None,

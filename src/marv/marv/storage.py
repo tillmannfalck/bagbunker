@@ -35,19 +35,24 @@ from .scanner import SCANNER, scan
 
 
 class Storage(object):
-    def __init__(self, uuid, reader=None, scanner=None):
+    def __init__(self, reader=None, scanner=None):
         self.reader = READER if reader is None else reader
         self.scanner = SCANNER if scanner is None else scanner
-        instance = self.instance = _Storage.query.filter_by(uuid=uuid).first()
-        if instance is None:
-            raise ValueError("Unknown storage {}".format(uuid))
+        # XXX: we probably can get rid of model.Storage as we do not
+        # need it for sync anymore
+        storages = _Storage.query.all()
+        assert len(storages) <= 1
+        if storages:
+            self.instance = storages[0]
+        else:
+            raise ValueError('No storage defined')
 
     @classmethod
     def new_storage(cls, reader=None, scanner=None):
         uuid = str(uuid4())
         db.session.add(_Storage(uuid=uuid))
         db.session.commit()
-        return cls(uuid=uuid, reader=reader, scanner=scanner)
+        return cls(reader=reader, scanner=scanner)
 
     @property
     def filesets(self):

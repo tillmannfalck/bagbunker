@@ -73,7 +73,6 @@ def read_config(path):
 
 
 STORAGE = None
-UUID_FILE = None
 
 
 @click.group()
@@ -103,12 +102,11 @@ def bagbunker(ctx, config, loglevel):
     app_context.push()
     ctx.call_on_close(partial(release_local, _job_ctx_stack))
 
-    global UUID_FILE, STORAGE
-    UUID_FILE = os.path.join(app.instance_path, 'storage', '.uuid')
+    global STORAGE
     try:
-        with open(UUID_FILE, 'rb') as f:
-            uuid = f.read(36)
-        STORAGE = Storage(uuid=uuid)
+        STORAGE = Storage()
+    except AssertionError:
+        raise
     except:
         db.session.rollback()
 
@@ -157,6 +155,7 @@ def checkdb(ctx, quiet):
 @click.pass_context
 def initdb(ctx):
     """Initialize database, dropping all tables"""
+    global STORAGE
     app = ctx.obj
     if STORAGE:
         ctx.fail("Database already initialized.")
@@ -167,9 +166,7 @@ def initdb(ctx):
         from alembic import command
         command.stamp(ALEMBIC_CONFIG, 'head')
 
-    uuid = Storage.new_storage().uuid
-    with open(UUID_FILE, 'wb') as f:
-        f.write(uuid)
+    STORAGE = Storage.new_storage()
 
 
 # @admin.command('purge-jobruns')

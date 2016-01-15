@@ -125,3 +125,10 @@ class Site(object):
                                           resource_filename('marv', 'alembic'))
         with open(os.path.join(root, 'alembic.ini'), 'wb') as f:
             f.write(alembic_ini)
+
+        # remove old storage folder and .uuid file
+        uuidfile = os.path.join(self.root, 'storage', '.uuid')
+        if os.path.exists(uuidfile):
+            os.unlink(uuidfile)
+        if os.path.exists(os.path.dirname(uuidfile)):
+            os.rmdir(os.path.dirname(uuidfile))

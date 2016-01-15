@@ -196,8 +196,8 @@ sudo chmod 640 $MARV_INSTANCE_PATH/users.txt
 
 
 # Permission fixes for 65533 migration
-sudo mkdir -p $MARV_INSTANCE_PATH/{jobruns,storage}
-sudo chown -R $MARV_USER:$MARV_GROUP $MARV_INSTANCE_PATH/{jobruns,storage}
+sudo mkdir -p $MARV_INSTANCE_PATH/jobruns
+sudo chown -R $MARV_USER:$MARV_GROUP $MARV_INSTANCE_PATH/jobruns
 
 
 set +e

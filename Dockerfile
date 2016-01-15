@@ -77,6 +77,23 @@ RUN su -c "rosdep update" $MARV_USER
 RUN pip install --upgrade virtualenv
 RUN chmod -x $(which pip)
 
+
+# Image contains virtualenv - env.sh code only if mounted as volume
+COPY src/marv/requirements.txt /requirements/req-marv.txt
+COPY src/bagbunker/requirements.txt /requirements/req-bagbunker.txt
+COPY src/deepfield_jobs/requirements.txt /requirements/req-deepfield.txt
+ENV VENV /opt/bagbunker-venv
+ENV STATE_DIR $VENV/.state
+RUN mkdir -p $VENV $STATE_DIR && \
+    chown -R $MARV_USER:$MARV_GROUP $VENV $STATE_DIR && \
+    chmod -R g+w $VENV $STATE_DIR
+RUN su -c "virtualenv --system-site-packages -p python2.7 $VENV" $MARV_USER
+RUN su -c "$VENV/bin/pip install --upgrade 'pip-tools>=1.4.2'" $MARV_USER
+RUN su -c "$VENV/bin/pip install --upgrade https://github.com/ternaris/flask-restless/archive/0.17.0-45-fix.tar.gz" $MARV_USER
+RUN su -c "source $VENV/bin/activate && pip-sync /requirements/req-*.txt" $MARV_USER
+RUN su -c "touch $STATE_DIR/pip-tools $STATE_DIR/venv" $MARV_USER
+
+
 RUN cd /opt && curl https://nodejs.org/dist/v5.2.0/node-v5.2.0-linux-x64.tar.gz |tar xz
 RUN cd /usr/local/bin && ln -s /opt/node-v*/bin/node && ln -s /opt/node-v*/bin/npm
 RUN node -v && npm -v

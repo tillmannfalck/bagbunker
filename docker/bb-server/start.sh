@@ -5,12 +5,8 @@ test -n "$DEBUG_START_SH" && set -x
 # For further variables see env.sh and Dockerfile
 COMBINED_REQTXT="$STATE_DIR/requirements.txt"
 
-# Install and setup pip-tools and dependencies
+# Install pip-tools
 if [ ! -f "$STATE_DIR/pip-tools" ]; then
-    # XXX: shall we pin these?
-    pip install --upgrade pip
-    pip install --upgrade setuptools
-    pip install --upgrade wheel
     pip install --upgrade 'pip-tools>=1.4.2'
     touch $STATE_DIR/pip-tools
 fi

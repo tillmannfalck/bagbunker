@@ -3,6 +3,7 @@
 #!.git
 #!docker
 #!Dockerfile
+#!src/*/requirements.txt
 
 #*#
 *.egg-info
@@ -35,6 +36,5 @@ pysqlite2-doc
 scripts
 setup.cfg
 share
-src
 users.txt
 var

@@ -9,8 +9,6 @@ if [ -z "$CENV" ]; then
     export PGPASSWORD=bagbunker
 
     export MARV_PKGS_DIR="$MARV_ROOT/src"
-    export VENV="$MARV_ROOT/.venv"
-    export STATE_DIR="$VENV/.state"
 
     # Python's urllib does not like these variables, if they are empty
     test -z "$http_proxy" && unset http_proxy
@@ -27,11 +25,11 @@ if [ -z "$CENV" ]; then
     if [ -f "$STATE_DIR/venv" ] && [ "$IMAGE_TIMESTAMP" -nt "$STATE_DIR/venv" ]; then
         echo "Invalidating outdated venv..."
         rm -f $STATE_DIR/*
-        rm -f $VENV/bin/*
+        rm -fR $VENV/bin $VENV/lib
         echo "Done invalidating outdated venv."
     fi
 
-    # Create virtual env
+    # Create virtual env if it is mounted as volume
     if [ ! -f "$STATE_DIR/venv" ]; then
         echo "Creating venv..."
         sudo mkdir -p $VENV $STATE_DIR

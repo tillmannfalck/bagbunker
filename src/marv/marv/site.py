@@ -84,6 +84,10 @@ class Site(object):
         if not os.path.exists(dotmarv):
             open(dotmarv, 'wb').close()
 
+        warning = os.path.join(root, 'FOR_NOW_MANUAL_CHANGES_WILL_BE_OVERWRITTEN')
+        if not os.path.exists(warning):
+            open(warning, 'wb').close()
+
         for name in ('frontend',
                      os.path.join('frontend', 'app'),
                      os.path.dirname(self.template_hbs),

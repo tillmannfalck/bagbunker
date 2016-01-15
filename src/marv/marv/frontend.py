@@ -23,18 +23,28 @@
 from __future__ import absolute_import, division
 
 import flask
+import pkg_resources
 
 
 frontend = flask.Blueprint('frontend', __name__)
 
 
-# ATTENTION: This list needs to include all frontend routes
-# see ../frontend/app/router.js
-# ATTENTION: routes producing the same variables would trigger redirects
-@frontend.route('/', defaults={'path': 'index.html', 'foo': 1, 'bar': 1})
-@frontend.route('/<path:path>', defaults={'foo': 2, 'bar': 2})
-@frontend.route('/bagbunker', defaults={'path': 'index.html', 'foo': 3, 'bar': 3})
-@frontend.route('/bagbunker/<path:foo>', defaults={'path': 'index.html', 'bar': 4})
+# ATTENTION: routes producing the same variables would trigger redirects,
+# setting foo/bar is a hack to prevent this
+@frontend.route('/', defaults={'path': 'index.html', 'foo': -1, 'bar': -1})
+@frontend.route('/<path:path>', defaults={'foo': -2, 'bar': -2})
 def frontend_routes(path, foo, bar):
     """Serve frontend - our static files"""
     return flask.send_from_directory(flask.current_app.config['FRONTEND_PATH'], path)
+
+
+i = 0
+for ep in pkg_resources.iter_entry_points(group='marv_frontends'):
+    deco1 = frontend.route('/{}'.format(ep.name),
+                           defaults={'path': 'index.html', 'foo': i, 'bar': i})
+    i += 1
+    deco2 = frontend.route('/{}/<path:foo>'.format(ep.name),
+                           defaults={'path': 'index.html', 'bar': i})
+    i += 1
+    frontend_routes = deco1(frontend_routes)
+    frontend_routes = deco2(frontend_routes)

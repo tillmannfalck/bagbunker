@@ -74,4 +74,7 @@ setup(name='bagbunker',
           'marv_formats': [
               'bag = bagbunker',
           ],
+          'marv_frontends': [
+              'bagbunker = bagbunker',
+          ],
       })

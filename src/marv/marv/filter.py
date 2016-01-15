@@ -38,7 +38,7 @@ def filter_name(query, ListingEntry, name):
 @bb.filter()
 @bb.filter_input('md5', title='MD5', operators=['startswith'])
 def filter_md5(query, ListingEntry, md5):
-    return query.filter(ListingEntry.md5.like(md5.val+'%'))
+    return query.filter(ListingEntry.id.like(md5.val+'%'))
 
 
 @bb.filter()

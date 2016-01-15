@@ -83,7 +83,7 @@ COPY src/marv/requirements.txt /requirements/req-marv.txt
 COPY src/bagbunker/requirements.txt /requirements/req-bagbunker.txt
 COPY src/deepfield_jobs/requirements.txt /requirements/req-deepfield.txt
 ENV VENV /opt/bagbunker-venv
-ENV PIP_FIND_LINKS https://ternaris.com/pypi
+ENV PIP_FIND_LINKS https://ternaris.com/pypi https://ternaris.com/wheels
 ENV STATE_DIR $VENV/.state
 RUN mkdir -p $VENV $STATE_DIR && \
     chown -R $MARV_USER:$MARV_GROUP $VENV $STATE_DIR && \

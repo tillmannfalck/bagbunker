@@ -52,6 +52,9 @@ def fileset_size(fileset):
 
 
 @bb.listing()
+@bb.listing_column('fid', hidden=True)
+@bb.listing_column('type', hidden=True)
+@bb.listing_column('storage_id', hidden=True)
 @bb.listing_column('name', formatter='route', json=True)
 @bb.listing_column('md5', title='Abbr. MD5')
 @bb.listing_column('size', formatter='size', type=db.Integer)
@@ -59,6 +62,7 @@ def fileset_size(fileset):
 @bb.listing_column('status', formatter='icon', list=True, json=True)
 @bb.listing_column('job_count', title='# jobs', type=db.Integer)
 @bb.listing_column('comment_count', title='# comments', type=db.Integer)
+@bb.listing_column('comments_relation', hidden=True, relation=True)
 @bb.listing_column('tags', formatter='pill', list=True, json=True)
 @bb.listing_column('tags_relation', hidden=True, relation=True)
 # @bb.column('downloads', title="Download Parts", formatter='link', list=True)
@@ -94,6 +98,9 @@ def base_listing(fileset):
             'classes': 'text-danger',
         })
     return {
+        'fid': fileset.id,
+        'type': fileset.type,
+        'storage_id': fileset.storage_id,
         'name': json.dumps({'route': 'bagbunker.detail', 'id': md5, 'title': fileset.name}),
         'md5': md5[:7],
         'size': size,
@@ -103,6 +110,7 @@ def base_listing(fileset):
         'file_count': len(fileset.files),
         'job_count': len(fileset.jobruns),
         'comment_count': len(fileset.comments),
+        'comments_relation': [c.text for c in fileset.comments],
         # 'downloads': [
         #     {'href': '/marv/download/{}'.format(md5),
         #      'title': md5[:7]}

@@ -25,7 +25,7 @@ from __future__ import absolute_import, division
 import json
 import re
 from collections import OrderedDict
-from flask.ext.sqlalchemy import _BoundDeclarativeMeta as model_metaclass
+from flask.ext.sqlalchemy import _BoundDeclarativeMeta as model_metaclass, inspect
 from .model import db, Fileset
 from ._utils import title_from_name
 
@@ -33,6 +33,14 @@ from ._utils import title_from_name
 LISTING_CALLBACKS = OrderedDict()
 ListingEntry = None
 Relations = {}
+
+
+def related_model(name):
+    return Relations[name]
+
+
+def related_field(name):
+    return Relations[name].value
 
 
 class ListingColumn(object):
@@ -145,8 +153,7 @@ def populate_listing_cache():
     db.session.commit()
 
 
-def serialize_listing_entry(fileset):
-    entry = ListingEntry.query.get(fileset.md5)
+def serialize_listing_entry(entry):
     columns = []
     for callback in LISTING_CALLBACKS.values():
         for col in callback.columns:
@@ -162,8 +169,8 @@ def serialize_listing_entry(fileset):
                     'value': value,
                 })
     return {
-        'id': fileset.id,
-        'type': fileset.type,
-        'storage_id': fileset.storage_id,
+        'id': entry.fid,
+        'type': entry.type,
+        'storage_id': entry.storage_id,
         'columns': columns,
     }

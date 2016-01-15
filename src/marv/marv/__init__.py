@@ -217,19 +217,14 @@ def create_app(config_obj, **kw):
         except ValueError:
             return flask.abort(400)
 
-        return filter_query(db.session.query(Fileset)
-                            .filter(Fileset.type =='bag')
-                            .filter(Fileset.deleted.op('IS NOT')(True))
-                            .options(db.subqueryload(Fileset.files))
-                            .options(db.subqueryload(Fileset.tags))
-                            .options(db.subqueryload(Fileset.comments))
-                            .options(db.subqueryload(Fileset.bag))   # XXX: hack
-                            .options(db.subqueryload(Fileset.jobruns)),
-                            filters).group_by(Fileset.id)  # XXX: Is the group_by needed?
+        return filter_query(db.session.query(ListingEntry), filters)
 
     @app.route('/marv/api/_fileset-summary')
     def fileset_summary_route():
-        return flask.jsonify(fileset_summary(filtered_fileset()))
+        entries = filtered_fileset()
+        ids = [e.fid for e in entries]
+        entries = db.session.query(Fileset).filter(Fileset.id.in_(ids))
+        return flask.jsonify(fileset_summary(entries))
 
     @app.route('/marv/api/_fileset-listing')
     def fileset_listing_route():

@@ -1,6 +1,9 @@
 Getting started
 ===============
 
+This document describes the setup using docker. For manual installation instructions without docker see `Manual Setup <./doc/manual-setup.rst>`_.
+
+
 Using a proxy
 -------------
 

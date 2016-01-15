@@ -34,7 +34,7 @@ class _Base(object):
     # Needs evaluation whether False is ok for us.
     SQLALCHEMY_TRACK_MODIFICATIONS = True
     FRONTEND_PATH = os.path.abspath(os.path.join(
-        os.path.dirname(__file__), '..', 'frontend', 'dist'))
+        os.path.dirname(__file__), 'frontend', 'dist'))
 
 
 class Development(_Base):

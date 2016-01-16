@@ -126,6 +126,9 @@ class Site(object):
         with open(os.path.join(root, 'alembic.ini'), 'wb') as f:
             f.write(alembic_ini)
 
+        shutil.copy(resource_filename('marv', 'matplotlibrc.in'),
+                    os.path.join(root, 'matplotlibrc'))
+
         # remove old storage folder and .uuid file
         uuidfile = os.path.join(self.root, 'storage', '.uuid')
         if os.path.exists(uuidfile):

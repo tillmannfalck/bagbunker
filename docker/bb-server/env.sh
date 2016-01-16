@@ -7,7 +7,7 @@ if [ -z "$CENV" ]; then
     export PGHOSTADDR=$POSTGRES_PORT_5432_TCP_ADDR
     export PGUSER=bagbunker
     export PGPASSWORD=bagbunker
-
+    export MATPLOTLIBRC=$MARV_INSTANCE_PATH
     export MARV_PKGS_DIR="$MARV_ROOT/src"
 
     # Python's urllib does not like these variables, if they are empty

@@ -129,6 +129,15 @@ class Site(object):
         shutil.copy(resource_filename('marv', 'matplotlibrc.in'),
                     os.path.join(root, 'matplotlibrc'))
 
+        shutil.copy(resource_filename('marv', 'bb.wsgi.in'),
+                    os.path.join(root, 'bb.wsgi'))
+
+        venv = os.environ['MARV_VENV']
+        assert venv
+        venv_link = os.path.join(root, 'venv')
+        if not os.path.exists(venv_link):
+            os.symlink(venv, venv_link)
+
         # remove old storage folder and .uuid file
         uuidfile = os.path.join(self.root, 'storage', '.uuid')
         if os.path.exists(uuidfile):

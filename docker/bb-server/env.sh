@@ -9,6 +9,7 @@ if [ -z "$CENV" ]; then
     export PGPASSWORD=bagbunker
     export MATPLOTLIBRC=$MARV_INSTANCE_PATH
     export MARV_PKGS_DIR="$MARV_ROOT/src"
+    export MARV_VENV=$VENV   # used so far by bb.wsgi
 
     # Python's urllib does not like these variables, if they are empty
     test -z "$http_proxy" && unset http_proxy

@@ -140,7 +140,8 @@ def update_listing_entry(fileset):
         for col in callback.columns:
             value = dct.get(col.name)
             if col.relation:
-                assert value is not None
+                if value is None:
+                    value = []
                 Relation = Relations[col.name]
                 value = [Relation(value=x) for x in value]
             entry_dict[col.name] = value

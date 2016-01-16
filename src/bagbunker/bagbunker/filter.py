@@ -24,40 +24,32 @@ from __future__ import absolute_import, division
 
 from marv import bb
 from marv.filtering import comparisons, compare
-from marv.model import Fileset
-from sqlalchemy import extract
-from .model import Bag, BagMsgType, BagTopic, BagTopics
+from marv.listing import related_field
 from .view import dt_from_timestamp
 
 
 @bb.filter()
 @bb.filter_input('num', title='Starttime', operators=comparisons,
                  value_type='date')
-def filter_starttime(query, num):
-    val = dt_from_timestamp(int(num.val) / 1000)
-    return query \
-        .join(Bag, Fileset.bag) \
-        .filter(compare(Bag.starttime, num.op, val))
+def filter_starttime(query, ListingEntry, num):
+    val = dt_from_timestamp(int(num.val) / 1000).isoformat()
+    return query.filter(compare(ListingEntry.starttime, num.op, val))
 
 
 @bb.filter()
 @bb.filter_input('num', title='Endtime',
                  operators=['<=', '<', '==', '!=', '>', '>='],
                  value_type='date')
-def filter_endtime(query, num):
-    val = dt_from_timestamp(int(num.val) / 1000)
-    return query \
-        .join(Bag, Fileset.bag) \
-        .filter(compare(Bag.endtime, num.op, val))
+def filter_endtime(query, ListingEntry, num):
+    val = dt_from_timestamp(int(num.val) / 1000).isoformat()
+    return query.filter(compare(ListingEntry.endtime, num.op, val))
 
 
 @bb.filter()
 @bb.filter_input('num', title='Duration', operators=comparisons,
                  value_type='float')
-def filter_duration(query, num):
-    return query \
-        .join(Bag, Fileset.bag) \
-        .filter(compare(extract('epoch', Bag.duration), num.op, int(num.val)))
+def filter_duration(query, ListingEntry, num):
+    return query.filter(compare(ListingEntry.duration, num.op, int(num.val)))
 
 
 # @bb.filter()
@@ -82,21 +74,13 @@ def filter_duration(query, num):
 
 @bb.filter()
 @bb.filter_input('msgtype', title='Message type', operators=['substring'])
-def filter_msgtypes_matching(query, msgtype):
-    sq = query \
-        .join(Bag, Fileset.bag) \
-        .join(BagTopics) \
-        .join(BagMsgType) \
-        .filter(BagMsgType.name.like('%{}%'.format(msgtype.val))).subquery()
-    return query.join(sq, Fileset.id == sq.c.id)
+def filter_msgtypes_matching(query, ListingEntry, msgtype):
+    field = related_field('msgtypes')
+    return query.filter(ListingEntry.msgtypes.any(field.contains(msgtype.val)))
 
 
 @bb.filter()
 @bb.filter_input('topic', title='Topic', operators=['substring'])
-def filter_topics_matching(query, topic):
-    sq = query \
-        .join(Bag, Fileset.bag) \
-        .join(BagTopics) \
-        .join(BagTopic) \
-        .filter(BagTopic.name.like('%{}%'.format(topic.val))).subquery()
-    return query.join(sq, Fileset.id == sq.c.id)
+def filter_topics_matching(query, ListingEntry, topic):
+    field = related_field('topics')
+    return query.filter(ListingEntry.topics.any(field.contains(topic.val)))

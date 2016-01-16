@@ -25,38 +25,34 @@ from __future__ import absolute_import, division
 from itertools import chain
 from . import bb
 from .filtering import COMPARISON_OPS, compare
-from .model import db, Comment, File, Fileset, Tag
+from .listing import related_field
+from .model import db, Tag
 
 
 @bb.filter()
 @bb.filter_input('name', operators=['substring'])
-def filter_name(query, name):
-    return query.filter(Fileset.name.like('%'+name.val+'%'))
+def filter_name(query, ListingEntry, name):
+    return query.filter(ListingEntry.name.like('%'+name.val+'%'))
 
 
 @bb.filter()
 @bb.filter_input('md5', title='MD5', operators=['startswith'])
-def filter_md5(query, md5):
-    return query.filter(Fileset.md5.like(md5.val+'%'))
+def filter_md5(query, ListingEntry, md5):
+    return query.filter(ListingEntry.id.like(md5.val+'%'))
 
 
 @bb.filter()
 @bb.filter_input('size', operators=COMPARISON_OPS, value_type='filesize')
-def filter_size(query, size):
-    sq = db.session.query(Fileset.id) \
-                   .filter(Fileset.deleted.isnot(True))\
-                   .join(File, Fileset.files) \
-                   .group_by(Fileset.id) \
-                   .having(compare(db.func.sum(File.size), size.op, size.val)) \
-                   .subquery()
-    return query.join(sq, Fileset.id == sq.c.id)
+def filter_size(query, ListingEntry, size):
+    return query.filter(compare(ListingEntry.size, size.op, size.val))
 
 
 @bb.filter()
 @bb.filter_input('comment', title='Comment', operators=['substring'])
-def filter_comment(query, comment):
+def filter_comment(query, ListingEntry, comment):
+    field = related_field('comments_relation')
     return query \
-        .filter(Fileset.comments.any(Comment.text.like('%'+comment.val+'%')))
+        .filter(ListingEntry.comments_relation.any(field.contains(comment.val)))
 
 
 @bb.filter()
@@ -66,12 +62,8 @@ def filter_comment(query, comment):
                  value_type='sublist',
                  constraints=lambda: sorted(list(
                      chain.from_iterable(db.session.query(Tag.label)))))
-def filter_tag(query, tags):
-    sq = query \
-        .join(Tag, Fileset.tags) \
-        .filter(Tag.label.in_(tags.val)) \
-        .group_by(Fileset.id) \
-        .having(db.func.count(Fileset.id) == len(tags.val)) \
-        .subquery()
-    return query \
-        .join(sq, Fileset.id == sq.c.id)
+def filter_tag(query, ListingEntry, tags):
+    field = related_field('tags_relation')
+    for val in tags.val:
+        query = query.filter(ListingEntry.tags_relation.any(field == val))
+    return query

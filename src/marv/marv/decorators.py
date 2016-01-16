@@ -28,9 +28,10 @@ from flask.ext.sqlalchemy import _BoundDeclarativeMeta as model_metaclass
 
 from .model import db
 from .filtering import FILTER, Filter, FilterInput
+from .listing import ListingColumn
 from .registry import MODULE_NAME_MAP
-from .serializer import Detail, Listing, Summary
-from .serializer import DETAIL, LISTING, SUMMARY
+from .serializer import Detail, Summary
+from .serializer import DETAIL, SUMMARY
 from .widget import C3, Column, Image, Gallery, Row, Text, Table, Widget
 
 
@@ -109,16 +110,6 @@ def detail(namespace=None, name=None, cls=Detail, **kw):
     def decorator(widget):
         serializer = cls(namespace, name, widget, **kw)
         DETAIL.append(serializer)
-        return serializer
-    return decorator
-
-
-def listing(namespace=None, name=None, cls=Listing, **kw):
-    """Turn callback into table widget and register as listing serializer"""
-    def decorator(f):
-        widget = row_widget(name)(f)
-        serializer = cls(namespace, name, widget, **kw)
-        LISTING.append(serializer)
         return serializer
     return decorator
 
@@ -232,6 +223,16 @@ def column(*args, **kw):
         if 'help' in kw:
             kw['help'] = inspect.cleandoc(kw['help'])
         cls = kw.pop('cls', Column)
+        _param_memo(f, cls(*args, **kw))
+        return f
+    return decorator
+
+
+def listing_column(*args, **kw):
+    def decorator(f):
+        if 'help' in kw:
+            kw['help'] = inspect.cleandoc(kw['help'])
+        cls = kw.pop('cls', ListingColumn)
         _param_memo(f, cls(*args, **kw))
         return f
     return decorator

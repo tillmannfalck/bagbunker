@@ -48,9 +48,11 @@ def dt_from_timestamp(timestamp):
 
 
 @bb.listing()
-@bb.column('starttime', formatter='date')
-@bb.column('endtime', formatter='date')
-@bb.column('duration (s)', formatter='float')
+@bb.listing_column('starttime', formatter='date')
+@bb.listing_column('endtime', formatter='date')
+@bb.listing_column('duration', title='duration (s)', formatter='float')
+@bb.listing_column('msgtypes', hidden=True, relation=True)
+@bb.listing_column('topics', hidden=True, relation=True)
 def listing(fileset):
     bag = fileset.bag
     if not bag:
@@ -59,7 +61,9 @@ def listing(fileset):
         # XXX: investigate why isoformat is not standard anymore
         'starttime': bag.starttime.isoformat(),
         'endtime': bag.endtime.isoformat(),
-        'duration (s)': bag.duration.total_seconds(),
+        'duration': bag.duration.total_seconds(),
+        'msgtypes': [t.msg_type.name for t in bag.topics],
+        'topics': [t.topic.name for t in bag.topics],
     }
 
 

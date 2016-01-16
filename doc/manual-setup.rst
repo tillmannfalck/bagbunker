@@ -14,6 +14,7 @@ Install frontend tooling
 ------------------------
 
 ::
+
    % cd
    % curl https://ternaris.com/bngl.tar.gz |tar xz
    % cd bngl/bungle-ember && npm install
@@ -25,6 +26,7 @@ Create virtualenv and install python packages
 ---------------------------------------------
 
 ::
+
    % export PIP_FIND_LINKS=https://ternaris.com/pypi
    % cd bagbunker
    % virtualenv -p python2.7 .
@@ -42,6 +44,7 @@ Create Marv site and build frontend
 -----------------------------------
 
 ::
+
    % marv init /path/to/your/site
    % cd /path/to/your/site/frontend
    % bungle-ember build
@@ -51,6 +54,7 @@ Initialize database
 -------------------
 
 ::
+
    % cd /path/to/your/site
    % bagbunker admin initdb
 
@@ -59,6 +63,7 @@ Start bagbunker's development webserver
 ---------------------------------------
 
 ::
+
    % cd /path/to/your/site
    % bagbunker webserver
 

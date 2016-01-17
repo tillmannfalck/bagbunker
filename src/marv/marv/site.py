@@ -50,6 +50,24 @@ ROW_TEMPLATE = """\
 """
 
 
+INDEX_HTML="""
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Marv</title>
+
+    <base href="/" />
+
+  </head>
+  <body>
+    <p>The frontend has not been built</p>
+  </body>
+</html>
+"""
+
+
 class Site(object):
     """A Marv site"""
     def __init__(self, root):
@@ -65,6 +83,9 @@ class Site(object):
 
         self.frontend = os.path.join(self.root, 'frontend')
         """Absolute path to site frontend folder"""
+
+        self.frontend_dist = os.path.join(self.frontend, 'dist')
+        """Absolute path to site frontend dist folder"""
 
         self.bejson = os.path.join(self.frontend, 'be.json')
         """Absolute path to generated be.json"""
@@ -92,6 +113,7 @@ class Site(object):
         for directory in (root,  # explicitly create root dir
                           self.marv_dir,
                           self.remotes_dir,
+                          self.frontend_dist,
                           os.path.dirname(self.bejson),
                           os.path.dirname(self.template_hbs)):
             if not os.path.exists(directory):
@@ -101,6 +123,11 @@ class Site(object):
         warning = os.path.join(root, 'FOR_NOW_MANUAL_CHANGES_WILL_BE_OVERWRITTEN')
         if not os.path.exists(warning):
             open(warning, 'wb').close()
+
+        index_html = os.path.join(self.frontend_dist, 'index.html')
+        if not os.path.exists(index_html):
+            with open(index_html, 'wb') as f:
+                f.write(INDEX_HTML)
 
         shutil.copy(os.path.join(self.marv_frontend, 'bower.json.in'),
                     os.path.join(self.frontend, 'bower.json'))

@@ -154,7 +154,7 @@ fi
 # Initialize marv instance path and build frontend
 marv init $MARV_INSTANCE_PATH
 cd $MARV_INSTANCE_PATH/frontend
-if [ ! -e dist/.built ]; then
+if [ ! -e dist/.built ] || [ "$IMAGE_TIMESTAMP" -nt dist/.built ]; then
     bungle-ember build
     touch dist/.built
 fi

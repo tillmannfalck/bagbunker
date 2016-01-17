@@ -5,11 +5,11 @@ test -n "$DEBUG_START_SH" && set -x
 # For further variables see env.sh and Dockerfile
 COMBINED_REQTXT="$STATE_DIR/requirements.txt"
 
-# Install pip-tools
-if [ ! -f "$STATE_DIR/pip-tools" ]; then
-    pip install --upgrade 'pip-tools>=1.4.2'
-    touch $STATE_DIR/pip-tools
-fi
+# # Install pip-tools
+# if [ ! -f "$STATE_DIR/pip-tools" ]; then
+#     pip install --upgrade 'pip-tools>=1.4.2'
+#     touch $STATE_DIR/pip-tools
+# fi
 
 check_retcode() {
     if [ "$RETCODE" != "0" ]; then
@@ -114,33 +114,33 @@ if [ -n "$BEFORE_REQ_INSTALL" ]; then
     fi
 fi
 
-# concatenate all requirements.txt and synchronize virtualenv
-NEEDS_SYNC=
-for reqtxt in $MARV_PKGS_DIR/*/requirements.txt; do
-    if [ "$reqtxt" -nt $COMBINED_REQTXT ]; then
-        NEEDS_SYNC=1
-        echo "Sync needed for $reqtxt"
-    fi
-done
-if [ -n "$NEEDS_SYNC" ]; then
-    cat $MARV_PKGS_DIR/*/requirements.txt |grep -v '^#' |cut -d' ' -f1 |sort -u > $COMBINED_REQTXT
+# # concatenate all requirements.txt and synchronize virtualenv
+# NEEDS_SYNC=
+# for reqtxt in $MARV_PKGS_DIR/*/requirements.txt; do
+#     if [ "$reqtxt" -nt $COMBINED_REQTXT ]; then
+#         NEEDS_SYNC=1
+#         echo "Sync needed for $reqtxt"
+#     fi
+# done
+# if [ -n "$NEEDS_SYNC" ]; then
+#     cat $MARV_PKGS_DIR/*/requirements.txt |grep -v '^#' |cut -d' ' -f1 |sort -u > $COMBINED_REQTXT
 
-    echo "Syncing venv..."
-    pip-sync $COMBINED_REQTXT
-    # XXX: pip-sync currently uninstalls them
-    for pkg in "$MARV_PKGS_DIR"/*; do
-        rm -f $STATE_DIR/"$(basename "$pkg")"-installed
-    done
-    echo "Done syncing venv."
-fi
+#     echo "Syncing venv..."
+#     pip-sync $COMBINED_REQTXT
+#     # XXX: pip-sync currently uninstalls them
+#     for pkg in "$MARV_PKGS_DIR"/*; do
+#         rm -f $STATE_DIR/"$(basename "$pkg")"-installed
+#     done
+#     echo "Done syncing venv."
+# fi
 
-# Install python packages in development
-install_pkg "$MARV_PKGS_DIR/marv"
-for pkg in "$MARV_PKGS_DIR"/*; do
-    if [ "$(basename "$pkg")" != "marv" ]; then
-        install_pkg "$pkg"
-    fi
-done
+# # Install python packages in development
+# install_pkg "$MARV_PKGS_DIR/marv"
+# for pkg in "$MARV_PKGS_DIR"/*; do
+#     if [ "$(basename "$pkg")" != "marv" ]; then
+#         install_pkg "$pkg"
+#     fi
+# done
 
 if [ -n "$AFTER_INSTALL" ]; then
     if [ "$1" = "apache2" ]; then

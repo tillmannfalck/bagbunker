@@ -113,6 +113,10 @@ RUN mkdir -p $MARV_ROOT && \
 RUN touch $MARV_ROOT_INSIDE_CONTAINER
 RUN chown -R $MARV_USER:$MARV_GROUP $MARV_ROOT
 
+RUN su -c "$VENV/bin/pip install -e $MARV_ROOT/src/marv" $MARV_USER
+RUN su -c "$VENV/bin/pip install -e $MARV_ROOT/src/bagbunker" $MARV_USER
+RUN su -c "$VENV/bin/pip install -e $MARV_ROOT/src/deepfield_jobs" $MARV_USER
+
 COPY docker/bb-server/000-default.conf /etc/apache2/sites-available/
 COPY docker/bb-server/env.sh /
 RUN echo '. /env.sh' >> /etc/bash.bashrc

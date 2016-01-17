@@ -15,31 +15,31 @@ if [ -z "$CENV" ]; then
     test -z "$http_proxy" && unset http_proxy
     test -z "$https_proxy" && unset https_proxy
 
-    # If /home is coming via volume, $HOME might not exist, yet.
-    if [ ! -d "$HOME" ]; then
-        sudo mkdir -p $HOME
-        sudo chown $MARV_USER:$MARV_GROUP $HOME
-        sudo chmod 775 $HOME
-    fi
+    # # If /home is coming via volume, $HOME might not exist, yet.
+    # if [ ! -d "$HOME" ]; then
+    #     sudo mkdir -p $HOME
+    #     sudo chown $MARV_USER:$MARV_GROUP $HOME
+    #     sudo chmod 775 $HOME
+    # fi
 
-    # Invalidate state and venv if docker image is newer than venv
-    if [ -f "$STATE_DIR/venv" ] && [ "$IMAGE_TIMESTAMP" -nt "$STATE_DIR/venv" ]; then
-        echo "Invalidating outdated venv..."
-        rm -f $STATE_DIR/*
-        rm -fR $VENV/bin $VENV/lib
-        echo "Done invalidating outdated venv."
-    fi
+    # # Invalidate state and venv if docker image is newer than venv
+    # if [ -f "$STATE_DIR/venv" ] && [ "$IMAGE_TIMESTAMP" -nt "$STATE_DIR/venv" ]; then
+    #     echo "Invalidating outdated venv..."
+    #     rm -f $STATE_DIR/*
+    #     rm -fR $VENV/bin $VENV/lib
+    #     echo "Done invalidating outdated venv."
+    # fi
 
-    # Create virtual env if it is mounted as volume
-    if [ ! -f "$STATE_DIR/venv" ]; then
-        echo "Creating venv..."
-        sudo mkdir -p $VENV $STATE_DIR
-        sudo chown -R :$MARV_GROUP $VENV $STATE_DIR
-        sudo chmod -R g+w $VENV $STATE_DIR
-        virtualenv --system-site-packages -p python2.7 $VENV
-        touch $STATE_DIR/venv
-        echo "Done creating venv."
-    fi
+    # # Create virtual env if it is mounted as volume
+    # if [ ! -f "$STATE_DIR/venv" ]; then
+    #     echo "Creating venv..."
+    #     sudo mkdir -p $VENV $STATE_DIR
+    #     sudo chown -R :$MARV_GROUP $VENV $STATE_DIR
+    #     sudo chmod -R g+w $VENV $STATE_DIR
+    #     virtualenv --system-site-packages -p python2.7 $VENV
+    #     touch $STATE_DIR/venv
+    #     echo "Done creating venv."
+    # fi
 
     # Activate virtualenv
     source $VENV/bin/activate
@@ -54,7 +54,7 @@ if [ -z "$CENV" ]; then
         source "$envsh"
     done
 
-    if [ $(which bagbunker) ]; then
+    if [ -n "$BB_DATA" ] && [ $(which bagbunker) ]; then
         set +e
         bagbunker admin checkdb --quiet
         RETCODE=$?

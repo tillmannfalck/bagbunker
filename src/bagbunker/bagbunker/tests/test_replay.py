@@ -27,6 +27,7 @@ from flask import json, url_for
 from pkg_resources import resource_filename
 
 from werkzeug.datastructures import Headers
+from marv.listing import populate_listing_cache
 from marv.registry import load_formats, load_jobs
 from marv.testing import FlaskTestCase
 
@@ -38,6 +39,9 @@ load_jobs()
 class TestCase(FlaskTestCase):
     DB_SQLITE = resource_filename(__name__, os.path.join('replay', 'db.sqlite'))
     RECORD = os.environ.get('BAGBUNKER_REPLAY_TEST_RECORD', None)
+
+    def setUp(self):
+        populate_listing_cache()
 
     def get(self, *args, **kw):
         return self.client.get(*args,

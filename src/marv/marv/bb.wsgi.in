@@ -1,15 +1,24 @@
+import logging
 import os
+
 instancepath = os.getenv('MARV_INSTANCE_PATH')
 assert instancepath
+
 venv = os.path.join(instancepath, 'venv')
 activate_this = os.path.join(venv, 'bin', 'activate_this.py')
 execfile(activate_this, dict(__file__=activate_this))
+
 from marv import create_app, load_formats, load_jobs
+from marv.listing import populate_listing_cache
+
 load_formats()
 load_jobs()
-application = create_app(config_obj='marv.settings.Production', INSTANCE_PATH=instancepath)
-import logging
-application.logger.addHandler(logging.StreamHandler())
-# for debugging
-#application.logger.setLevel(logging.DEBUG)
-#application.config['LOG_REQUESTS'] = True
+
+application = app = create_app(config_obj='marv.settings.Production', INSTANCE_PATH=instancepath)
+with app.app_context():
+    populate_listing_cache()
+
+app.logger.addHandler(logging.StreamHandler())
+# for debugging - these should be passed from apache
+#app.logger.setLevel(logging.DEBUG)
+#app.config['LOG_REQUESTS'] = True

@@ -281,7 +281,6 @@ def create_app(config_obj, **kw):
     with app.app_context():
         # Create Listing model
         ListingEntry, Relations = generate_listing_model()
-        #populate_listing_cache()
 
         # Create API endpoints, which will be available at /api/<tablename> by
         # default. Allowed HTTP methods can be specified as well.

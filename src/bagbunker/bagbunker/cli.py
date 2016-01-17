@@ -42,6 +42,7 @@ from threading import Thread
 from werkzeug import release_local
 from marv import create_app, load_formats, load_jobs
 from marv.globals import _job_ctx_stack
+from marv.listing import populate_listing_cache
 from marv.log import loglevel_option
 from marv.model import db, Fileset, Jobfile, Jobrun
 from marv.storage import Storage
@@ -417,6 +418,7 @@ def webserver(app, cors, wdb, public, verbose_request_logging):
     if verbose_request_logging:
         app.logger.setLevel(logging.DEBUG)
         app.config['LOG_REQUESTS'] = True
+    populate_listing_cache()
     app.run(reloader_type='watchdog', **kw)
 
 

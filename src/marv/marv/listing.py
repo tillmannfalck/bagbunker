@@ -160,7 +160,7 @@ def populate_listing_cache():
         update_listing_entry(fileset)
     db.session.commit()
 
-    remotepath = os.path.join(app.instance_path, 'remotes')
+    remotepath = os.path.join(app.instance_path, '.marv', 'remotes')
     for name in os.listdir(remotepath):
         load_remote_listing(name)
 

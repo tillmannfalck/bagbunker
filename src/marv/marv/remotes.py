@@ -22,44 +22,50 @@
 
 from __future__ import absolute_import, division
 
-import click
-import logging
-from collections import OrderedDict
-from functools import partial
+import os
+from ConfigParser import SafeConfigParser
+from collections import namedtuple
 
 
-LOGLEVEL_MAP = OrderedDict((
-    # ('critical', 50),
-    ('error', 40),
-    ('warn', 30),
-    ('info', 20),
-    ('debug', 10),
-))
-LOGLEVELS = LOGLEVEL_MAP.keys()
+Remote = namedtuple('Remote', ['name', 'path', 'url'])
 
 
-def set_loglevel(ctx, p, v):
-    if v is None:
-        v = 'info'
-    level = LOGLEVEL_MAP[v]
-    logging.getLogger().setLevel(level)
-    return v
+class Remotes(object):
+    """Manage a Marv site's remotes"""
+    def __init__(self, site):
+        self.site = site
+        """Site for which to manage remotes"""
 
+        self.path = os.path.join(site.marv_dir, 'remotes')
+        """Path to remotes directory"""
 
-loglevel_option = partial(click.option, '--loglevel',
-                          type=click.Choice(LOGLEVELS),
-                          default='info',
-                          callback=lambda ctx, param, value: LOGLEVEL_MAP[value])
+    def __repr__(self):
+        return '<Remotes {}>'.format(self.path)
 
+    def __iter__(self):
+        return iter(os.listdir(self.path))
 
-def verbose_option(base_loglevel=logging.WARN):
-    """click option to increase verbosity and set base loglevel"""
-    def callback(ctx, param, value):
-        logger = logging.getLogger()
-        if value:
-            loglevel = max(base_loglevel - value * 10, logging.DEBUG)
-            logger.setLevel(loglevel)
+    keys = __iter__
 
-    return click.option(
-        '-v', '--verbose', count=True, expose_value=False, callback=callback,
-        help='Increase vebosity, base={}'.format(logging.getLevelName(base_loglevel)))
+    # def values(self):
+    #     return (Remote(name=name,
+    #                    path=os.path.join(self.path, name),
+    #                    url=
+    #                    for name in os.listdir(self.path)))
+
+    def items(self):
+        return ((x.name, x) for x in self.values())
+
+    def add(self, name, url):
+        """Add a remote"""
+        # Create directory
+        # Write url into directory
+
+    def rm(self, name):
+        """Remove a remote"""
+
+    def update(self, name):
+        """Update a remote"""
+
+    def update_all(self):
+        """Update all remotes"""

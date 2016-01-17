@@ -23,27 +23,86 @@
 from __future__ import absolute_import, division
 
 import click
+import logging
 import os
+from .remotes import Remotes
 from .site import Site
 
 
 @click.group()
-def marv():
-    pass
+@click.option('--site-dir', type=click.Path(file_okay=False, resolve_path=True))
+@click.pass_context
+def marv(ctx, site_dir):
+    """Manage a Marv site"""
+    if site_dir:
+        site = Site(site_dir)
+    else:
+        site = Site.find_site(os.getcwd())
+    ctx.obj = site
 
 
 @marv.command()
-@click.argument('directory', default=os.getcwd(),
-                type=click.Path(file_okay=False, resolve_path=True))
+@click.argument('directory', type=click.Path(file_okay=False, resolve_path=True))
 def init(directory):
     """Create a Marv site or reinitialize an existing one"""
-    site = Site.find_site(directory)
-    if not site:
+    if directory:
         site = Site(directory)
+    else:
+        site = Site.find_site(os.getcwd())
     site.init_root()
 
 
+@marv.group(invoke_without_command=True)
+@click.option('-v', '--verbose', is_flag=True)
+@click.pass_context
+def remote(ctx, verbose):
+    """Managed set of remote instances"""
+    site = ctx.obj
+    remotes = Remotes(site)
+    for name, remote in sorted(remotes.items()):
+        if verbose:
+            click.echo('{} {}'.format(name, remote.url))
+        else:
+            click.echo(remote.name)
+    ctx.obj = remotes
+
+
+@remote.command()
+@click.argument('name', required=True)
+@click.argument('url', required=True)
+@click.pass_obj
+def add(remotes, name, url):
+    """Add remote instance"""
+    remotes.add(name, url)
+
+
+@remote.command()
+@click.argument('name', required=True)
+@click.pass_obj
+def rm(remotes, name):
+    """Remove remote instance"""
+    remotes.rm(name)
+
+
+@remote.command()
+@click.argument('name')
+@click.pass_obj
+def update(remotes, name):
+    """Update fileset listing for remote, all remotes if name not given."""
+    if name:
+        remotes.update(name)
+    else:
+        remotes.update_all()
+
+
 def cli():
+    # setup global logging - see also @log.verbose on commands
+    formatter = logging.Formatter('%(asctime)s %(levelname)s %(name)s %(message)s')
+    handler = logging.StreamHandler()
+    handler.setFormatter(formatter)
+    logger = logging.getLogger()
+    logger.addHandler(handler)
+
     # from ipdb import launch_ipdb_on_exception
     # with launch_ipdb_on_exception():
     #     bagbunker(auto_envvar_prefix='MARV')

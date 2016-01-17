@@ -23,9 +23,13 @@
 from __future__ import absolute_import, division
 
 import json
+import logging
 import os
 import shutil
 from pkg_resources import iter_entry_points, resource_filename, resource_stream
+
+log = logging.getLogger(__name__)
+
 
 INDEX_TEMPLATE = """\
 <div class="container apps">
@@ -34,6 +38,7 @@ ROWS
     </div>
 </div>
 """
+
 
 ROW_TEMPLATE = """\
         <div class="col-xs-6">
@@ -48,9 +53,15 @@ ROW_TEMPLATE = """\
 class Site(object):
     """A Marv site"""
     def __init__(self, root):
-        assert root[0] == '/'
+        assert root[0] == os.sep
         self.root = root
         """Absolute path to site root"""
+
+        self.marv_dir = os.path.join(root, '.marv')
+        """Absolute path to .marv dir usually within site root"""
+
+        self.remotes_dir = os.path.join(self.marv_dir, 'remotes')
+        """Remotes dir usually within marv_dir"""
 
         self.frontend = os.path.join(self.root, 'frontend')
         """Absolute path to site frontend folder"""
@@ -67,7 +78,7 @@ class Site(object):
 
     @classmethod
     def find_site(cls, directory):
-        """Look for site"""
+        """Look for site in directory and its parents"""
         assert directory[0] == os.sep
         while directory != os.sep:
             if os.path.exists(os.path.join(directory, '.marv')):
@@ -77,24 +88,19 @@ class Site(object):
 
     def init_root(self):
         root = self.root
-        if not os.path.exists(root):
-            os.makedirs(root)
 
-        dotmarv = os.path.join(root, '.marv')
-        if not os.path.exists(dotmarv):
-            open(dotmarv, 'wb').close()
+        for directory in (root,  # explicitly create root dir
+                          self.marv_dir,
+                          self.remotes_dir,
+                          os.path.dirname(self.bejson),
+                          os.path.dirname(self.template_hbs)):
+            if not os.path.exists(directory):
+                log.debug('Creating directory %s', directory)
+                os.makedirs(directory)
 
         warning = os.path.join(root, 'FOR_NOW_MANUAL_CHANGES_WILL_BE_OVERWRITTEN')
         if not os.path.exists(warning):
             open(warning, 'wb').close()
-
-        for name in ('frontend',
-                     os.path.join('frontend', 'app'),
-                     os.path.dirname(self.template_hbs),
-                     'remotes'):
-            directory = os.path.join(root, name)
-            if not os.path.exists(directory):
-                os.makedirs(directory)
 
         shutil.copy(os.path.join(self.marv_frontend, 'bower.json.in'),
                     os.path.join(self.frontend, 'bower.json'))
@@ -139,7 +145,7 @@ class Site(object):
             os.symlink(venv, venv_link)
 
         # remove old storage folder and .uuid file
-        uuidfile = os.path.join(self.root, 'storage', '.uuid')
+        uuidfile = os.path.join(root, 'storage', '.uuid')
         if os.path.exists(uuidfile):
             os.unlink(uuidfile)
         if os.path.exists(os.path.dirname(uuidfile)):

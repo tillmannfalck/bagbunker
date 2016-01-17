@@ -22,44 +22,32 @@
 
 from __future__ import absolute_import, division
 
-import click
-import logging
-from collections import OrderedDict
-from functools import partial
+import sys
+import unittest
+from click.testing import CliRunner
+#from unittest.mock import patch
+from marv.cli import cli
+from marv.testing import create_tempdir
 
 
-LOGLEVEL_MAP = OrderedDict((
-    # ('critical', 50),
-    ('error', 40),
-    ('warn', 30),
-    ('info', 20),
-    ('debug', 10),
-))
-LOGLEVELS = LOGLEVEL_MAP.keys()
+CATCH_EXCEPTIONS = not set(['--pdb', '--ipdb']).intersection(set(sys.argv))
 
 
-def set_loglevel(ctx, p, v):
-    if v is None:
-        v = 'info'
-    level = LOGLEVEL_MAP[v]
-    logging.getLogger().setLevel(level)
-    return v
+class TestCli(unittest.TestCase):
+    def setUp(self):
+        self.test_dir, self.cleanup_test_dir = create_tempdir()
+        self.runner = CliRunner()
 
+    def tearDown(self):
+        self.cleanup_test_dir()
 
-loglevel_option = partial(click.option, '--loglevel',
-                          type=click.Choice(LOGLEVELS),
-                          default='info',
-                          callback=lambda ctx, param, value: LOGLEVEL_MAP[value])
+    def marv(self, cli_args, exit_code=0, env=None):
+        cmd = self.runner.invoke(cli, cli_args, env=env,
+                                 catch_exceptions=CATCH_EXCEPTIONS)
+        if CATCH_EXCEPTIONS:
+            traceback.print_exception(*cmd.exc_info, file=sys.stdout)
+            sys.stdout.write(cmd.output_bytes)
+        self.assertEqual(cmd.exit_code, exit_code)
 
-
-def verbose_option(base_loglevel=logging.WARN):
-    """click option to increase verbosity and set base loglevel"""
-    def callback(ctx, param, value):
-        logger = logging.getLogger()
-        if value:
-            loglevel = max(base_loglevel - value * 10, logging.DEBUG)
-            logger.setLevel(loglevel)
-
-    return click.option(
-        '-v', '--verbose', count=True, expose_value=False, callback=callback,
-        help='Increase vebosity, base={}'.format(logging.getLevelName(base_loglevel)))
+    def test_marv(self):
+        marv = self.marv

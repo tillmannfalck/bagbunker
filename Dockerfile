@@ -1,4 +1,5 @@
-FROM ubuntu
+# the latest ubuntu ROS indigo supports
+FROM ubuntu:trusty
 MAINTAINER Ternaris
 
 EXPOSE 80
@@ -40,6 +41,11 @@ RUN groupadd -g 65533 $MARV_GROUP && \
     useradd -m -u 65533 -g 65533 $MARV_USER
 
 RUN echo 'Defaults env_keep += "APACHE_RUN_USER APACHE_RUN_GROUP APACHE_LOG_DIR APACHE_PID_FILE APACHE_RUN_DIR APACHE_LOCK_DIR APACHE_SERVERADMIN APACHE_SERVERNAME APACHE_SERVERALIAS IMAGE_TIMESTAMP MARV_INSTANCE_PATH MARV_UID MARV_GID MARV_USER MARV_GROUP MARV_ROOT MARV_PKGS_DIR POSTGRES_PORT_5432_TCP_ADDR http_proxy https_proxy"\nALL ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+
+# Latest python2.7 for trusty
+RUN bash -c 'echo "deb http://ppa.launchpad.net/fkrull/deadsnakes-python2.7/ubuntu trusty main" \
+    > /etc/apt/sources.list.d/python2.7.list'
+RUN apt-key adv --keyserver hkp://pool.sks-keyservers.net --recv-key 0xDB82666C
 
 RUN apt-get update && \
     apt-get install -y \

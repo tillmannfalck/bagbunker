@@ -39,8 +39,8 @@ from . import monkeypatch as _  # noqa
 from . import view as _         # noqa
 from .filtering import filter_config, filter_query
 from .frontend import frontend
-from .listing import (generate_listing_model, populate_listing_cache,
-                      serialize_listing_entry, get_local_listing, set_remote_listing)
+from .listing import generate_listing_model, populate_listing_cache
+from .listing import get_local_listing, set_remote_listing, serialize_listing_entry
 from .logrequest import logrequest
 from .model import db, Comment, File, Fileset, Jobrun, Storage, Tag, User
 
@@ -280,15 +280,14 @@ def create_app(config_obj, **kw):
 
     with app.app_context():
         # Create Listing model
-        ListingEntry = generate_listing_model()
-        populate_listing_cache()
+        ListingEntry, Relations = generate_listing_model()
+        #populate_listing_cache()
 
         # Create API endpoints, which will be available at /api/<tablename> by
         # default. Allowed HTTP methods can be specified as well.
         kw = {'app': app, 'url_prefix': '/marv/api'}
         apimanager.create_api(Storage, **kw)
         apimanager.create_api(ListingEntry, **kw)
-        from .listing import Relations
         for rel in Relations.values():
             apimanager.create_api(rel, **kw)
         apimanager.create_api(File,

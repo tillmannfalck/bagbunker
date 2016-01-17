@@ -34,6 +34,7 @@ import tempfile
 from . import create_app
 from . import settings
 from .model import db
+from .site import Site
 
 
 def create_tempdir():
@@ -112,6 +113,7 @@ class FlaskTestCase(flask.ext.testing.TestCase, settings.Testing):
 
     def create_app(self):
         instance_path, self.instance_cleanup = create_tempdir()
+        Site(instance_path).init_root()
         if self.DB_SQLITE:
             shutil.copy2(self.DB_SQLITE, instance_path)
             self.SQLALCHEMY_DATABASE_URI = \

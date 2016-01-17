@@ -87,7 +87,12 @@ class ListingCallback(object):
 
 
 def generate_listing_model():
+    """Generate listing model after all addons are loaded"""
     global ListingEntry, Relations
+    # XXX: For now we all parallel created apps have the same model,
+    # this only affects testing.
+    if ListingEntry is not None:
+        return ListingEntry, Relations
     name = 'ListingEntry'
     bases = (db.Model,)
     class_dict = {
@@ -109,7 +114,7 @@ def generate_listing_model():
     for col in relcols:
         Relations[col.name] = generate_relation_model(col)
     db.create_all(bind='cache')
-    return ListingEntry
+    return ListingEntry, Relations
 
 
 def generate_relation_model(col):

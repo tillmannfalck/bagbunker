@@ -4,7 +4,18 @@
     {
       "columns": [
         {
+          "formatter": "icon", 
+          "name": "Location", 
+          "title": "", 
+          "value": {
+            "classes": "text-success", 
+            "icon": "hdd", 
+            "title": "Location: local"
+          }
+        }, 
+        {
           "formatter": "route", 
+          "list": false, 
           "name": "name", 
           "title": "Name", 
           "value": {
@@ -15,18 +26,21 @@
         }, 
         {
           "formatter": "string", 
+          "list": false, 
           "name": "md5", 
           "title": "Abbr. MD5", 
           "value": "7c2d04b"
         }, 
         {
           "formatter": "size", 
+          "list": false, 
           "name": "size", 
           "title": "Size", 
           "value": 53112
         }, 
         {
           "formatter": "string", 
+          "list": false, 
           "name": "file_count", 
           "title": "# files", 
           "value": 1
@@ -40,12 +54,14 @@
         }, 
         {
           "formatter": "string", 
+          "list": false, 
           "name": "job_count", 
           "title": "# jobs", 
           "value": 1
         }, 
         {
           "formatter": "string", 
+          "list": false, 
           "name": "comment_count", 
           "title": "# comments", 
           "value": 0
@@ -59,30 +75,35 @@
         }, 
         {
           "formatter": "date", 
+          "list": false, 
           "name": "starttime", 
           "title": "Starttime", 
           "value": "2015-02-20T13:54:42.696565"
         }, 
         {
           "formatter": "date", 
+          "list": false, 
           "name": "endtime", 
           "title": "Endtime", 
           "value": "2015-02-20T13:54:51.602364"
         }, 
         {
           "formatter": "float", 
-          "name": "duration (s)", 
+          "list": false, 
+          "name": "duration", 
           "title": "Duration (s)", 
           "value": 8.905799
         }, 
         {
           "formatter": "string", 
+          "list": false, 
           "name": "robot", 
           "title": "Robot", 
           "value": "bagbunker_bag"
         }, 
         {
           "formatter": "string", 
+          "list": false, 
           "name": "use_case", 
           "title": "Use Case", 
           "value": "unknown"
@@ -95,7 +116,18 @@
     {
       "columns": [
         {
+          "formatter": "icon", 
+          "name": "Location", 
+          "title": "", 
+          "value": {
+            "classes": "text-success", 
+            "icon": "hdd", 
+            "title": "Location: local"
+          }
+        }, 
+        {
           "formatter": "route", 
+          "list": false, 
           "name": "name", 
           "title": "Name", 
           "value": {
@@ -106,18 +138,21 @@
         }, 
         {
           "formatter": "string", 
+          "list": false, 
           "name": "md5", 
           "title": "Abbr. MD5", 
           "value": "28b6a78"
         }, 
         {
           "formatter": "size", 
+          "list": false, 
           "name": "size", 
           "title": "Size", 
           "value": 62209
         }, 
         {
           "formatter": "string", 
+          "list": false, 
           "name": "file_count", 
           "title": "# files", 
           "value": 1
@@ -131,12 +166,14 @@
         }, 
         {
           "formatter": "string", 
+          "list": false, 
           "name": "job_count", 
           "title": "# jobs", 
           "value": 1
         }, 
         {
           "formatter": "string", 
+          "list": false, 
           "name": "comment_count", 
           "title": "# comments", 
           "value": 0
@@ -150,30 +187,35 @@
         }, 
         {
           "formatter": "date", 
+          "list": false, 
           "name": "starttime", 
           "title": "Starttime", 
           "value": "2015-03-06T14:32:21.020911"
         }, 
         {
           "formatter": "date", 
+          "list": false, 
           "name": "endtime", 
           "title": "Endtime", 
           "value": "2015-03-06T14:32:32.041124"
         }, 
         {
           "formatter": "float", 
-          "name": "duration (s)", 
+          "list": false, 
+          "name": "duration", 
           "title": "Duration (s)", 
           "value": 11.020213
         }, 
         {
           "formatter": "string", 
+          "list": false, 
           "name": "robot", 
           "title": "Robot", 
           "value": "bagbunker_bag"
         }, 
         {
           "formatter": "string", 
+          "list": false, 
           "name": "use_case", 
           "title": "Use Case", 
           "value": "unknown"
@@ -186,7 +228,18 @@
     {
       "columns": [
         {
+          "formatter": "icon", 
+          "name": "Location", 
+          "title": "", 
+          "value": {
+            "classes": "text-success", 
+            "icon": "hdd", 
+            "title": "Location: local"
+          }
+        }, 
+        {
           "formatter": "route", 
+          "list": false, 
           "name": "name", 
           "title": "Name", 
           "value": {
@@ -197,18 +250,21 @@
         }, 
         {
           "formatter": "string", 
+          "list": false, 
           "name": "md5", 
           "title": "Abbr. MD5", 
           "value": "cf72dca"
         }, 
         {
           "formatter": "size", 
+          "list": false, 
           "name": "size", 
           "title": "Size", 
           "value": 126013
         }, 
         {
           "formatter": "string", 
+          "list": false, 
           "name": "file_count", 
           "title": "# files", 
           "value": 6
@@ -222,12 +278,14 @@
         }, 
         {
           "formatter": "string", 
+          "list": false, 
           "name": "job_count", 
           "title": "# jobs", 
           "value": 1
         }, 
         {
           "formatter": "string", 
+          "list": false, 
           "name": "comment_count", 
           "title": "# comments", 
           "value": 0
@@ -241,30 +299,35 @@
         }, 
         {
           "formatter": "date", 
+          "list": false, 
           "name": "starttime", 
           "title": "Starttime", 
           "value": "2015-02-05T12:59:07.254540"
         }, 
         {
           "formatter": "date", 
+          "list": false, 
           "name": "endtime", 
           "title": "Endtime", 
           "value": "2015-02-05T12:59:16.718495"
         }, 
         {
           "formatter": "float", 
-          "name": "duration (s)", 
+          "list": false, 
+          "name": "duration", 
           "title": "Duration (s)", 
           "value": 9.463955
         }, 
         {
           "formatter": "string", 
+          "list": false, 
           "name": "robot", 
           "title": "Robot", 
           "value": "bagbunker_bag"
         }, 
         {
           "formatter": "string", 
+          "list": false, 
           "name": "use_case", 
           "title": "Use Case", 
           "value": "unknown"

@@ -24,6 +24,7 @@ from __future__ import absolute_import, division
 
 from marv import bb
 from datetime import datetime
+from .model import db
 
 
 # @bb.summary()
@@ -50,7 +51,7 @@ def dt_from_timestamp(timestamp):
 @bb.listing()
 @bb.listing_column('starttime', formatter='date')
 @bb.listing_column('endtime', formatter='date')
-@bb.listing_column('duration', title='duration (s)', formatter='float')
+@bb.listing_column('duration', title='Duration (s)', formatter='float', type=db.Float)
 @bb.listing_column('msgtypes', hidden=True, relation=True)
 @bb.listing_column('topics', hidden=True, relation=True)
 def listing(fileset):

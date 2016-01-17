@@ -52,9 +52,9 @@ def fileset_size(fileset):
 
 
 @bb.listing()
-@bb.listing_column('fid', hidden=True)
+@bb.listing_column('fid', hidden=True, type=db.Integer)
 @bb.listing_column('type', hidden=True)
-@bb.listing_column('storage_id', hidden=True)
+@bb.listing_column('storage_id', hidden=True, type=db.Integer)
 @bb.listing_column('name', formatter='route', json=True)
 @bb.listing_column('md5', title='Abbr. MD5')
 @bb.listing_column('size', formatter='size', type=db.Integer)

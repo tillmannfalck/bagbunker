@@ -42,14 +42,15 @@ def marv(ctx, site_dir):
 
 
 @marv.command()
+@click.option('--symlink-frontend', help="Symlink an existing frontend folder instead of creating a custom one")
 @click.argument('directory', type=click.Path(file_okay=False, resolve_path=True))
-def init(directory):
+def init(symlink_frontend, directory):
     """Create a Marv site or reinitialize an existing one"""
     if directory:
         site = Site(directory)
     else:
         site = Site.find_site(os.getcwd())
-    site.init_root()
+    site.init_root(symlink_frontend=symlink_frontend)
 
 
 @marv.group(invoke_without_command=True)

@@ -74,26 +74,18 @@ class Site(object):
         assert root[0] == os.sep
         self.root = root
         """Absolute path to site root"""
-
         self.marv_dir = os.path.join(root, '.marv')
         """Absolute path to .marv dir usually within site root"""
-
         self.remotes_dir = os.path.join(self.marv_dir, 'remotes')
         """Remotes dir usually within marv_dir"""
-
         self.frontend = os.path.join(self.root, 'frontend')
         """Absolute path to site frontend folder"""
-
         self.frontend_dist = os.path.join(self.frontend, 'dist')
         """Absolute path to site frontend dist folder"""
-
         self.bejson = os.path.join(self.frontend, 'be.json')
         """Absolute path to generated be.json"""
-
-        self.template_hbs = os.path.join(self.frontend, 'app', 'pods',
-                                         'index', 'template.hbs')
+        self.template_hbs = os.path.join(self.frontend, 'app', 'pods', 'index', 'template.hbs')
         """Absolute path to generated index/template.hbs"""
-
         self.marv_frontend = resource_filename('marv', 'frontend')
         """Absolute path to vanilla marv frontend folder"""
 
@@ -107,15 +99,12 @@ class Site(object):
             directory = os.path.dirname(directory)
         return None
 
-    def init_root(self):
+    def init_root(self, symlink_frontend=None):
         root = self.root
 
         for directory in (root,  # explicitly create root dir
                           self.marv_dir,
-                          self.remotes_dir,
-                          self.frontend_dist,
-                          os.path.dirname(self.bejson),
-                          os.path.dirname(self.template_hbs)):
+                          self.remotes_dir):
             if not os.path.exists(directory):
                 log.debug('Creating directory %s', directory)
                 os.makedirs(directory)
@@ -123,6 +112,47 @@ class Site(object):
         warning = os.path.join(root, 'FOR_NOW_MANUAL_CHANGES_WILL_BE_OVERWRITTEN')
         if not os.path.exists(warning):
             open(warning, 'wb').close()
+
+        if symlink_frontend:
+            if not os.path.islink(self.frontend):
+                os.symlink(symlink_frontend, self.frontend)
+        else:
+            if os.path.islink(self.frontend):
+                os.unlink(self.frontend)
+            self.init_frontend()
+
+        alembic_ini = resource_stream('marv', 'alembic.ini.in').read()
+        alembic_ini = alembic_ini.replace('ALEMBIC_LOCATION',
+                                          resource_filename('marv', 'alembic'))
+        with open(os.path.join(root, 'alembic.ini'), 'wb') as f:
+            f.write(alembic_ini)
+
+        shutil.copy(resource_filename('marv', 'matplotlibrc.in'),
+                    os.path.join(root, 'matplotlibrc'))
+
+        shutil.copy(resource_filename('marv', 'bb.wsgi.in'),
+                    os.path.join(root, 'bb.wsgi'))
+
+        venv = os.environ['MARV_VENV']
+        assert venv
+        venv_link = os.path.join(root, 'venv')
+        if not os.path.exists(venv_link):
+            os.symlink(venv, venv_link)
+
+        # remove old storage folder and .uuid file
+        uuidfile = os.path.join(root, 'storage', '.uuid')
+        if os.path.exists(uuidfile):
+            os.unlink(uuidfile)
+        if os.path.exists(os.path.dirname(uuidfile)):
+            os.rmdir(os.path.dirname(uuidfile))
+
+    def init_frontend(self):
+        for directory in (self.frontend_dist,
+                          os.path.dirname(self.bejson),
+                          os.path.dirname(self.template_hbs)):
+            if not os.path.exists(directory):
+                log.debug('Creating directory %s', directory)
+                os.makedirs(directory)
 
         index_html = os.path.join(self.frontend_dist, 'index.html')
         if not os.path.exists(index_html):
@@ -152,28 +182,3 @@ class Site(object):
         ]))
         with open(self.template_hbs, 'wb') as f:
             f.write(template_hbs)
-
-        alembic_ini = resource_stream('marv', 'alembic.ini.in').read()
-        alembic_ini = alembic_ini.replace('ALEMBIC_LOCATION',
-                                          resource_filename('marv', 'alembic'))
-        with open(os.path.join(root, 'alembic.ini'), 'wb') as f:
-            f.write(alembic_ini)
-
-        shutil.copy(resource_filename('marv', 'matplotlibrc.in'),
-                    os.path.join(root, 'matplotlibrc'))
-
-        shutil.copy(resource_filename('marv', 'bb.wsgi.in'),
-                    os.path.join(root, 'bb.wsgi'))
-
-        venv = os.environ['MARV_VENV']
-        assert venv
-        venv_link = os.path.join(root, 'venv')
-        if not os.path.exists(venv_link):
-            os.symlink(venv, venv_link)
-
-        # remove old storage folder and .uuid file
-        uuidfile = os.path.join(root, 'storage', '.uuid')
-        if os.path.exists(uuidfile):
-            os.unlink(uuidfile)
-        if os.path.exists(os.path.dirname(uuidfile)):
-            os.rmdir(os.path.dirname(uuidfile))

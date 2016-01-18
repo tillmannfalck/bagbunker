@@ -12,6 +12,7 @@ bb:
         BB_LISTEN:
         BB_NAME:
         COMPOSE_PROJECT_NAME:
+        TERM:
         http_proxy:
         https_proxy:
 

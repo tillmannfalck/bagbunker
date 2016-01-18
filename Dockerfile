@@ -123,6 +123,14 @@ RUN su -c "$VENV/bin/pip install -e $MARV_ROOT/src/marv \
                                  -e $MARV_ROOT/src/bagbunker \
                                  -e $MARV_ROOT/src/deepfield_jobs" $MARV_USER
 
+# MARV_VENV is linked into site dir
+ENV MARV_VENV $VENV
+ENV DOCKER_IMAGE_MARV_SKEL_SITE /opt/bagbunker-skel-site
+RUN mkdir -p $DOCKER_IMAGE_MARV_SKEL_SITE && chown $MARV_USER:$MARV_GROUP $DOCKER_IMAGE_MARV_SKEL_SITE
+RUN su -c "$VENV/bin/marv init $DOCKER_IMAGE_MARV_SKEL_SITE" $MARV_USER
+RUN su -c "cd $DOCKER_IMAGE_MARV_SKEL_SITE/frontend && \
+    bungle-ember build" $MARV_USER
+
 COPY docker/bb-server/000-default.conf /etc/apache2/sites-available/
 COPY docker/bb-server/env.sh /
 RUN echo '. /env.sh' >> /etc/bash.bashrc

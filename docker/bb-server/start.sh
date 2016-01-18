@@ -150,22 +150,12 @@ if [ -n "$AFTER_INSTALL" ]; then
     fi
 fi
 
-
-# Initialize marv instance path and build frontend
-marv init $MARV_INSTANCE_PATH
-cd $MARV_INSTANCE_PATH/frontend
-if [ ! -e dist/.built ] || [ "$IMAGE_TIMESTAMP" -nt dist/.built ]; then
-    bungle-ember build
-    touch dist/.built
-fi
-cd $MARV_ROOT
-
-
 if [ -z "$BB_DATA" ]; then
     echo "start.sh called during image build - done"
     exit 0
 fi
 
+marv init --symlink-frontend $DOCKER_IMAGE_MARV_SKEL_SITE/frontend $MARV_INSTANCE_PATH
 
 if [ -n "$POSTGRES_PORT_5432_TCP_ADDR" ]; then
     echo "Waiting for Postgres..."

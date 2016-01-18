@@ -224,7 +224,7 @@ def create_app(config_obj, **kw):
     @app.route('/marv/api/_fileset-summary')
     def fileset_summary_route():
         entries = filtered_fileset().filter(ListingEntry.remote.is_(None))
-        ids = [e.fid for e in entries]
+        ids = [x.fileset_id for x in entries]
         entries = db.session.query(Fileset).filter(Fileset.id.in_(ids))
         return flask.jsonify(fileset_summary(entries))
 

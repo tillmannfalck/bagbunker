@@ -100,6 +100,9 @@ def generate_listing_model():
         '__tablename__': 'listing_entry',
         'id': db.Column(db.String, primary_key=True),  # md5
         'remote': db.Column(db.String),                # url
+        'fileset_id': db.Column(db.Integer),
+        'storage_id': db.Column(db.Integer),
+        'type': db.Column(db.String),
     }
     relcols = []
     for name, callback in LISTING_CALLBACKS.items():
@@ -137,7 +140,11 @@ def generate_relation_model(col):
 
 
 def update_listing_entry(fileset):
-    entry_dict = {'id': fileset.md5, 'remote': None}
+    entry_dict = {'id': fileset.md5,  # same md5 from remotes is ignored
+                  'remote': None,
+                  'fileset_id': fileset.id,  # not unique within listing
+                  'storage_id': fileset.storage_id,  # not unique across remotes
+                  'type': fileset.type}
     for name, callback in LISTING_CALLBACKS.items():
         names = {x.name for x in callback.columns}
         dct = callback.callback(fileset)
@@ -190,7 +197,7 @@ def serialize_listing_entry(entry):
                     'value': value,
                 })
     return {
-        'id': entry.fid,
+        'id': entry.fileset_id,
         'type': entry.type,
         'storage_id': entry.storage_id,
         'columns': columns,

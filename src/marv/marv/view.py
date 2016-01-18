@@ -52,9 +52,6 @@ def fileset_size(fileset):
 
 
 @bb.listing()
-@bb.listing_column('fid', hidden=True, type=db.Integer)
-@bb.listing_column('type', hidden=True)
-@bb.listing_column('storage_id', hidden=True, type=db.Integer)
 @bb.listing_column('name', formatter='route', json=True)
 @bb.listing_column('md5', title='Abbr. MD5')
 @bb.listing_column('size', formatter='size', type=db.Integer)
@@ -98,9 +95,6 @@ def base_listing(fileset):
             'classes': 'text-danger',
         })
     return {
-        'fid': fileset.id,
-        'type': fileset.type,
-        'storage_id': fileset.storage_id,
         'name': json.dumps({'route': 'bagbunker.detail', 'id': md5, 'title': fileset.name}),
         'md5': md5[:7],
         'size': size,

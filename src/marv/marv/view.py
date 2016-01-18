@@ -53,7 +53,7 @@ def fileset_size(fileset):
 
 @bb.listing()
 @bb.listing_column('name', formatter='route', json=True)
-@bb.listing_column('md5', title='Abbr. MD5')   # This should be abbr_md5
+@bb.listing_column('abbr_md5', title='Abbr. MD5')
 @bb.listing_column('size', formatter='size', type=db.Integer)
 @bb.listing_column('file_count', title='# files', type=db.Integer)
 @bb.listing_column('status', formatter='icon', list=True, json=True)
@@ -96,7 +96,7 @@ def base_listing(fileset):
         })
     return {
         'name': json.dumps({'route': 'bagbunker.detail', 'id': md5, 'title': fileset.name}),
-        'md5': md5[:7],  # this should be abbr_md5
+        'abbr_md5': md5[:7],
         'size': size,
         'tags': json.dumps(sorted([t.label for t in tags])),
         'tags_relation': [t.label for t in tags],

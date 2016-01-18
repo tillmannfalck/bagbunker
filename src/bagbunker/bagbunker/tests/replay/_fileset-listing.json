@@ -27,7 +27,7 @@
         {
           "formatter": "string", 
           "list": false, 
-          "name": "md5", 
+          "name": "abbr_md5", 
           "title": "Abbr. MD5", 
           "value": "7c2d04b"
         }, 
@@ -139,7 +139,7 @@
         {
           "formatter": "string", 
           "list": false, 
-          "name": "md5", 
+          "name": "abbr_md5", 
           "title": "Abbr. MD5", 
           "value": "28b6a78"
         }, 
@@ -251,7 +251,7 @@
         {
           "formatter": "string", 
           "list": false, 
-          "name": "md5", 
+          "name": "abbr_md5", 
           "title": "Abbr. MD5", 
           "value": "cf72dca"
         }, 

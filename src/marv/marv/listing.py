@@ -163,7 +163,6 @@ def add_listing_entry(fileset):
 
 
 def remove_listing_entry(fileset):
-    # ATTENTION: ListingEntry.md5 currently is the abbr_md5
     ListingEntry.query.filter(ListingEntry.id == fileset.md5).delete()
     db.session.commit()
 

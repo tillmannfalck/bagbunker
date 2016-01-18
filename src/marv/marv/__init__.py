@@ -40,6 +40,7 @@ from . import view as _         # noqa
 from .filtering import filter_config, filter_query
 from .frontend import frontend
 from .listing import generate_listing_model, populate_listing_cache
+from .listing import remove_listing_entry, update_listing_entry
 from .listing import get_local_listing, set_remote_listing, serialize_listing_entry
 from .logrequest import logrequest
 from .model import db, Comment, File, Fileset, Jobrun, Storage, Tag, User
@@ -173,6 +174,7 @@ def create_app(config_obj, **kw):
             tag.filesets.append(fileset)
         db.session.add(tag)
         db.session.commit()
+        update_listing_entry(fileset)
 
         return flask.jsonify({'label': tag.label, 'id': tag.id})
 
@@ -202,6 +204,7 @@ def create_app(config_obj, **kw):
             else:
                 db.session.delete(tag)
             db.session.commit()
+        update_listing_entry(fileset)
 
         return flask.jsonify({})
 
@@ -243,6 +246,7 @@ def create_app(config_obj, **kw):
         fileset.deleted = True
         fileset.deleted_reason = flask.ext.login.current_user.username
         db.session.commit()
+        remove_listing_entry(fileset)
         return flask.jsonify({})
 
     @app.route('/marv/jobrun/<path:filename>')

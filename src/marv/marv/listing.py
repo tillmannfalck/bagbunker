@@ -139,7 +139,7 @@ def generate_relation_model(col):
     return Relation
 
 
-def update_listing_entry(fileset):
+def add_listing_entry(fileset):
     entry_dict = {'id': fileset.md5,  # same md5 from remotes is ignored
                   'remote': None,
                   'fileset_id': fileset.id,  # not unique within listing
@@ -162,9 +162,22 @@ def update_listing_entry(fileset):
     db.session.flush()
 
 
+def remove_listing_entry(fileset):
+    # ATTENTION: ListingEntry.md5 currently is the abbr_md5
+    ListingEntry.query.filter(ListingEntry.id == fileset.md5).delete()
+    db.session.commit()
+
+
+def update_listing_entry(fileset):
+    remove_listing_entry(fileset)
+    add_listing_entry(fileset)
+    db.session.commit()
+
+
 def populate_listing_cache():
-    for fileset in Fileset.query.filter(Fileset.type == 'bag'):
-        update_listing_entry(fileset)
+    for fileset in Fileset.query.filter(Fileset.type == 'bag')\
+                                .filter(Fileset.deleted.isnot(True)):
+        add_listing_entry(fileset)
     db.session.commit()
 
     remotepath = os.path.join(app.instance_path, '.marv', 'remotes')

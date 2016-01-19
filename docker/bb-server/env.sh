@@ -8,37 +8,10 @@ if [ -z "$CENV" ]; then
     export PGUSER=bagbunker
     export PGPASSWORD=bagbunker
     export MATPLOTLIBRC=$MARV_INSTANCE_PATH
-    #export MARV_PKGS_DIR="$MARV_ROOT/src"
 
     # Python's urllib does not like these variables, if they are empty
     test -z "$http_proxy" && unset http_proxy
     test -z "$https_proxy" && unset https_proxy
-
-    # # If /home is coming via volume, $HOME might not exist, yet.
-    # if [ ! -d "$HOME" ]; then
-    #     sudo mkdir -p $HOME
-    #     sudo chown $MARV_USER:$MARV_GROUP $HOME
-    #     sudo chmod 775 $HOME
-    # fi
-
-    # # Invalidate state and venv if docker image is newer than venv
-    # if [ -f "$STATE_DIR/venv" ] && [ "$IMAGE_TIMESTAMP" -nt "$STATE_DIR/venv" ]; then
-    #     echo "Invalidating outdated venv..."
-    #     rm -f $STATE_DIR/*
-    #     rm -fR $VENV/bin $VENV/lib
-    #     echo "Done invalidating outdated venv."
-    # fi
-
-    # # Create virtual env if it is mounted as volume
-    # if [ ! -f "$STATE_DIR/venv" ]; then
-    #     echo "Creating venv..."
-    #     sudo mkdir -p $VENV $STATE_DIR
-    #     sudo chown -R :$MARV_GROUP $VENV $STATE_DIR
-    #     sudo chmod -R g+w $VENV $STATE_DIR
-    #     virtualenv --system-site-packages -p python2.7 $VENV
-    #     touch $STATE_DIR/venv
-    #     echo "Done creating venv."
-    # fi
 
     # Bagbunker specific
     if [ -e /opt/ros/indigo/setup.bash ]; then
@@ -51,12 +24,6 @@ if [ -z "$CENV" ]; then
     if [ -n "$DEBUG_VENV" ]; then
         python -c 'import sys,pprint;pprint.pprint(sys.path)'
     fi
-
-    # Load package environments
-    # cd $MARV_ROOT
-    # for envsh in $MARV_PKGS_DIR/*/env.sh; do
-    #     source "$envsh"
-    # done
 
     if [ -n "$BB_DATA" ] && [ $(which bagbunker) ]; then
         set +e

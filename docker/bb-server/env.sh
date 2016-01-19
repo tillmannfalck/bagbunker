@@ -8,7 +8,7 @@ if [ -z "$CENV" ]; then
     export PGUSER=bagbunker
     export PGPASSWORD=bagbunker
     export MATPLOTLIBRC=$MARV_INSTANCE_PATH
-    export MARV_PKGS_DIR="$MARV_ROOT/src"
+    #export MARV_PKGS_DIR="$MARV_ROOT/src"
 
     # Python's urllib does not like these variables, if they are empty
     test -z "$http_proxy" && unset http_proxy
@@ -40,6 +40,11 @@ if [ -z "$CENV" ]; then
     #     echo "Done creating venv."
     # fi
 
+    # Bagbunker specific
+    if [ -e /opt/ros/indigo/setup.bash ]; then
+        source /opt/ros/indigo/setup.bash
+    fi
+
     # Activate virtualenv
     source $VENV/bin/activate
 
@@ -48,10 +53,10 @@ if [ -z "$CENV" ]; then
     fi
 
     # Load package environments
-    cd $MARV_ROOT
-    for envsh in $MARV_PKGS_DIR/*/env.sh; do
-        source "$envsh"
-    done
+    # cd $MARV_ROOT
+    # for envsh in $MARV_PKGS_DIR/*/env.sh; do
+    #     source "$envsh"
+    # done
 
     if [ -n "$BB_DATA" ] && [ $(which bagbunker) ]; then
         set +e

@@ -82,12 +82,46 @@ RUN pip install --upgrade virtualenv
 RUN chmod -x $(which pip)
 
 
-# Image contains virtualenv - env.sh code only if mounted as volume
+# Frontend tooling -- should this happen as non-root?
+RUN cd /opt && curl https://nodejs.org/dist/v5.2.0/node-v5.2.0-linux-x64.tar.gz |tar xz
+RUN cd /usr/local/bin && ln -s /opt/node-v*/bin/node && ln -s /opt/node-v*/bin/npm
+RUN node -v && npm -v
+RUN cd /opt && curl https://ternaris.com/bngl.tar.gz |tar xz
+RUN cd /opt/bngl/bungle-ember && npm --loglevel info install
+RUN cd /usr/local/bin && ln -s /opt/bngl/bungle-ember/bin/bungle-ember
+RUN rm -Rf /tmp/npm-*
+
+
+ENV PIP_FIND_LINKS https://ternaris.com/pypi https://ternaris.com/wheels
+
+
+# This speeds up the build somewhat as a changed git dir does not mean rebuilding venvs
+# After the first pip-sync call the wheels cache is seeded
 COPY src/marv/requirements.txt /requirements/req-marv.txt
 COPY src/bagbunker/requirements.txt /requirements/req-bagbunker.txt
 COPY src/deepfield_jobs/requirements.txt /requirements/req-deepfield.txt
+
+
+# temporary venv to run tests
+ENV VENV /tmp/venv
+ENV MARV_VENV $VENV  # MARV_VENV is linked into site dir
+RUN su -c "virtualenv --system-site-packages -p python2.7 $VENV" $MARV_USER
+RUN su -c "$VENV/bin/pip install --upgrade 'pip-tools>=1.4.2'" $MARV_USER
+RUN su -c "source $VENV/bin/activate && pip-sync /requirements/req-*.txt" $MARV_USER
+COPY .git /tmp/bb/.git
+RUN chown -R $MARV_USER /tmp/bb
+RUN su -c "cd /tmp/bb && git checkout . && git status" $MARV_USER
+RUN su -c "$VENV/bin/pip install --no-index -e /tmp/bb/src/marv \
+                                            -e /tmp/bb/src/bagbunker \
+                                            -e /tmp/bb/src/deepfield_jobs" $MARV_USER
+RUN su -c "cd /tmp/bb && source /opt/ros/indigo/setup.bash && $VENV/bin/nosetests" $MARV_USER
+RUN su -c "source $VENV/bin/activate && marv --help && bagbunker --help"
+RUN rm -R $VENV
+
+
+# Real venv
 ENV VENV /opt/bagbunker-venv
-ENV PIP_FIND_LINKS https://ternaris.com/pypi https://ternaris.com/wheels
+ENV MARV_VENV $VENV  # MARV_VENV is linked into site dir
 ENV STATE_DIR $VENV/.state
 RUN mkdir -p $VENV $STATE_DIR && \
     chown -R $MARV_USER:$MARV_GROUP $VENV $STATE_DIR && \
@@ -95,41 +129,20 @@ RUN mkdir -p $VENV $STATE_DIR && \
 RUN su -c "virtualenv --system-site-packages -p python2.7 $VENV" $MARV_USER
 RUN su -c "$VENV/bin/pip install --upgrade 'pip-tools>=1.4.2'" $MARV_USER
 RUN su -c "source $VENV/bin/activate && pip-sync /requirements/req-*.txt" $MARV_USER
+RUN su -c "$VENV/bin/pip install --no-index /tmp/bb/src/marv \
+                                            /tmp/bb/src/bagbunker \
+                                            /tmp/bb/src/deepfield_jobs" $MARV_USER
+RUN su -c "source $VENV/bin/activate && marv --help && bagbunker --help"
 RUN su -c "touch $STATE_DIR/pip-tools $STATE_DIR/venv" $MARV_USER
+RUN rm -Rf /tmp/bb
 
 
-RUN cd /opt && curl https://nodejs.org/dist/v5.2.0/node-v5.2.0-linux-x64.tar.gz |tar xz
-RUN cd /usr/local/bin && ln -s /opt/node-v*/bin/node && ln -s /opt/node-v*/bin/npm
-RUN node -v && npm -v
-RUN cd /opt && curl https://ternaris.com/bngl.tar.gz |tar xz
-RUN cd /opt/bngl/bungle-ember && npm install
-RUN cd /usr/local/bin && ln -s /opt/bngl/bungle-ember/bin/bungle-ember
-
-COPY .git /tmp/bb.git
-RUN mkdir -p $MARV_ROOT && \
-    cd $MARV_ROOT && \
-    git init && \
-    git remote add bb /tmp/bb.git && \
-    git fetch bb && \
-    git checkout $(cut -d/ -f3 < /tmp/bb.git/HEAD) && \
-    git remote rm bb && \
-    rm .git/FETCH_HEAD && \
-    git gc --aggressive && \
-    rm -rf /tmp/bb.git
-RUN touch $MARV_ROOT_INSIDE_CONTAINER
-RUN chown -R $MARV_USER:$MARV_GROUP $MARV_ROOT
-
-RUN su -c "$VENV/bin/pip install -e $MARV_ROOT/src/marv \
-                                 -e $MARV_ROOT/src/bagbunker \
-                                 -e $MARV_ROOT/src/deepfield_jobs" $MARV_USER
-
-# MARV_VENV is linked into site dir
-ENV MARV_VENV $VENV
 ENV DOCKER_IMAGE_MARV_SKEL_SITE /opt/bagbunker-skel-site
 RUN mkdir -p $DOCKER_IMAGE_MARV_SKEL_SITE && chown $MARV_USER:$MARV_GROUP $DOCKER_IMAGE_MARV_SKEL_SITE
 RUN su -c "$VENV/bin/marv init $DOCKER_IMAGE_MARV_SKEL_SITE" $MARV_USER
 RUN su -c "cd $DOCKER_IMAGE_MARV_SKEL_SITE/frontend && \
     bungle-ember build" $MARV_USER
+RUN rm -rf /tmp/bagbunker
 
 COPY docker/bb-server/000-default.conf /etc/apache2/sites-available/
 COPY docker/bb-server/env.sh /
@@ -144,9 +157,4 @@ ENTRYPOINT ["/start.sh"]
 CMD ["apache2"]
 
 # Clean tmp
-RUN sudo rm -rf /tmp/*
 RUN sudo touch $IMAGE_TIMESTAMP
-
-# Initialize extensions
-RUN /bin/bash -c /start.sh bash
-RUN /bin/bash -c nosetests

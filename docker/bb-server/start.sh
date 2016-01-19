@@ -102,9 +102,9 @@ if [ $(stat -c "%G" $MARV_INSTANCE_PATH) != "$MARV_GROUP" ]; then
 fi
 
 # Initialize packages to install system dependencies among others
-for pkg in $MARV_PKGS_DIR/*; do
-    init_pkg "$pkg"
-done
+# for pkg in $MARV_PKGS_DIR/*; do
+#     init_pkg "$pkg"
+# done
 
 if [ -n "$BEFORE_REQ_INSTALL" ]; then
     if [ "$1" = "apache2" ]; then

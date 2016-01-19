@@ -25,7 +25,7 @@ if [ -z "$CENV" ]; then
         python -c 'import sys,pprint;pprint.pprint(sys.path)'
     fi
 
-    if [ -n "$BB_DATA" ] && [ $(which bagbunker) ]; then
+    if [ -n "$POSTGRES_PORT_5432_TCP_ADDR" ] && [ $(which bagbunker) ]; then
         set +e
         bagbunker admin checkdb --quiet
         RETCODE=$?

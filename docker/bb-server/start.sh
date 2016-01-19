@@ -19,6 +19,8 @@ check_retcode() {
     fi
 }
 
+sudo chown $MARV_USER:$MARV_GROUP $HOME/src
+
 if [ $(stat -c "%G" $MARV_INSTANCE_PATH) != "$MARV_GROUP" ]; then
     sudo chown :$MARV_GROUP $MARV_INSTANCE_PATH
     sudo chmod g+w $MARV_INSTANCE_PATH

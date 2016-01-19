@@ -57,7 +57,7 @@ if [ -z "$CENV" ]; then
         fi
     fi
 
-    cd $MARV_ROOT
+    cd
 
     export CENV=1
 fi

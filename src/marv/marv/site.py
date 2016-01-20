@@ -136,7 +136,7 @@ class Site(object):
         venv = os.environ['MARV_VENV']
         assert venv
         venv_link = os.path.join(root, 'venv')
-        if not os.path.exists(venv_link):
+        if not os.path.islink(venv_link):
             os.symlink(venv, venv_link)
 
         # remove old storage folder and .uuid file

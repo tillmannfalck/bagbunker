@@ -53,47 +53,47 @@ def init(symlink_frontend, directory):
     site.init_root(symlink_frontend=symlink_frontend)
 
 
-@marv.group(invoke_without_command=True)
-@click.option('-v', '--verbose', is_flag=True)
-@click.pass_context
-def remote(ctx, verbose):
-    """Managed set of remote instances"""
-    site = ctx.obj
-    remotes = Remotes(site)
-    for name, remote in sorted(remotes.items()):
-        if verbose:
-            click.echo('{} {}'.format(name, remote.url))
-        else:
-            click.echo(remote.name)
-    ctx.obj = remotes
+# @marv.group(invoke_without_command=True)
+# @click.option('-v', '--verbose', is_flag=True)
+# @click.pass_context
+# def remote(ctx, verbose):
+#     """Managed set of remote instances"""
+#     site = ctx.obj
+#     remotes = Remotes(site)
+#     for name, remote in sorted(remotes.items()):
+#         if verbose:
+#             click.echo('{} {}'.format(name, remote.url))
+#         else:
+#             click.echo(remote.name)
+#     ctx.obj = remotes
 
 
-@remote.command()
-@click.argument('name', required=True)
-@click.argument('url', required=True)
-@click.pass_obj
-def add(remotes, name, url):
-    """Add remote instance"""
-    remotes.add(name, url)
+# @remote.command()
+# @click.argument('name', required=True)
+# @click.argument('url', required=True)
+# @click.pass_obj
+# def add(remotes, name, url):
+#     """Add remote instance"""
+#     remotes.add(name, url)
 
 
-@remote.command()
-@click.argument('name', required=True)
-@click.pass_obj
-def rm(remotes, name):
-    """Remove remote instance"""
-    remotes.rm(name)
+# @remote.command()
+# @click.argument('name', required=True)
+# @click.pass_obj
+# def rm(remotes, name):
+#     """Remove remote instance"""
+#     remotes.rm(name)
 
 
-@remote.command()
-@click.argument('name')
-@click.pass_obj
-def update(remotes, name):
-    """Update fileset listing for remote, all remotes if name not given."""
-    if name:
-        remotes.update(name)
-    else:
-        remotes.update_all()
+# @remote.command()
+# @click.argument('name')
+# @click.pass_obj
+# def update(remotes, name):
+#     """Update fileset listing for remote, all remotes if name not given."""
+#     if name:
+#         remotes.update(name)
+#     else:
+#         remotes.update_all()
 
 
 def cli():

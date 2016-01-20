@@ -25,8 +25,10 @@ from __future__ import absolute_import, division
 import os
 
 
-POSTGRESQL_URI = 'postgresql://bagbunker:bagbunker@{}/bagbunker' \
-    .format(os.environ.get('POSTGRES_PORT_5432_TCP_ADDR'))
+host = os.environ.get('PGHOSTADDR')
+user = os.environ.get('PGUSER')
+password = os.environ.get('PGPASSWORD')
+POSTGRESQL_URI = 'postgresql://{}:{}@{}/bagbunker'.format(user, password, host)
 
 
 class _Base(object):

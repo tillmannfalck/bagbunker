@@ -34,6 +34,7 @@ if [ -n "$POSTGRES_PORT_5432_TCP_ADDR" ]; then
         sleep 0.1
     done
     echo "Done waiting for Postgresql."
+    export PGHOSTADDR=$POSTGRES_PORT_5432_TCP_ADDR
 fi
 
 if [ ! -d "$MARV_INSTANCE_PATH/log" ]; then

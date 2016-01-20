@@ -23,8 +23,9 @@
 from __future__ import absolute_import, division
 
 import json
-import re
 import os
+import re
+import requests
 from collections import OrderedDict
 from flask import current_app as app
 from flask.ext.sqlalchemy import _BoundDeclarativeMeta as model_metaclass, inspect
@@ -167,18 +168,60 @@ def remove_listing_entry(fileset):
     db.session.commit()
 
 
-def update_listing_entry(fileset):
+def update_listing_entry(fileset=None, fileset_id=None):
+    assert fileset is not None or fileset_id is not None
+    if fileset is None:
+        fileset = Fileset.query.filter_by(id=fileset_id).first()
     remove_listing_entry(fileset)
     add_listing_entry(fileset)
     db.session.commit()
 
 
+def update_listing_entries(ids):
+    for id in ids:
+        update_listing_entry(fileset_id=id)
+
+
+def remove_listing_entries(ids):
+    for id in ids:
+        remove_listing_entry(fileset_id=id)
+
+
+def trigger_update_listing_entries(ids):
+    url = app.config.get('MARV_SIGNAL_URL')
+    if not url:
+        return
+    with open(app.config['MARV_UPDATE_LISTING_SECRET_FILE'], 'rb') as f:
+        secret = f.read()
+    try:
+        requests.post('{}/marv/_listing_entries/update'.format(url),
+                      data=json.dumps({'ids': ids, 'secret': secret}))
+    except requests.exceptions.ConnectionError:
+        pass
+
+
+def trigger_remove_listing_entries(ids):
+    url = app.config.get('MARV_SIGNAL_URL')
+    if not url:
+        return
+    try:
+        requests.post('{}/marv/_listing_entries/remove'.format(url),
+                      data=json.dumps({'ids': ids, 'secret': secret}))
+    except requests.exceptions.ConnectionError:
+        pass
+
+
 def populate_listing_cache():
+    # Delete all existing
+    ListingEntry.query.delete()
+
+    # Load ours
     for fileset in Fileset.query.filter(Fileset.type == 'bag')\
                                 .filter(Fileset.deleted.isnot(True)):
         add_listing_entry(fileset)
     db.session.commit()
 
+    # Add remotes
     remotepath = os.path.join(app.instance_path, '.marv', 'remotes')
     for name in os.listdir(remotepath):
         load_remote_listing(name)

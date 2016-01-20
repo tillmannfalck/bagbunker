@@ -47,6 +47,7 @@ class Production(_Base):
 
 
 class Testing(_Base):
+    MARV_SIGNAL_URL = None
     SQLALCHEMY_ECHO = bool(os.environ.get('SQLALCHEMY_ECHO', False))
     SQLALCHEMY_DATABASE_URI = 'sqlite://'
     DB_SQLITE = None

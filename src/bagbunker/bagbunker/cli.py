@@ -42,7 +42,7 @@ from threading import Thread
 from werkzeug import release_local
 from marv import create_app, load_formats, load_jobs
 from marv.globals import _job_ctx_stack
-from marv.listing import populate_listing_cache
+from marv.listing import populate_listing_cache, trigger_update_listing_entries
 from marv.log import loglevel_option
 from marv.model import db, Fileset, Jobfile, Jobrun
 from marv.storage import Storage
@@ -80,6 +80,9 @@ STORAGE = None
 @loglevel_option()
 @click.option('--instance-path', type=click.Path(resolve_path=True, file_okay=False),
               default=os.getcwd(), expose_value=False, callback=config_option('INSTANCE_PATH'))
+@click.option('--signal-url', default='http://127.0.0.1:5000',
+              expose_value=False, callback=config_option('MARV_SIGNAL_URL'),
+              help="How to reach the bagbunker server process")
 @click.option('--debug/--no-debug', default=None,
               expose_value=False, callback=config_option('DEBUG'))
 @click.option('--echo-sql/--no-echo-sql', default=None,
@@ -391,6 +394,8 @@ def run_jobs(ctx, all, force, fileset, job):
 
         for milker in milkers:
             milker.join()
+
+        trigger_update_listing_entries([fileset.id])
 
     # Never call subcommand directly
     ctx.exit()

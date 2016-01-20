@@ -109,6 +109,11 @@ class Site(object):
                 log.debug('Creating directory %s', directory)
                 os.makedirs(directory)
 
+        listing_secret = os.path.join(self.marv_dir, 'update_listing_secret')
+        with open(listing_secret, 'wb') as f:
+            f.write(os.urandom(24).encode('hex'))
+        os.chmod(listing_secret, 0o600)
+
         warning = os.path.join(root, 'FOR_NOW_MANUAL_CHANGES_WILL_BE_OVERWRITTEN')
         if not os.path.exists(warning):
             open(warning, 'wb').close()

@@ -41,6 +41,7 @@ from .filtering import filter_config, filter_query
 from .frontend import frontend
 from .listing import generate_listing_model, populate_listing_cache
 from .listing import remove_listing_entry, update_listing_entry
+from .listing import remove_listing_entries, update_listing_entries
 from .listing import get_local_listing, set_remote_listing, serialize_listing_entry
 from .logrequest import logrequest
 from .model import db, Comment, File, Fileset, Jobrun, Storage, Tag, User
@@ -65,6 +66,8 @@ def create_app(config_obj, **kw):
     #if not os.path.exists(app.instance_path):
     #    os.makedirs(app.instance_path)
 
+    app.config['MARV_UPDATE_LISTING_SECRET_FILE'] = \
+        os.path.join(app.instance_path, '.marv', 'update_listing_secret')
     app.config['FILE_STORAGE_PATH'] = os.path.join(app.instance_path, 'storage')
     app.config['FRONTEND_PATH'] = os.path.join(app.instance_path, 'frontend', 'dist')
 
@@ -174,7 +177,6 @@ def create_app(config_obj, **kw):
             tag.filesets.append(fileset)
         db.session.add(tag)
         db.session.commit()
-        update_listing_entry(fileset)
 
         return flask.jsonify({'label': tag.label, 'id': tag.id})
 
@@ -204,7 +206,6 @@ def create_app(config_obj, **kw):
             else:
                 db.session.delete(tag)
             db.session.commit()
-        update_listing_entry(fileset)
 
         return flask.jsonify({})
 
@@ -328,5 +329,61 @@ def create_app(config_obj, **kw):
         MarvApp = ep.load()
         marvapp = MarvApp(url_prefix='/marv/apps/{}'.format(ep.name))
         marvapp.init_app(app)
+
+    @app.after_request
+    def update_listing(response):
+        # XXX: The proper solution are session.event listeners. Newer
+        # flask-sqlalchemy needed.
+        if response.status >= 300:
+            return response
+        if flask.request.method not in ('DELETE', 'POST'):
+            return response
+
+        fileset_id = None
+        if flask.request.method == 'DELETE':
+            _, endpoint, fileset_id = flask.request.url.rsplit('/', 2)
+            if endpoint != '_fileset':
+                app.logger.warn('Request not handled for listing: %r', flask.request)
+        elif flask.request.method == 'POST':
+            if flask.request.json:
+                fileset_id = flask.request.json.get('fileset_id')
+            elif flask.request.url.endswith('/comment'):
+                fileset_id = json.loads(flask.request.data)['data']['relationships']['fileset']['data']['id']
+            else:
+                app.logger.warn('Request not handled for listing: %r', flask.request)
+
+        if fileset_id is not None:
+            update_listing_entry(fileset_id=fileset_id)
+
+        return response
+
+    @app.route('/marv/_listing_entries/update', methods=['POST'])
+    def trigger_update_listing_entries():
+        data = json.loads(flask.request.data)
+        with open(app.config['MARV_UPDATE_LISTING_SECRET_FILE'], 'rb') as f:
+            secret = f.read()
+        try:
+            assert data['secret'] == secret
+        except AssertionError, KeyError:
+            raise flask.ext.restless.ProcessingException(
+                description='Not Authorized', code=401)
+        ids = data['ids']
+        assert type(ids) is list
+        update_listing_entries(ids)
+        return flask.jsonify([])
+
+    @app.route('/marv/_listing_entries/remove', methods=['POST'])
+    def trigger_remove_listing_entries():
+        with open(app.config['MARV_UPDATE_LISTING_SECRET_FILE'], 'rb') as f:
+            secret = f.read()
+        try:
+            assert data['secret'] == secret
+        except AssertionError, KeyError:
+            raise flask.ext.restless.ProcessingException(
+                description='Not Authorized', code=401)
+        ids = data['ids']
+        assert type(ids) is list
+        remove_listing_entries(ids)
+        return flask.jsonify([])
 
     return app

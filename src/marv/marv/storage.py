@@ -28,6 +28,7 @@ from itertools import chain
 from logging import getLogger
 from uuid import uuid4
 from . import queries
+from .listing import trigger_remove_listing_entries, trigger_update_listing_entries
 from .model import db, Fileset
 from .model import Storage as _Storage
 from .reader import READER
@@ -82,6 +83,7 @@ class Storage(object):
 
     def _detect_missing(self, logger):
         """Detect missing files for active filesets"""
+        need_update = []
         for fileset in self.active_filesets:
             for file in fileset.files:
                 missing = not os.path.exists(file.path)
@@ -91,7 +93,9 @@ class Storage(object):
                     else:
                         logger.info('Found missing file %r of %r', file, fileset)
                     file.missing = missing
+            need_update.append(fileset.id)
         db.session.commit()
+        trigger_update_listing_entries(need_update)
 
     def read_pending(self, logger=getLogger(__name__)):
         reader = self.reader
@@ -108,6 +112,7 @@ class Storage(object):
                 fileset.time_read = datetime.utcnow()
                 fileset.read_succeeded = True
                 db.session.commit()
+                trigger_update_listing_entries([fileset.id])
                 logger.debug('read %r', fileset)
             except Exception as e:
                 import traceback
@@ -137,6 +142,7 @@ class Storage(object):
                     if active is None:
                         self.instance.filesets.append(found)
                         db.session.commit()
+                        trigger_update_listing_entries([found.id])
                         logger.info('added new %r', found)
                         seen.add(found.md5)
                         continue
@@ -152,6 +158,7 @@ class Storage(object):
                     active.deleted = True
                     active.deleted_reason = '__superseded__'
                     self.instance.filesets.append(found)
+                    trigger_remove_listing_entries([found.id])
                     db.session.commit()
                     logger.info('%r superseds %r', found, active)
                     seen.add(found.md5)
@@ -167,6 +174,7 @@ class Storage(object):
                 changed_attrs = active.update_from(found)
                 if changed_attrs:
                     db.session.commit()
+                    trigger_update_listing_entries([active.id])
                     logger.info('updated %s: %s', ', '.join(changed_attrs), active)
                 seen.add(found.md5)
             except:

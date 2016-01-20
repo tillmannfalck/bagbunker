@@ -6,7 +6,7 @@ bb:
     ports:
         - ${BB_DEV_LISTEN}:5000
     volumes:
-        - ../..:/home/bagbunker/src/bagbunker
+        - ../..:/home/bagbunker/code/bagbunker
     links:
         - bbdb:postgres
     environment:

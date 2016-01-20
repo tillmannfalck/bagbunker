@@ -109,13 +109,28 @@ RUN su -c "virtualenv --system-site-packages -p python2.7 $VENV" $MARV_USER
 #RUN su -c "$VENV/bin/pip install --upgrade 'pip==8.0.0'" $MARV_USER || true
 RUN su -c "$VENV/bin/pip install --upgrade 'pip-tools==1.4.4'" $MARV_USER
 RUN su -c "source $VENV/bin/activate && pip-sync /requirements/req-*.txt" $MARV_USER
-COPY .git /tmp/bb/.git
-RUN chown -R $MARV_USER /tmp/bb
-RUN su -c "cd /tmp/bb && git checkout . && git status" $MARV_USER
-RUN su -c "$VENV/bin/pip install --no-index -e /tmp/bb/src/marv \
-                                            -e /tmp/bb/src/bagbunker \
-                                            -e /tmp/bb/src/deepfield_jobs" $MARV_USER
-RUN su -c "cd /tmp/bb && source /opt/ros/indigo/setup.bash && $VENV/bin/nosetests" $MARV_USER
+
+
+# Copy code into home dir
+RUN mkdir -p /home/$MARV_USER/code; chown $MARV_USER:$MARV_GROUP /home/$MARV_USER/code
+ENV BB_CODE /home/$MARV_USER/code/bagbunker
+COPY .git /tmp/bb.git
+RUN mkdir -p $BB_CODE && cd $BB_CODE && \
+    git init && \
+    git remote add bb /tmp/bb.git && \
+    git fetch bb && \
+    git checkout $(cut -d/ -f3 < /tmp/bb.git/HEAD) && \
+    git remote rm bb && \
+    rm .git/FETCH_HEAD && \
+    git gc --aggressive && \
+    rm -rf /tmp/bb.git
+RUN chown -R $MARV_USER:$MARV_GROUP $BB_CODE
+
+# Install in temporary venv for running tests
+RUN su -c "$VENV/bin/pip install --no-index -e $BB_CODE/src/marv \
+                                            -e $BB_CODE/src/bagbunker \
+                                            -e $BB_CODE/src/deepfield_jobs" $MARV_USER
+RUN su -c "cd $BB_CODE && source /opt/ros/indigo/setup.bash && $VENV/bin/nosetests" $MARV_USER
 RUN su -c "source $VENV/bin/activate && marv --help && bagbunker --help"
 RUN rm -R $VENV
 
@@ -133,12 +148,11 @@ RUN su -c "virtualenv --system-site-packages -p python2.7 $VENV" $MARV_USER
 #RUN su -c "$VENV/bin/pip install --upgrade 'pip==8.0.0'" $MARV_USER || true
 RUN su -c "$VENV/bin/pip install --upgrade 'pip-tools==1.4.4'" $MARV_USER
 RUN su -c "source $VENV/bin/activate && pip-sync /requirements/req-*.txt" $MARV_USER
-RUN su -c "$VENV/bin/pip install --no-index /tmp/bb/src/marv \
-                                            /tmp/bb/src/bagbunker \
-                                            /tmp/bb/src/deepfield_jobs" $MARV_USER
+RUN su -c "$VENV/bin/pip install --no-index $BB_CODE/src/marv \
+                                            $BB_CODE/src/bagbunker \
+                                            $BB_CODE/src/deepfield_jobs" $MARV_USER
 RUN su -c "source $VENV/bin/activate && marv --help && bagbunker --help"
 RUN su -c "touch $STATE_DIR/pip-tools $STATE_DIR/venv" $MARV_USER
-RUN rm -Rf /tmp/bb
 
 
 ENV DOCKER_IMAGE_MARV_SKEL_SITE /opt/bagbunker-skel-site

@@ -102,7 +102,8 @@ COPY src/deepfield_jobs/requirements.txt /requirements/req-deepfield.txt
 
 # temporary venv to run tests
 ENV VENV /tmp/venv
-ENV MARV_VENV $VENV  # MARV_VENV is linked into site dir
+# MARV_VENV is linked into site dir
+ENV MARV_VENV $VENV
 RUN su -c "virtualenv --system-site-packages -p python2.7 $VENV" $MARV_USER
 RUN su -c "$VENV/bin/pip install --upgrade 'pip-tools>=1.4.2'" $MARV_USER
 RUN su -c "source $VENV/bin/activate && pip-sync /requirements/req-*.txt" $MARV_USER
@@ -119,7 +120,8 @@ RUN rm -R $VENV
 
 # Real venv
 ENV VENV /opt/bagbunker-venv
-ENV MARV_VENV $VENV  # MARV_VENV is linked into site dir
+# MARV_VENV is linked into site dir
+ENV MARV_VENV $VENV
 ENV STATE_DIR $VENV/.state
 RUN mkdir -p $VENV $STATE_DIR && \
     chown -R $MARV_USER:$MARV_GROUP $VENV $STATE_DIR && \

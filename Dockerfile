@@ -76,7 +76,7 @@ RUN su -c "rosdep update" $MARV_USER
 
 
 # Use system-wide pip only to install virtualenv, then deactivate it
-RUN pip install --upgrade virtualenv
+RUN pip install --upgrade virtualenv==13.1.2
 RUN chmod -x $(which pip)
 
 
@@ -105,7 +105,9 @@ ENV VENV /tmp/venv
 # MARV_VENV is linked into site dir
 ENV MARV_VENV $VENV
 RUN su -c "virtualenv --system-site-packages -p python2.7 $VENV" $MARV_USER
-RUN su -c "$VENV/bin/pip install --upgrade 'pip-tools>=1.4.2'" $MARV_USER
+# For some reason this currently claims to fail, might be pip-7.1.2 coming with virtualenv 13.1.2
+#RUN su -c "$VENV/bin/pip install --upgrade 'pip==8.0.0'" $MARV_USER || true
+RUN su -c "$VENV/bin/pip install --upgrade 'pip-tools==1.4.4'" $MARV_USER
 RUN su -c "source $VENV/bin/activate && pip-sync /requirements/req-*.txt" $MARV_USER
 COPY .git /tmp/bb/.git
 RUN chown -R $MARV_USER /tmp/bb
@@ -127,7 +129,9 @@ RUN mkdir -p $VENV $STATE_DIR && \
     chown -R $MARV_USER:$MARV_GROUP $VENV $STATE_DIR && \
     chmod -R g+w $VENV $STATE_DIR
 RUN su -c "virtualenv --system-site-packages -p python2.7 $VENV" $MARV_USER
-RUN su -c "$VENV/bin/pip install --upgrade 'pip-tools>=1.4.2'" $MARV_USER
+# For some reason this currently claims to fail, might be pip-7.1.2 coming with virtualenv 13.1.2
+#RUN su -c "$VENV/bin/pip install --upgrade 'pip==8.0.0'" $MARV_USER || true
+RUN su -c "$VENV/bin/pip install --upgrade 'pip-tools==1.4.4'" $MARV_USER
 RUN su -c "source $VENV/bin/activate && pip-sync /requirements/req-*.txt" $MARV_USER
 RUN su -c "$VENV/bin/pip install --no-index /tmp/bb/src/marv \
                                             /tmp/bb/src/bagbunker \

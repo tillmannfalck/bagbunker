@@ -80,7 +80,7 @@ STORAGE = None
 @loglevel_option()
 @click.option('--instance-path', type=click.Path(resolve_path=True, file_okay=False),
               default=os.getcwd(), expose_value=False, callback=config_option('INSTANCE_PATH'))
-@click.option('--signal-url', default='http://127.0.0.1:5000',
+@click.option('--signal-url', default='http://127.0.0.1:80',
               expose_value=False, callback=config_option('MARV_SIGNAL_URL'),
               help="How to reach the bagbunker server process")
 @click.option('--debug/--no-debug', default=None,

@@ -143,7 +143,12 @@ def checkdb(ctx, quiet):
         ctx.exit(2)
     else:
         from alembic.script import ScriptDirectory
-        script = ScriptDirectory.from_config(ALEMBIC_CONFIG)
+        try:
+            script = ScriptDirectory.from_config(ALEMBIC_CONFIG)
+        except alembic.util.CommandError:
+            if not quiet:
+                click.utils.echo("Alembic config missing - marv init /your/site!")
+            ctx.exit(-1)
         latest_rev = script.get_current_head()
         current_rev = db.session.execute('SELECT version_num FROM alembic_version')\
                                 .first()[0]

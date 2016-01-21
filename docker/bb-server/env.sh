@@ -52,6 +52,9 @@ if [ -z "$CENV" ]; then
             echo
         elif [ "$RETCODE" == "2" ]; then
             echo "Database does not exist, yet."
+        elif [ "$RETCODE" == "-1" ]; then
+            # alembic config missing, start.sh will handle that
+            true
         elif [ "$RETCODE" != "0" ]; then
             echo "ERROR occured: $RETCODE"
         fi

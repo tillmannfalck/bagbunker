@@ -102,14 +102,6 @@ To start a shell within a docker container use::
   % docker exec -it $COMPOSE_PROJECT_NAME bash
 
 
-Run tests
----------
-
-Make sure to run tests after the containers have been created::
-
-  % docker exec -ti $COMPOSE_PROJECT_NAME bash -c 'nosetests'
-
-
 Add users
 ---------
 
@@ -226,25 +218,44 @@ As mentioned earlier the development setup uses your local clone of the bagbunke
 As a reminder, source the profile before running docker commands::
 
   % source bb_dev-profile.sh
+  % docker-compose up
+
+
+Bagbunker group and adjust permissions for development
+------------------------------------------------------
+
+For development the repository is mounted into the docker container and some or all packages are installed manually into development mode (see next section). For this to succeed the user within the docker container needs to be able to write ``*.egg-info`` directories:
+
+  % sudo chown :65533 src/*
+  % sudo chmod g+w src/*
+
+Check for existing directories and remove them if the permissions are wrong:
+
+  % ls -l src/*/*.egg-info
+
+
+Develop existing and new packages
+---------------------------------
+
+To install any of the existing packages into development mode::
+
+  % docker exec -ti $COMPOSE_PROJECT bash -c "pip install code/bagbunker/src/deepfield_jobs"
+
+After that, changes to files within ``deepfield_jobs`` will be immediately available for job runs within the docker container. You can also create your own job package: take ``deepfield_jobs`` as an example and adjust setup.py accordingly.
 
 
 Switching between branches and after upgrades
 ---------------------------------------------
 
-Python creates bytecode versions of all modules. In case you or we removed a module or a module exists in one but not the other branch, this confuses python. Make sure to delete these files after upgrade and branch switches::
+Python creates bytecode versions of all modules. In case you or we removed a module or a module exists in one but not the other branch, this confuses python. Make sure to delete these files after pulls and branch switches or add the following code as ``.git/hooks/post-checkout`` and ``.git/hooks/post-merge``::
 
-  % find $(ls |grep -v $BB_DATA) -name '*.pyc' -delete
+  #!/usr/bin/env bash
 
+  # Change to project root
+  cd ./$(git rev-parse --show-cdup)
 
-Bagbunker group
----------------
-
-All files created by bagbunker from within the docker container will be uid/gid 65533/65533. For less need of ``sudo``, you might want to create a corresponding group and add your user to it::
-
-  % sudo groupadd -g 65533 bb
-  % sudo gpasswd -a <UID> bb
-
-After that enter a new shell with ``newgrp bb`` or relogin.
+  # Delete pyc files
+  find . -name '*.pyc' -delete >/dev/null 2>&1 || true
 
 
 Development webserver

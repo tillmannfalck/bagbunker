@@ -1,11 +1,13 @@
 # Adjust to the correct absolute path
 #export COMPOSE_FILE=$HOME/bagbunker/docker/compose/development.yml
+#export COMPOSE_FILE=$HOME/bagbunker/docker/compose/staging.yml
 export COMPOSE_FILE=$HOME/bagbunker/docker/compose/production.yml
 
 # This name needs to be unique among all docker-compose managed
 # projects on your server. It will also be used as base for the
 # container names.
 #export COMPOSE_PROJECT_NAME=bb_dev    # development
+#export COMPOSE_PROJECT_NAME=bb_staging    # latest release branch
 export COMPOSE_PROJECT_NAME=bb_production
 
 # Listen address for apache

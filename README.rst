@@ -83,6 +83,19 @@ Adjust the variables to your needs and then source the profile::
 
   % source bb_production-profile.sh
 
+docker-compose configs to be selected in the profile correspond to branches::
+
+``production``
+  the ``master`` branch
+
+``staging``
+  the latest ``release-`` branch before being merged into ``master`` or the same as ``production`` if no release is pending.
+
+``development``
+  at least as new as ``staging`` and sometimes containing a preview of ``develop``
+
+The ``development`` profile also mounts the repository with the currently checked out branch and enables development of packages (see below).
+
 
 Create and run containers
 -------------------------

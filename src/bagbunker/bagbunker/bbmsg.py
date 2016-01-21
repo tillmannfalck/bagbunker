@@ -38,16 +38,6 @@ from .reader import MessageStreamClient
 @loglevel_option(default='info')
 @click.pass_context
 def bbmsg(ctx, loglevel):
-    try:
-        rospy.set_param('use_sim_time', True)
-    except socket.error, e:
-        if e.errno == 111:
-            click.echo('Error connecting to roscore, has it been started?')
-        else:
-            import traceback
-            click.echo(traceback.format_exc(e))
-        ctx.exit(e.errno)
-    rospy.init_node('bbmsg')
     formatter = logging.Formatter('%(asctime)s %(levelname)s %(name)s %(message)s')
     handler = logging.StreamHandler()
     handler.setFormatter(formatter)
@@ -70,6 +60,17 @@ def play(ctx, url):
 
     http://bagbunker.int.bosppaa.com/marv/api/messages/<md5>?topic=/foo&topic=/bar
     """
+    try:
+        rospy.set_param('use_sim_time', True)
+    except socket.error, e:
+        if e.errno == 111:
+            click.echo('Error connecting to roscore, has it been started?')
+        else:
+            import traceback
+            click.echo(traceback.format_exc(e))
+        ctx.exit(e.errno)
+    rospy.init_node('bbmsg')
+
     logger = logging.getLogger('bbmsg.play')
 
     resp = requests.get(url, stream=True,
@@ -145,9 +146,6 @@ def fetch_bag(ctx, lz4, url):
         bag.write(topic, msg, time, raw=True)
 
     logger.info('Finished writing bag %s', path)
-    bag.close()
-    rospy.signal_shutdown('Finished publishing')
-    rospy.spin()
 
 
 def cli():

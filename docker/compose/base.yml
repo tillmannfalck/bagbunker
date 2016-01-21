@@ -18,7 +18,6 @@ bb:
 
 bbdb:
     container_name: ${COMPOSE_PROJECT_NAME}-db
-    image: docker.ternaris.com/bagbunker/postgres
     volumes:
         - ${BB_DATA}:/var/lib/postgresql/data
     environment:

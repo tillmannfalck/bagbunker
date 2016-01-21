@@ -10,3 +10,4 @@ bbdb:
     extends:
         file: base.yml
         service: bbdb
+    image: docker.ternaris.com/bagbunker/postgres

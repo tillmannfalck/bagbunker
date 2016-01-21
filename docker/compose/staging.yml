@@ -1,0 +1,12 @@
+bb:
+    extends:
+        file: base.yml
+        service: bb
+    links:
+        - bbdb:postgres
+    image: docker.ternaris.com/bagbunker-staging/bagbunker
+
+bbdb:
+    extends:
+        file: base.yml
+        service: bbdb

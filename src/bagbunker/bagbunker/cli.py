@@ -142,13 +142,14 @@ def checkdb(ctx, quiet):
             click.utils.echo("Database not initialized, run 'bagbunker admin initdb'")
         ctx.exit(2)
     else:
+        import alembic
         from alembic.script import ScriptDirectory
         try:
             script = ScriptDirectory.from_config(ALEMBIC_CONFIG)
         except alembic.util.CommandError:
             if not quiet:
                 click.utils.echo("Alembic config missing - marv init /your/site!")
-            ctx.exit(-1)
+            ctx.exit(202)
         latest_rev = script.get_current_head()
         current_rev = db.session.execute('SELECT version_num FROM alembic_version')\
                                 .first()[0]

@@ -23,27 +23,18 @@
 from __future__ import absolute_import, division
 
 import click
-import logging
 import requests
 import rosbag
 import rospy
 import socket
 from roslib.message import get_message_class
 from rosgraph_msgs.msg import Clock
-from marv.log import loglevel_option
 from .reader import MessageStreamClient
 
 
 @click.group()
-@loglevel_option(default='info')
-@click.pass_context
-def bbmsg(ctx, loglevel):
-    formatter = logging.Formatter('%(asctime)s %(levelname)s %(name)s %(message)s')
-    handler = logging.StreamHandler()
-    handler.setFormatter(formatter)
-    logger = logging.getLogger()
-    logger.addHandler(handler)
-    logger.setLevel(loglevel)
+def bbmsg():
+    pass
 
 
 @bbmsg.command()
@@ -71,8 +62,6 @@ def play(ctx, url):
         ctx.exit(e.errno)
     rospy.init_node('bbmsg')
 
-    logger = logging.getLogger('bbmsg.play')
-
     resp = requests.get(url, stream=True,
                         headers={'Accept': 'application/x-ros-bag-msgs'})
     if resp.status_code != 200:
@@ -97,14 +86,13 @@ def play(ctx, url):
         pub = pubs[topic_id]
         msg = pub.data_class()
         msg.deserialize(data)
-        logger.debug('Publishing: %r', msg)
         pub.publish(msg)
 
         if rospy.is_shutdown():
-            logger.warn('Aborting due to rospy shutdown.')
+            click.echo('Aborting due to rospy shutdown.')
             ctx.exit(108)
 
-    logger.info('Finished publishing')
+    click.echo('Finished publishing')
     rospy.signal_shutdown('Finished publishing')
     rospy.spin()
 
@@ -124,8 +112,6 @@ def fetch_bag(ctx, lz4, url):
 
     http://bagbunker.int.bosppaa.com/marv/api/messages/<md5>?topic=/foo&topic=/bar
     """
-    logger = logging.getLogger('bbmsg.fetch-bag')
-
     resp = requests.get(url, stream=True,
                         headers={'Accept': 'application/x-ros-bag-msgs'})
     if resp.status_code != 200:
@@ -139,13 +125,12 @@ def fetch_bag(ctx, lz4, url):
               for topic, (topic_id, msg_type, mt_md5sum) in msc.topics.items()}
 
     for topic_id, nsec, data in msc.messages:
-        logger.debug('Message size: %s', len(data))
         time = rospy.rostime.Time.from_sec(nsec * 1e-9)
         topic, msg_type, mt_md5sum = topics[topic_id]
         msg = (msg_type, data, mt_md5sum, None)
         bag.write(topic, msg, time, raw=True)
 
-    logger.info('Finished writing bag %s', path)
+    click.echo('Finished writing bag %s', path)
 
 
 def cli():

@@ -23,10 +23,12 @@
 from __future__ import absolute_import, division
 
 import click
+import os
 import requests
 import rosbag
 import rospy
 import socket
+import genpy
 from roslib.message import get_message_class
 from rosgraph_msgs.msg import Clock
 from .reader import MessageStreamClient
@@ -50,6 +52,10 @@ def play(ctx, url):
     http://bagbunker.int.bosppaa.com/marv/api/messages/<md5>?topic=/foo
 
     http://bagbunker.int.bosppaa.com/marv/api/messages/<md5>?topic=/foo&topic=/bar
+
+    http://bagbunker.int.bosppaa.com/marv/api/messages/<md5>?topic=/foo&msg_type=std_msgs/String
+
+    (topic1 OR topic2) AND (msg_type1 OR msg_type2)
     """
     try:
         rospy.set_param('use_sim_time', True)
@@ -72,20 +78,31 @@ def play(ctx, url):
     if '/clock' in topics:
         raise ValueError('/clock must not be streamed from server')
 
-    # XXX: verify md5 sum
-    pubs = {topic_id: rospy.Publisher(topic, get_message_class(msg_type), queue_size=1)
-            for topic, (topic_id, msg_type, mt_md5sum) in topics.items()}
+    pubs = {}
+    missing = []
+    for topic, msg_type in topics.items():
+        pytype = get_message_class(msg_type)
+        if pytype is None:
+            missing.append(msg_type)
+            continue
+        pubs[topic] = rospy.Publisher(topic, pytype, queue_size=1)
+    if missing:
+        missing.sort()
+        click.echo("Missing message types:\n" + '\n   '.join(missing))
+        ctx.exit(2)
+
     clock_pub = rospy.Publisher('/clock', Clock, queue_size=1)
 
     clock_msg = Clock()
-    for topic_id, nsec, data in msc.messages:
-        time = rospy.rostime.Time.from_sec(nsec * 1e-9)
+    for topic, secs, nsecs, raw_msg in msc.messages:
+        time = genpy.Time(secs, nsecs)
         clock_msg.clock = time
         clock_pub.publish(clock_msg)
 
-        pub = pubs[topic_id]
+        pub = pubs[topic]
+        assert pub.md5sum == raw_msg[2]
         msg = pub.data_class()
-        msg.deserialize(data)
+        msg.deserialize(raw_msg[1])
         pub.publish(msg)
 
         if rospy.is_shutdown():
@@ -111,6 +128,10 @@ def fetch_bag(ctx, lz4, url):
     http://bagbunker.int.bosppaa.com/marv/api/messages/<md5>?topic=/foo
 
     http://bagbunker.int.bosppaa.com/marv/api/messages/<md5>?topic=/foo&topic=/bar
+
+    http://bagbunker.int.bosppaa.com/marv/api/messages/<md5>?topic=/foo&msg_type=std_msgs/String
+
+    (topic1 OR topic2) AND (msg_type1 OR msg_type2)
     """
     resp = requests.get(url, stream=True,
                         headers={'Accept': 'application/x-ros-bag-msgs'})
@@ -118,19 +139,28 @@ def fetch_bag(ctx, lz4, url):
         raise Exception(resp)
 
     msc = MessageStreamClient(resp.iter_content(chunk_size=512))
+    missing = []
+    for topic, msg_type in msc.topics.items():
+        if get_message_class(msg_type) is None:
+            missing.append(msg_type)
+            continue
+    if missing:
+        missing.sort()
+        click.echo("Missing message types:\n" + '\n   '.join(missing))
+        ctx.exit(2)
+
     path = '{}.bag'.format(msc.name)
+    if os.path.exists(path):
+        click.echo('Will not overwrite existing bag: ' + path)
+        ctx.exit(-1)
     bag = rosbag.Bag(path, 'w', compression='lz4' if lz4 else 'none')
 
-    topics = {topic_id: (topic, msg_type, mt_md5sum)
-              for topic, (topic_id, msg_type, mt_md5sum) in msc.topics.items()}
+    for topic, secs, nsecs, raw_msg in msc.messages:
+        time = genpy.Time(secs, nsecs)
+        # This will need the correct message classes available
+        bag.write(topic, raw_msg, time, raw=True)
 
-    for topic_id, nsec, data in msc.messages:
-        time = rospy.rostime.Time.from_sec(nsec * 1e-9)
-        topic, msg_type, mt_md5sum = topics[topic_id]
-        msg = (msg_type, data, mt_md5sum, None)
-        bag.write(topic, msg, time, raw=True)
-
-    click.echo('Finished writing bag %s', path)
+    click.echo('Finished writing bag %s' % path)
 
 
 def cli():

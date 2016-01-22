@@ -90,14 +90,15 @@ def http_messages(fileset, topic=(), msg_type=(), start_time=None,
     """
     import flask
     import rosbag
-    from roslib.message import get_message_class
 
-    topics = {name: (topic_id, msg_type, get_message_class(msg_type)._md5sum)
-              for topic_id, (name, msg_type)
-              in enumerate((x.topic.name, x.msg_type.name) for x in fileset.bag.topics)
-              if name in topic or not topic}
-    meta = {'topics': topics,
-            'name': fileset.name}
+    topics = {}
+    for x in fileset.bag.topics:
+        if topic and x.topic.name not in topic:
+            continue
+        if msg_type and x.msg_type.name not in msg_type:
+            continue
+        topics[x.topic.name] = x.msg_type.name
+    meta = {'topics': topics, 'name': fileset.name}
 
     def read_messages(**kw):
         logger.debug('start reading messages %s', kw)
@@ -115,10 +116,10 @@ def http_messages(fileset, topic=(), msg_type=(), start_time=None,
 
         yield pickle.dumps(meta, protocol=2)
 
-        for topic, raw_msg, timestamp in raw_messages:
-            topic_id = topics[topic][0]
-            data = raw_msg[1]
-            yield pickle.dumps((topic_id, timestamp.to_nsec(), data), protocol=2)
+        for topic, raw_msg, time in raw_messages:
+            raw_msg = raw_msg[:-1] + (None,)  # do not pickle pytype
+            data = (topic, time.secs, time.nsecs, raw_msg)
+            yield pickle.dumps(data, protocol=2)
         logger.debug('done streaming')
 
     # in a previous implementation there were two mimetypes. Keeping
@@ -141,7 +142,7 @@ def http_messages(fileset, topic=(), msg_type=(), start_time=None,
         flask.abort(400)
 
     # start streaming
-    messages = handler[mimetype](read_messages(topics=topic or None,
+    messages = handler[mimetype](read_messages(topics=topics.keys() or None,
                                                start_time=start_time,
                                                end_time=end_time,
                                                raw=True))
@@ -177,5 +178,10 @@ class MessageStreamClient(object):
         return rv
 
     def readline(self):
-        # Effectively blocking load_global(), i.e. arbitrary types
-        raise NotImplementedError
+        line = ''
+        while True:
+            char = self.read(1)
+            if not char or char == '\n':
+                break
+            line += char
+        return line

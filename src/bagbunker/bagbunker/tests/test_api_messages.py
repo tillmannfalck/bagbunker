@@ -68,13 +68,9 @@ class TestCase(FlaskTestCase):
         self.assertEqual(resp.headers['Content-type'], 'application/x-ros-bag-msgs')
         msc = MessageStreamClient(chunks=iter([resp.data]))
         self.assertEqual(msc.name, 'test_2015-02-05-12-59-06')
-        self.assertEqual(msc.topics,
-                         {u'/chatter': (2, u'std_msgs/String',
-                                        '992ce8a1687cec8c8bd883ec73ca41d1'),
-                          u'/rosout': (1, u'rosgraph_msgs/Log',
-                                       'acffd30cd6b6de30f120938c17c593fb'),
-                          u'/rosout_agg': (0, u'rosgraph_msgs/Log',
-                                           'acffd30cd6b6de30f120938c17c593fb')})
+        self.assertEqual(msc.topics, {u'/chatter': u'std_msgs/String',
+                                      u'/rosout':  u'rosgraph_msgs/Log',
+                                      u'/rosout_agg': u'rosgraph_msgs/Log',})
         self.assertEqual(len(list(msc.messages)), 29)
 
     @default_from_self
@@ -82,9 +78,7 @@ class TestCase(FlaskTestCase):
         resp = client.get('/marv/api/messages/{}?topic=/chatter'.format(MD5))
         self.assert200(resp)
         msc = MessageStreamClient(chunks=iter([resp.data]))
-        self.assertEqual(msc.topics,
-                         {u'/chatter': (2, u'std_msgs/String',
-                                        '992ce8a1687cec8c8bd883ec73ca41d1')})
+        self.assertEqual(msc.topics, {u'/chatter': u'std_msgs/String'})
         self.assertEqual(len(list(msc.messages)), 8)
 
     @default_from_self
@@ -92,11 +86,8 @@ class TestCase(FlaskTestCase):
         resp = client.get('/marv/api/messages/{}?topic=/chatter&topic=/rosout'.format(MD5))
         self.assert200(resp)
         msc = MessageStreamClient(chunks=iter([resp.data]))
-        self.assertEqual(msc.topics,
-                         {u'/chatter': (2, u'std_msgs/String',
-                                        '992ce8a1687cec8c8bd883ec73ca41d1'),
-                          u'/rosout': (1, u'rosgraph_msgs/Log',
-                                       'acffd30cd6b6de30f120938c17c593fb')})
+        self.assertEqual(msc.topics, {u'/chatter': u'std_msgs/String',
+                                      u'/rosout': u'rosgraph_msgs/Log'})
         self.assertEqual(len(list(msc.messages)), 20)
 
     # @default_from_self

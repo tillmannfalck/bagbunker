@@ -83,7 +83,7 @@ Adjust the variables to your needs and then source the profile::
 
   % source bb_production-profile.sh
 
-docker-compose configs to be selected in the profile correspond to branches::
+docker-compose configs to be selected in the profile correspond to branches:
 
 ``production``
   the ``master`` branch

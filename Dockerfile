@@ -84,7 +84,7 @@ RUN chmod -x $(which pip)
 RUN cd /opt && curl https://nodejs.org/dist/v5.2.0/node-v5.2.0-linux-x64.tar.gz |tar xz
 RUN cd /usr/local/bin && ln -s /opt/node-v*/bin/node && ln -s /opt/node-v*/bin/npm
 RUN node -v && npm -v
-RUN cd /opt && curl https://ternaris.com/bngl.tar.gz |tar xz
+RUN cd /opt && curl https://ternaris.com/bungle/bngl-20160201.tar.gz |tar xz
 RUN cd /opt/bngl/bungle-ember && npm --loglevel info install
 RUN cd /usr/local/bin && ln -s /opt/bngl/bungle-ember/bin/bungle-ember
 RUN rm -Rf /tmp/npm-*

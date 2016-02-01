@@ -252,7 +252,7 @@ Develop existing and new packages
 
 To install any of the existing packages into development mode::
 
-  % docker exec -ti $COMPOSE_PROJECT bash -c "pip install code/bagbunker/src/deepfield_jobs"
+  % docker exec -ti $COMPOSE_PROJECT bash -c "pip install -e code/bagbunker/src/deepfield_jobs"
 
 After that, changes to files within ``deepfield_jobs`` will be immediately available for job runs within the docker container. You can also create your own job package: take ``deepfield_jobs`` as an example and adjust setup.py accordingly.
 
@@ -303,7 +303,7 @@ Jobs have a `__version__` which needs to be increased in order to run a job agai
 
   % ./bin/bagbunker run-jobs --force deepfield::metadata
 
-In order to develop your own jobs, please use the ``src/deepfield_jobs`` package as an example or add your jobs in there. Make sure to import your job from the package's ``__init__.py``. 
+In order to develop your own jobs, add them to ``src/deepfield_jobs`` package with appropriate copyright headers and make sure to import your jobs from the package's ``__init__.py``. In the future we will rename ``deepfield_jobs`` to ``bagbunker_jobs``. Pull requests with new jobs are welcome! Creating your own jobs in a separate repository will be supported in 3.1.0.
 
 
 Coverage report
@@ -311,17 +311,22 @@ Coverage report
 
 To get a coverage report::
 
-  % docker exec -it bb_dev bash -c 'nosetests --with-coverage'
+  % docker exec -it bb_dev bash -c 'cd $BB_CODE && nosetests --with-coverage'
 
-In development setups, the coverage report is created in ``./cover/index.htm``l and a summary is displayed in the terminal. In order to access the coverage report in a production environment, you have to copy it out of the docker container::
+In development setups, the coverage report is created in ``./cover/index.html`` and a summary is displayed in the terminal. For this to succeed the bagbunker group (65533) needs to have write permissions on the repository checkout.
+
+In order to access the coverage report in a production environment, you have to copy it out of the docker container::
 
   % docker cp $COMPOSE_PROJECT_NAME:/opt/bagbunker/cover ./
 
 
-Build docker image
-==================
+Custom jobs in production / build docker image
+==============================================
 
-In case you want to build the docker image yourself, see the instructions in `base.yml <docker/compose/base.yml>`_. If you need a proxy to access the internet see https://github.com/bosch-ros-pkg/bagbunker/blob/master/Dockerfile#L35.
+There is a Makefile to build and tag docker images for ``develop``, ``staging`` and ``latest`` (in line with docker nomenclature the latest stable image, i.e. master branch).
+
+If you need a proxy to access the internet see https://github.com/bosch-ros-pkg/bagbunker/blob/master/Dockerfile#L30.
+
 
 
 Python version

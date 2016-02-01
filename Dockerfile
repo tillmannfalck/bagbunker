@@ -93,17 +93,17 @@ RUN rm -Rf /tmp/npm-*
 ENV PIP_FIND_LINKS https://ternaris.com/pypi https://ternaris.com/wheels
 
 
-# This speeds up the build somewhat as a changed git dir does not mean rebuilding venvs
-# After the first pip-sync call the wheels cache is seeded
+# This speeds up the build somewhat as a changed git dir does not mean rebuilding the venv
 COPY src/marv/requirements.txt /requirements/req-marv.txt
 COPY src/bagbunker/requirements.txt /requirements/req-bagbunker.txt
 COPY src/deepfield_jobs/requirements.txt /requirements/req-deepfield.txt
-
-
-# temporary venv to run tests
-ENV VENV /tmp/venv
+ENV VENV /opt/bagbunker-venv
 # MARV_VENV is linked into site dir
 ENV MARV_VENV $VENV
+ENV STATE_DIR $VENV/.state
+RUN mkdir -p $VENV $STATE_DIR && \
+    chown -R $MARV_USER:$MARV_GROUP $VENV $STATE_DIR && \
+    chmod -R g+w $VENV $STATE_DIR
 RUN su -c "virtualenv --system-site-packages -p python2.7 $VENV" $MARV_USER
 # For some reason this currently claims to fail, might be pip-7.1.2 coming with virtualenv 13.1.2
 #RUN su -c "$VENV/bin/pip install --upgrade 'pip==8.0.0'" $MARV_USER || true
@@ -126,41 +126,21 @@ RUN mkdir -p $BB_CODE && cd $BB_CODE && \
     rm -rf /tmp/bb.git
 RUN chown -R $MARV_USER:$MARV_GROUP $BB_CODE
 
-# Install in temporary venv for running tests
-RUN su -c "$VENV/bin/pip install --no-index -e $BB_CODE/src/marv \
-                                            -e $BB_CODE/src/bagbunker \
-                                            -e $BB_CODE/src/deepfield_jobs" $MARV_USER
-RUN su -c "cd $BB_CODE && source /opt/ros/indigo/setup.bash && $VENV/bin/nosetests" $MARV_USER
-RUN su -c "source $VENV/bin/activate && marv --help && bagbunker --help"
-RUN rm -R $VENV
 
-
-# Real venv
-ENV VENV /opt/bagbunker-venv
-# MARV_VENV is linked into site dir
-ENV MARV_VENV $VENV
-ENV STATE_DIR $VENV/.state
-RUN mkdir -p $VENV $STATE_DIR && \
-    chown -R $MARV_USER:$MARV_GROUP $VENV $STATE_DIR && \
-    chmod -R g+w $VENV $STATE_DIR
-RUN su -c "virtualenv --system-site-packages -p python2.7 $VENV" $MARV_USER
-# For some reason this currently claims to fail, might be pip-7.1.2 coming with virtualenv 13.1.2
-#RUN su -c "$VENV/bin/pip install --upgrade 'pip==8.0.0'" $MARV_USER || true
-RUN su -c "$VENV/bin/pip install --upgrade 'pip-tools==1.4.4'" $MARV_USER
-RUN su -c "source $VENV/bin/activate && pip-sync /requirements/req-*.txt" $MARV_USER
-RUN su -c "$VENV/bin/pip install --no-index $BB_CODE/src/marv \
-                                            $BB_CODE/src/bagbunker \
-                                            $BB_CODE/src/deepfield_jobs" $MARV_USER
+# Install python packages into virtual env
+RUN su -c "$VENV/bin/pip install --no-index $BB_CODE/src/marv $BB_CODE/src/bagbunker $BB_CODE/src/deepfield_jobs" $MARV_USER
 RUN su -c "source $VENV/bin/activate && marv --help && bagbunker --help"
 RUN su -c "touch $STATE_DIR/pip-tools $STATE_DIR/venv" $MARV_USER
 
 
+# Create skeleton site and build its frontend
 ENV DOCKER_IMAGE_MARV_SKEL_SITE /opt/bagbunker-skel-site
 RUN mkdir -p $DOCKER_IMAGE_MARV_SKEL_SITE && chown $MARV_USER:$MARV_GROUP $DOCKER_IMAGE_MARV_SKEL_SITE
 RUN su -c "$VENV/bin/marv init $DOCKER_IMAGE_MARV_SKEL_SITE" $MARV_USER
 RUN su -c "cd $DOCKER_IMAGE_MARV_SKEL_SITE/frontend && \
     bungle-ember build" $MARV_USER
 RUN rm -rf /tmp/bagbunker
+
 
 COPY docker/bb-server/000-default.conf /etc/apache2/sites-available/
 COPY docker/bb-server/env.sh /
@@ -170,6 +150,8 @@ RUN chmod 0755 /start.sh
 
 USER $MARV_USER
 WORKDIR /home/$MARV_USER
+
+RUN bash -c "nosetests -v $VENV/lib/python2.7/site-packages/{marv,bagbunker,deepfield_jobs}"
 
 ENTRYPOINT ["/start.sh"]
 CMD ["apache2"]

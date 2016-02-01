@@ -100,10 +100,9 @@ COPY src/deepfield_jobs/requirements.txt /requirements/req-deepfield.txt
 ENV VENV /opt/bagbunker-venv
 # MARV_VENV is linked into site dir
 ENV MARV_VENV $VENV
-ENV STATE_DIR $VENV/.state
-RUN mkdir -p $VENV $STATE_DIR && \
-    chown -R $MARV_USER:$MARV_GROUP $VENV $STATE_DIR && \
-    chmod -R g+w $VENV $STATE_DIR
+RUN mkdir -p $VENV && \
+    chown -R $MARV_USER:$MARV_GROUP $VENV && \
+    chmod -R g+w $VENV
 RUN su -c "virtualenv --system-site-packages -p python2.7 $VENV" $MARV_USER
 # For some reason this currently claims to fail, might be pip-7.1.2 coming with virtualenv 13.1.2
 #RUN su -c "$VENV/bin/pip install --upgrade 'pip==8.0.0'" $MARV_USER || true
@@ -130,7 +129,6 @@ RUN chown -R $MARV_USER:$MARV_GROUP $BB_CODE
 # Install python packages into virtual env
 RUN su -c "$VENV/bin/pip install --no-index $BB_CODE/src/marv $BB_CODE/src/bagbunker $BB_CODE/src/deepfield_jobs" $MARV_USER
 RUN su -c "source $VENV/bin/activate && marv --help && bagbunker --help"
-RUN su -c "touch $STATE_DIR/pip-tools $STATE_DIR/venv" $MARV_USER
 
 
 # Create skeleton site and build its frontend

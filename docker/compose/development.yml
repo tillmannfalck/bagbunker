@@ -2,11 +2,11 @@ bb:
     extends:
         file: base.yml
         service: bb
+    image: docker.ternaris.com/bagbunker/bagbunker:develop
     ports:
         - ${BB_DEV_LISTEN}:5000
     volumes:
-        - ../..:/opt/bagbunker
-        - ../../.home:/home
+        - ../..:/home/bagbunker/code/bagbunker
     links:
         - bbdb:postgres
     environment:
@@ -16,3 +16,4 @@ bbdb:
     extends:
         file: base.yml
         service: bbdb
+    image: docker.ternaris.com/bagbunker/postgres:develop

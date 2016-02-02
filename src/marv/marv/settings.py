@@ -25,16 +25,16 @@ from __future__ import absolute_import, division
 import os
 
 
-POSTGRESQL_URI = 'postgresql://bagbunker:bagbunker@{}/bagbunker' \
-    .format(os.environ.get('POSTGRES_PORT_5432_TCP_ADDR'))
+host = os.environ.get('PGHOSTADDR')
+user = os.environ.get('PGUSER')
+password = os.environ.get('PGPASSWORD')
+POSTGRESQL_URI = 'postgresql://{}:{}@{}/bagbunker'.format(user, password, host)
 
 
 class _Base(object):
     # XXX: set to True after ugrade to 2.1 to silence warnings
     # Needs evaluation whether False is ok for us.
     SQLALCHEMY_TRACK_MODIFICATIONS = True
-    FRONTEND_PATH = os.path.abspath(os.path.join(
-        os.path.dirname(__file__), '..', 'frontend', 'dist'))
 
 
 class Development(_Base):
@@ -49,6 +49,7 @@ class Production(_Base):
 
 
 class Testing(_Base):
+    MARV_SIGNAL_URL = None
     SQLALCHEMY_ECHO = bool(os.environ.get('SQLALCHEMY_ECHO', False))
     SQLALCHEMY_DATABASE_URI = 'sqlite://'
     DB_SQLITE = None

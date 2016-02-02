@@ -23,14 +23,14 @@
 from __future__ import absolute_import, division
 
 from .decorators import fileset, job_model               # noqa
-from .decorators import summary, listing, detail      # noqa
-from .decorators import (table_widget, text_widget, image_widget,   # noqa
-                         gallery_widget)    # noqa
-from .decorators import column    # noqa
+from .decorators import summary, detail      # noqa
+from .decorators import table_widget, text_widget, image_widget   # noqa
+from .decorators import gallery_widget, c3_widget    # noqa
+from .decorators import column, listing_column    # noqa
 from .decorators import filter, filter_input    # noqa
 
 from .parameters import config  # noqa
-from .registry import job, reader, scanner  # noqa
+from .registry import job, reader, scanner, listing  # noqa
 
 from .globals import job_logger  # noqa
 

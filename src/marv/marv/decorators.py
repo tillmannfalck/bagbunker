@@ -28,10 +28,11 @@ from flask.ext.sqlalchemy import _BoundDeclarativeMeta as model_metaclass
 
 from .model import db
 from .filtering import FILTER, Filter, FilterInput
+from .listing import ListingColumn
 from .registry import MODULE_NAME_MAP
-from .serializer import Detail, Listing, Summary
-from .serializer import DETAIL, LISTING, SUMMARY
-from .widget import Column, Image, Gallery, Row, Text, Table, Widget
+from .serializer import Detail, Summary
+from .serializer import DETAIL, SUMMARY
+from .widget import C3, Column, Image, Gallery, Row, Text, Table, Widget
 
 
 def fileset():
@@ -113,16 +114,6 @@ def detail(namespace=None, name=None, cls=Detail, **kw):
     return decorator
 
 
-def listing(namespace=None, name=None, cls=Listing, **kw):
-    """Turn callback into table widget and register as listing serializer"""
-    def decorator(f):
-        widget = row_widget(name)(f)
-        serializer = cls(namespace, name, widget, **kw)
-        LISTING.append(serializer)
-        return serializer
-    return decorator
-
-
 def summary(namespace=None, name=None, cls=Summary, **kw):
     """Register widget as summary serializer"""
     def decorator(widget):
@@ -169,6 +160,12 @@ def _make_widget(f, name, cls, kw):
     kw['help'] = help
     return cls(name=name or f.__name__.lower(),
                callback=f, params=params, **kw)
+
+
+def c3_widget(name=None, cls=C3, **kw):
+    def decorator(f):
+        return _make_widget(f, name, cls, kw)
+    return decorator
 
 
 def image_widget(name=None, cls=Image, **kw):
@@ -226,6 +223,16 @@ def column(*args, **kw):
         if 'help' in kw:
             kw['help'] = inspect.cleandoc(kw['help'])
         cls = kw.pop('cls', Column)
+        _param_memo(f, cls(*args, **kw))
+        return f
+    return decorator
+
+
+def listing_column(*args, **kw):
+    def decorator(f):
+        if 'help' in kw:
+            kw['help'] = inspect.cleandoc(kw['help'])
+        cls = kw.pop('cls', ListingColumn)
         _param_memo(f, cls(*args, **kw))
         return f
     return decorator

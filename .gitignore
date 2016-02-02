@@ -2,15 +2,9 @@
 *.egg-info
 *.py[co]
 *.swp
-/.apt-cache
 /.coverage
-/.eggs
-/.home/
 /.nix-profile
 /.noseids
-/.pip
-/.venv
-/.wheelhouse
 /bin
 /build
 /cover
@@ -23,4 +17,3 @@
 /pip-selfcheck.json
 /pysqlite2-doc
 /share
-/var

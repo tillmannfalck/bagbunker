@@ -22,7 +22,9 @@
 
 from __future__ import absolute_import, division
 
+import json
 from . import bb
+from .model import db
 
 
 def fileset_size(fileset):
@@ -50,14 +52,16 @@ def fileset_size(fileset):
 
 
 @bb.listing()
-@bb.column('name', formatter='route')
-@bb.column('md5', title='Abbr. MD5')
-@bb.column('size', formatter='size')
-@bb.column('file_count', title='# files')
-@bb.column('status', formatter='icon', list=True)
-@bb.column('job_count', title='# jobs')
-@bb.column('comment_count', title='# comments')
-@bb.column('tags', list=True, formatter='pill')
+@bb.listing_column('name', formatter='route', json=True)
+@bb.listing_column('abbr_md5', title='Abbr. MD5')
+@bb.listing_column('size', formatter='size', type=db.Integer)
+@bb.listing_column('file_count', title='# files', type=db.Integer)
+@bb.listing_column('status', formatter='icon', list=True, json=True)
+@bb.listing_column('job_count', title='# jobs', type=db.Integer)
+@bb.listing_column('comment_count', title='# comments', type=db.Integer)
+@bb.listing_column('comments_relation', hidden=True, relation=True)
+@bb.listing_column('tags', formatter='pill', list=True, json=True)
+@bb.listing_column('tags_relation', hidden=True, relation=True)
 # @bb.column('downloads', title="Download Parts", formatter='link', list=True)
 def base_listing(fileset):
     md5 = fileset.md5
@@ -91,14 +95,16 @@ def base_listing(fileset):
             'classes': 'text-danger',
         })
     return {
-        'name': {'route': 'bagbunker.detail', 'id': md5, 'title': fileset.name},
-        'md5': md5[:7],
+        'name': json.dumps({'route': 'bagbunker.detail', 'id': md5, 'title': fileset.name}),
+        'abbr_md5': md5[:7],
         'size': size,
-        'tags': sorted([t.label for t in tags]),
-        'status': status,
+        'tags': json.dumps(sorted([t.label for t in tags])),
+        'tags_relation': [t.label for t in tags],
+        'status': json.dumps(status),
         'file_count': len(fileset.files),
         'job_count': len(fileset.jobruns),
         'comment_count': len(fileset.comments),
+        'comments_relation': [c.text for c in fileset.comments],
         # 'downloads': [
         #     {'href': '/marv/download/{}'.format(md5),
         #      'title': md5[:7]}

@@ -39,7 +39,8 @@ class Scanner(WidgetBase):
         self.pattern = pattern
 
     def __call__(self, fileinfos):
-        filtered = (x for x in fileinfos if fnmatch(x.name, self.pattern))
+        filtered = (x for x in fileinfos
+                    if fnmatch(os.path.join(x.dirpath, x.name), self.pattern))
         return self.callback(filtered)
 
 

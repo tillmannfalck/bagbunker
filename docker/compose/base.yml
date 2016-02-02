@@ -1,28 +1,23 @@
 bb:
     container_name: ${COMPOSE_PROJECT_NAME}
-    # In order to build the docker image from scratch use ``build``
-    # instead of ``image``
-    image: docker.ternaris.com/bagbunker/bagbunker
-    #build: ../..
     ports:
         - ${BB_LISTEN}:80
     volumes:
         - ${BB_DATA}:/var/lib/bagbunker
         - ${BB_BAGS}:/mnt/bags:ro
     environment:
-        BRANCH:
         DEBUG_START_SH:
         BB_BAGS:
         BB_DATA:
         BB_LISTEN:
         BB_NAME:
         COMPOSE_PROJECT_NAME:
+        TERM:
         http_proxy:
         https_proxy:
 
 bbdb:
     container_name: ${COMPOSE_PROJECT_NAME}-db
-    image: docker.ternaris.com/bagbunker/postgres
     volumes:
         - ${BB_DATA}:/var/lib/postgresql/data
     environment:

@@ -119,6 +119,12 @@ class Widget(object):
         return self.serialize(dct, values)
 
 
+class C3(Widget):
+    def serialize(self, dct, c3_data):
+        dct.update(c3_data)
+        return dct
+
+
 class Image(Widget):
     def serialize(self, dct, image):
         dct.update({

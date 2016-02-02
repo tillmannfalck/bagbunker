@@ -38,7 +38,7 @@ requires = [
     ]
 
 setup(name='deepfield_jobs',
-      version='3.0.dev0',
+      version='1.0.0',
       # description='',
       # long_description=README + '\n\n' + CHANGES,
       # FIXME: Add classifiers
@@ -58,8 +58,8 @@ setup(name='deepfield_jobs',
       license='MIT',
       keywords='web wsgi flask',  # FIXME: Are there ROS specific keywords?
       packages=['deepfield_jobs'],
-      include_package_data=True,
-      zip_safe=False,
+      include_package_data=True,  # needs setuptools-git installed
+      zip_safe=True,
       test_suite='nose.collector',
       tests_require=['nose'],
       install_requires=requires,

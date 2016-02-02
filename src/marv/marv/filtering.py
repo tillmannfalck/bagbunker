@@ -91,13 +91,14 @@ def filter_query(query, filters):
         filter_key, input_name = k.rsplit('::', 1)
         unflattened[filter_key][input_name] = v
 
+    from .listing import ListingEntry
     for key, filter in FILTER.items():
         inputs = unflattened.get(key)
         if inputs:
             for k, v in inputs.items():
                 vtype = [i for i in filter.inputs if i.name == k][0].value_type
                 inputs[k] = ValOp(normalize_input(vtype, v['val']), v['op'])
-            query = filter(query, **inputs)
+            query = filter(query, ListingEntry, **inputs)
 
     return query
 
@@ -121,8 +122,8 @@ class Filter(_BaseWidget):
         dct['key'] = '::'.join([self.key, dct['name']])
         return dct
 
-    def __call__(self, query, **inputs):
-        return self.callback(query, **inputs)
+    def __call__(self, query, ListingEntry, **inputs):
+        return self.callback(query, ListingEntry, **inputs)
 
 
 class FilterInput(object):

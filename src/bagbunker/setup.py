@@ -41,7 +41,7 @@ requires = [
     ]
 
 setup(name='bagbunker',
-      version='3.0.dev0',
+      version='3.0.0',
       # description='',
       # long_description=README + '\n\n' + CHANGES,
       # FIXME: Add classifiers
@@ -61,17 +61,20 @@ setup(name='bagbunker',
       license='MIT',
       keywords='web wsgi flask',  # FIXME: Are there ROS specific keywords?
       packages=['bagbunker'],
-      include_package_data=True,
-      zip_safe=False,
+      include_package_data=True,  # needs setuptools-git installed
+      zip_safe=True,
       test_suite='nose.collector',
       tests_require=['nose'],
       install_requires=requires,
       entry_points={
           'console_scripts': [
               'bagbunker = bagbunker.cli:cli',
-              'bbat = bagbunker.bbat:cli',
+              'bbmsg = bagbunker.bbmsg:cli',
           ],
           'marv_formats': [
               'bag = bagbunker',
+          ],
+          'marv_frontends': [
+              'bagbunker = bagbunker',
           ],
       })

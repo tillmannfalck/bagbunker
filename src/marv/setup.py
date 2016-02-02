@@ -50,10 +50,13 @@ requires = [
     'nose',
     'coverage',
     'ipdbplugin',
+
+    # documentation
+    'Sphinx'
     ]
 
 setup(name='marv',
-      version='1.0.dev0',
+      version='1.0.0',
       # description='',
       # long_description=README + '\n\n' + CHANGES,
       # FIXME: Add classifiers
@@ -71,12 +74,15 @@ setup(name='marv',
       author_email='team@ternaris.com',
       url='',
       license='MIT',
-      keywords='web wsgi flask',  # FIXME: Are there ROS specific keywords?
+      keywords='web wsgi flask',
       packages=['marv'],
-      include_package_data=True,
-      zip_safe=False,
+      include_package_data=True,  # needs setuptools-git installed
+      zip_safe=True,
       test_suite='nose.collector',
       tests_require=['nose'],
       install_requires=requires,
       entry_points={
+          'console_scripts': [
+              'marv = marv.cli:cli',
+          ],
       })

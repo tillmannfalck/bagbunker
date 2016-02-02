@@ -1,10 +1,13 @@
 Getting started
 ===============
 
+This document describes the setup using docker. For manual installation instructions without docker see `Manual Setup <./doc/manual-setup.rst>`_.
+
+
 Using a proxy
 -------------
 
-All tools should honor the ``http_proxy`` and ``https_proxy`` environment variables. If this does not work, please open a `new issue <https://github.com/bosch-ros-pkg/bagbunker/issues/new>`_.
+All tools should honor the ``http_proxy`` and ``https_proxy`` environment variables. If this does not work, please open a `new issue <https://github.com/bosch-ros-pkg/bagbunker/issues/new>`_. Make sure the proxy variables point to an IP address that is reachable from within the docker container, ``127.0.0.1` inside your docker container is a different ``127.0.0.1`` than outside. The IP address of the ``docker0`` interface works.
 
 
 System requirements
@@ -58,6 +61,8 @@ All other branches are feature branches and are likely to be rebased. For your c
 
 Branching model based on http://nvie.com/posts/a-successful-git-branching-model/.
 
+The docker image contains the latest master branch of the bagbunker repository, suitable for production. For development setups, the bagbunker repository is mounted as a volume which gives you full control over which branch is used and enables you to develop new jobs (more on this further down).
+
 
 Setup
 =====
@@ -70,7 +75,7 @@ The configurations use environment variables (see below).
 Create and source profile
 -------------------------
 
-While it is possible to pass all configuration variables on the command-line, it is recommended to create a profile that is sourced, here by example of profile named for your production setup::
+While it is possible to pass all configuration variables on the command-line, it is recommended to create a profile that is sourced, here by example of profile meant for production::
 
   % cp docker/profile.sh bb_production-profile.sh
 
@@ -78,7 +83,18 @@ Adjust the variables to your needs and then source the profile::
 
   % source bb_production-profile.sh
 
-The docker images contains the full bagbunker repository. For server setups you specify the branch you want to use via the ``$BB_BRANCH`` environment variable, usually ``master`` or ``release`` to test an upcoming release. For development setups, the bagbunker repository is mounted as a volume which gives you full control over which branch is used and enables you to develop new jobs (more on this further down).
+docker-compose configs to be selected in the profile correspond to branches:
+
+``production``
+  the ``master`` branch
+
+``staging``
+  the latest ``release-`` branch before being merged into ``master`` or the same as ``production`` if no release is pending.
+
+``development``
+  at least as new as ``staging`` and sometimes containing a preview of ``develop``
+
+The ``development`` profile also mounts the repository with the currently checked out branch and enables development of packages (see below).
 
 
 Create and run containers
@@ -97,14 +113,6 @@ While ``docker-compose up`` is running, commands can be executed within the dock
 To start a shell within a docker container use::
 
   % docker exec -it $COMPOSE_PROJECT_NAME bash
-
-
-Run tests
----------
-
-Make sure to run tests after the containers have been created::
-
-  % docker exec -ti $COMPOSE_PROJECT_NAME bash -c 'nosetests'
 
 
 Add users
@@ -216,32 +224,51 @@ Stop again and start via systemd::
 Development
 ===========
 
-In addition to everything explained above, there are a couple of things relevant for development.
+In addition to everything explained above, there are a couple of things relevant only for development.
 
 As mentioned earlier the development setup uses your local clone of the bagbunker repository (in contrast to the one contained in the pre-built docker image).
 
 As a reminder, source the profile before running docker commands::
 
   % source bb_dev-profile.sh
+  % docker-compose up
+
+
+Bagbunker group and adjust permissions for development
+------------------------------------------------------
+
+For development the repository is mounted into the docker container and some or all packages are installed manually into development mode (see next section). For this to succeed the user within the docker container needs to be able to write ``*.egg-info`` directories:
+
+  % sudo chown :65533 src/*
+  % sudo chmod g+w src/*
+
+Check for existing directories and remove them if the permissions are wrong:
+
+  % ls -l src/*/*.egg-info
+
+
+Develop existing and new packages
+---------------------------------
+
+To install any of the existing packages into development mode::
+
+  % docker exec -ti $COMPOSE_PROJECT bash -c "pip install -e code/bagbunker/src/deepfield_jobs"
+
+After that, changes to files within ``deepfield_jobs`` will be immediately available for job runs within the docker container. You can also create your own job package: take ``deepfield_jobs`` as an example and adjust setup.py accordingly.
 
 
 Switching between branches and after upgrades
 ---------------------------------------------
 
-Python creates bytecode versions of all modules. In case you or we removed a module or a module exists in one but not the other branch, this confuses python. Make sure to delete these files after upgrade and branch switches::
+Python creates bytecode versions of all modules. In case you or we removed a module or a module exists in one but not the other branch, this confuses python. Make sure to delete these files after pulls and branch switches or add the following code as ``.git/hooks/post-checkout`` and ``.git/hooks/post-merge``::
 
-  % find $(ls |grep -v $BB_DATA) -name '*.pyc' -delete
+  #!/usr/bin/env bash
 
+  # Change to project root
+  cd ./$(git rev-parse --show-cdup)
 
-Bagbunker group
----------------
-
-All files created by bagbunker from within the docker container will be uid/gid 65533/65533. For less need of ``sudo``, you might want to create a corresponding group and add your user to it::
-
-  % sudo groupadd -g 65533 bb
-  % sudo gpasswd -a <UID> bb
-
-After that enter a new shell with ``newgrp bb`` or relogin.
+  # Delete pyc files
+  find . -name '*.pyc' -delete >/dev/null 2>&1 || true
 
 
 Development webserver
@@ -276,7 +303,7 @@ Jobs have a `__version__` which needs to be increased in order to run a job agai
 
   % ./bin/bagbunker run-jobs --force deepfield::metadata
 
-In order to develop your own jobs, please use the ``src/deepfield_jobs`` package as an example or add your jobs in there. Make sure to import your job from the package's ``__init__.py``. 
+In order to develop your own jobs, add them to ``src/deepfield_jobs`` package with appropriate copyright headers and make sure to import your jobs from the package's ``__init__.py``. In the future we will rename ``deepfield_jobs`` to ``bagbunker_jobs``. Pull requests with new jobs are welcome! Creating your own jobs in a separate repository will be supported in 3.1.0.
 
 
 Coverage report
@@ -284,17 +311,22 @@ Coverage report
 
 To get a coverage report::
 
-  % docker exec -it bb_dev bash -c 'nosetests --with-coverage'
+  % docker exec -it bb_dev bash -c 'cd $BB_CODE && nosetests --with-coverage'
 
-In development setups, the coverage report is created in ``./cover/index.htm``l and a summary is displayed in the terminal. In order to access the coverage report in a production environment, you have to copy it out of the docker container::
+In development setups, the coverage report is created in ``./cover/index.html`` and a summary is displayed in the terminal. For this to succeed the bagbunker group (65533) needs to have write permissions on the repository checkout.
+
+In order to access the coverage report in a production environment, you have to copy it out of the docker container::
 
   % docker cp $COMPOSE_PROJECT_NAME:/opt/bagbunker/cover ./
 
 
-Build docker image
-==================
+Custom jobs in production / build docker image
+==============================================
 
-In case you want to build the docker image yourself, see the instructions in `base.yml <docker/compose/base.yml>`_.
+There is a Makefile to build and tag docker images for ``develop``, ``staging`` and ``latest`` (in line with docker nomenclature the latest stable image, i.e. master branch).
+
+If you need a proxy to access the internet see https://github.com/bosch-ros-pkg/bagbunker/blob/master/Dockerfile#L30.
+
 
 
 Python version

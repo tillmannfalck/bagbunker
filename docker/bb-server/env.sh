@@ -7,48 +7,15 @@ if [ -z "$CENV" ]; then
     export PGHOSTADDR=$POSTGRES_PORT_5432_TCP_ADDR
     export PGUSER=bagbunker
     export PGPASSWORD=bagbunker
-
-    export MARV_PKGS_DIR="$MARV_ROOT/src"
-    export VENV="$MARV_ROOT/.venv"
-    export STATE_DIR="$VENV/.state"
+    export MATPLOTLIBRC=$MARV_INSTANCE_PATH
 
     # Python's urllib does not like these variables, if they are empty
     test -z "$http_proxy" && unset http_proxy
     test -z "$https_proxy" && unset https_proxy
 
-    # If /home is coming via volume, $HOME might not exist, yet.
-    if [ ! -d "$HOME" ]; then
-        sudo mkdir -p $HOME
-        sudo chown $MARV_USER:$MARV_GROUP $HOME
-        sudo chmod 775 $HOME
-    fi
-    mkdir -p $HOME/bin
-    PATH="$HOME/bin:$PATH"
-
-    # Only change branch if asked to and do so only once
-    if [ -e "$MARV_ROOT_CHECKOUT_BRANCH" ]; then
-        cd $MARV_ROOT
-        git checkout "$BRANCH"
-        rm $MARV_ROOT_CHECKOUT_BRANCH
-    fi
-
-    # Invalidate state and venv if docker image is newer than venv
-    if [ -f "$STATE_DIR/venv" ] && [ "$IMAGE_TIMESTAMP" -nt "$STATE_DIR/venv" ]; then
-        echo "Invalidating outdated venv..."
-        rm -f $STATE_DIR/*
-        rm -f $VENV/bin/*
-        echo "Done invalidating outdated venv."
-    fi
-
-    # Create virtual env
-    if [ ! -f "$STATE_DIR/venv" ]; then
-        echo "Creating venv..."
-        sudo mkdir -p $VENV $STATE_DIR
-        sudo chown -R :$MARV_GROUP $VENV $STATE_DIR
-        sudo chmod -R g+w $VENV $STATE_DIR
-        virtualenv --system-site-packages -p python2.7 $VENV
-        touch $STATE_DIR/venv
-        echo "Done creating venv."
+    # Bagbunker specific
+    if [ -e /opt/ros/indigo/setup.bash ]; then
+        source /opt/ros/indigo/setup.bash
     fi
 
     # Activate virtualenv
@@ -58,13 +25,7 @@ if [ -z "$CENV" ]; then
         python -c 'import sys,pprint;pprint.pprint(sys.path)'
     fi
 
-    # Load package environments
-    cd $MARV_ROOT
-    for envsh in $MARV_PKGS_DIR/*/env.sh; do
-        source "$envsh"
-    done
-
-    if [ $(which bagbunker) ]; then
+    if [ -n "$POSTGRES_PORT_5432_TCP_ADDR" ] && [ $(which bagbunker) ]; then
         set +e
         bagbunker admin checkdb --quiet
         RETCODE=$?
@@ -91,12 +52,15 @@ if [ -z "$CENV" ]; then
             echo
         elif [ "$RETCODE" == "2" ]; then
             echo "Database does not exist, yet."
+        elif [ "$RETCODE" == "202" ]; then
+            # alembic config missing, start.sh will handle that
+            true
         elif [ "$RETCODE" != "0" ]; then
             echo "ERROR occured: $RETCODE"
         fi
     fi
 
-    cd $MARV_ROOT
+    cd
 
     export CENV=1
 fi

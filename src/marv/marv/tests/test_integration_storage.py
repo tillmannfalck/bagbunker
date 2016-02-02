@@ -219,8 +219,7 @@ class TestCase(flask_testing.TestCase):
         old, new = filesets
         self.assertEqual(old.name, new.name)
         self.assertTrue(old.deleted)
-        # self.assertEqual(old.deleted_reason, '__superseded__')
-        self.assertEqual(old.deleted_reason, '__supersed')
+        self.assertEqual(old.deleted_reason, '__superseded__')
         self.assertFalse(new.deleted)
         self.assertEqual(len(old.files), 3)
         self.assertEqual(len(new.files), 3)
@@ -262,8 +261,7 @@ class TestCase(flask_testing.TestCase):
         old, new = filesets
         self.assertEqual(old.name, new.name)
         self.assertTrue(old.deleted)
-        # self.assertEqual(old.deleted_reason, '__superseded__')
-        self.assertEqual(old.deleted_reason, '__supersed')
+        self.assertEqual(old.deleted_reason, '__superseded__')
         self.assertFalse(new.deleted)
         self.assertEqual(len(old.files), 3)
         self.assertEqual(len(new.files), 4)

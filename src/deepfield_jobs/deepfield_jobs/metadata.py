@@ -41,6 +41,8 @@ class Metadata(object):
 @bb.job()
 @bb_bag.messages(topics=())
 def job(fileset, messages):
+    if not fileset.bag:
+        return
     path = fileset.dirpath.split(os.sep)
     robot_name = path[3] if len(path) > 3 else 'unknown'
     use_case = path[6] if len(path) > 6 else 'unknown'
@@ -50,35 +52,19 @@ def job(fileset, messages):
 
 @bb.filter()
 @bb.filter_input('robot', operators=['substring'])
-def filter_robot(query, robot):
-    # XXX: Currently also matches on previous values
-    q = db.session \
-        .query(Jobrun.fileset_id, db.func.max(Jobrun.id)) \
-        .filter(Jobrun.name == 'deepfield::metadata') \
-        .group_by(Jobrun.fileset_id) \
-        .join(Metadata) \
-        .filter(Metadata.robot_name.like('%{}%'.format(robot.val))) \
-        .subquery()
-    return query.join(q, Fileset.id == q.c.fileset_id)
+def filter_robot(query, ListingEntry, robot):
+    return query.filter(ListingEntry.robot.contains(robot.val))
 
 
 @bb.filter()
 @bb.filter_input('use_case', operators=['substring'])
-def filter_use_case(query, use_case):
-    # XXX: Currently also matches on previous values
-    q = db.session \
-        .query(Jobrun.fileset_id, db.func.max(Jobrun.id)) \
-        .filter(Jobrun.name == 'deepfield::metadata') \
-        .group_by(Jobrun.fileset_id) \
-        .join(Metadata) \
-        .filter(Metadata.use_case.like('%{}%'.format(use_case.val))) \
-        .subquery()
-    return query.join(q, Fileset.id == q.c.fileset_id)
+def filter_use_case(query, ListingEntry, use_case):
+    return query.filter(ListingEntry.use_case.contains(use_case.val))
 
 
 @bb.listing()
-@bb.column('robot')
-@bb.column('use_case')
+@bb.listing_column('robot')
+@bb.listing_column('use_case')
 def listing(fileset):
     jobrun = fileset.get_latest_jobrun('deepfield::metadata')
     if jobrun is None:

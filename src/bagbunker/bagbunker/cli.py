@@ -42,6 +42,7 @@ from threading import Thread
 from werkzeug import release_local
 from marv import create_app, load_formats, load_jobs
 from marv.globals import _job_ctx_stack
+from marv.listing import populate_listing_cache, trigger_update_listing_entries
 from marv.log import loglevel_option
 from marv.model import db, Fileset, Jobfile, Jobrun
 from marv.storage import Storage
@@ -73,13 +74,15 @@ def read_config(path):
 
 
 STORAGE = None
-UUID_FILE = None
 
 
 @click.group()
 @loglevel_option()
 @click.option('--instance-path', type=click.Path(resolve_path=True, file_okay=False),
-              expose_value=False, callback=config_option('INSTANCE_PATH'))
+              default=os.getcwd(), expose_value=False, callback=config_option('INSTANCE_PATH'))
+@click.option('--signal-url', default='http://127.0.0.1:80',
+              expose_value=False, callback=config_option('MARV_SIGNAL_URL'),
+              help="How to reach the bagbunker server process")
 @click.option('--debug/--no-debug', default=None,
               expose_value=False, callback=config_option('DEBUG'))
 @click.option('--echo-sql/--no-echo-sql', default=None,
@@ -103,12 +106,11 @@ def bagbunker(ctx, config, loglevel):
     app_context.push()
     ctx.call_on_close(partial(release_local, _job_ctx_stack))
 
-    global UUID_FILE, STORAGE
-    UUID_FILE = os.path.join(app.instance_path, 'storage', '.uuid')
+    global STORAGE
     try:
-        with open(UUID_FILE, 'rb') as f:
-            uuid = f.read(36)
-        STORAGE = Storage(uuid=uuid)
+        STORAGE = Storage()
+    except AssertionError:
+        raise
     except:
         db.session.rollback()
 
@@ -121,11 +123,13 @@ ALEMBIC_CONFIG = None
 
 
 @bagbunker.group()
-def admin():
+@click.pass_context
+def admin(ctx):
     """Administrative tasks"""
     global ALEMBIC_CONFIG
     from alembic import config
-    ini = os.path.join(os.path.dirname(__file__), '..', '..', '..', 'alembic.ini')
+    app = ctx.obj
+    ini = os.path.join(app.instance_path, 'alembic.ini')
     ALEMBIC_CONFIG = config.Config(ini)
 
 
@@ -138,8 +142,14 @@ def checkdb(ctx, quiet):
             click.utils.echo("Database not initialized, run 'bagbunker admin initdb'")
         ctx.exit(2)
     else:
+        import alembic
         from alembic.script import ScriptDirectory
-        script = ScriptDirectory.from_config(ALEMBIC_CONFIG)
+        try:
+            script = ScriptDirectory.from_config(ALEMBIC_CONFIG)
+        except alembic.util.CommandError:
+            if not quiet:
+                click.utils.echo("Alembic config missing - marv init /your/site!")
+            ctx.exit(202)
         latest_rev = script.get_current_head()
         current_rev = db.session.execute('SELECT version_num FROM alembic_version')\
                                 .first()[0]
@@ -155,6 +165,7 @@ def checkdb(ctx, quiet):
 @click.pass_context
 def initdb(ctx):
     """Initialize database, dropping all tables"""
+    global STORAGE
     app = ctx.obj
     if STORAGE:
         ctx.fail("Database already initialized.")
@@ -165,9 +176,7 @@ def initdb(ctx):
         from alembic import command
         command.stamp(ALEMBIC_CONFIG, 'head')
 
-    uuid = Storage.new_storage().uuid
-    with open(UUID_FILE, 'wb') as f:
-        f.write(uuid)
+    STORAGE = Storage.new_storage()
 
 
 # @admin.command('purge-jobruns')
@@ -316,8 +325,9 @@ def run_jobs(ctx, all, force, fileset, job):
     for fileset in filesets:
         bag = fileset.bag
         if bag is None:
-            continue
-        fileset_topics = set([x.topic.name for x in bag.topics])
+            fileset_topics = set()
+        else:
+            fileset_topics = set([x.topic.name for x in bag.topics])
         topics = set()
         cmds = []
         jobruns = Jobrun.query.filter(Jobrun.fileset == fileset)
@@ -391,6 +401,8 @@ def run_jobs(ctx, all, force, fileset, job):
         for milker in milkers:
             milker.join()
 
+        trigger_update_listing_entries([fileset.id])
+
     # Never call subcommand directly
     ctx.exit()
 
@@ -417,6 +429,7 @@ def webserver(app, cors, wdb, public, verbose_request_logging):
     if verbose_request_logging:
         app.logger.setLevel(logging.DEBUG)
         app.config['LOG_REQUESTS'] = True
+    populate_listing_cache()
     app.run(reloader_type='watchdog', **kw)
 
 

@@ -1,0 +1,8 @@
+/.bungle
+/bower_components
+/dist
+/tmp
+
+# generated for now
+/be.json
+/app/pods/index/template.hbs

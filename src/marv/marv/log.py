@@ -50,3 +50,16 @@ loglevel_option = partial(click.option, '--loglevel',
                           type=click.Choice(LOGLEVELS),
                           default='info',
                           callback=lambda ctx, param, value: LOGLEVEL_MAP[value])
+
+
+def verbose_option(base_loglevel=logging.WARN):
+    """click option to increase verbosity and set base loglevel"""
+    def callback(ctx, param, value):
+        logger = logging.getLogger()
+        if value:
+            loglevel = max(base_loglevel - value * 10, logging.DEBUG)
+            logger.setLevel(loglevel)
+
+    return click.option(
+        '-v', '--verbose', count=True, expose_value=False, callback=callback,
+        help='Increase vebosity, base={}'.format(logging.getLevelName(base_loglevel)))

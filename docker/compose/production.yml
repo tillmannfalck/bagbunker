@@ -4,8 +4,10 @@ bb:
         service: bb
     links:
         - bbdb:postgres
+    image: docker.ternaris.com/bagbunker/bagbunker:latest
 
 bbdb:
     extends:
         file: base.yml
         service: bbdb
+    image: docker.ternaris.com/bagbunker/postgres:latest

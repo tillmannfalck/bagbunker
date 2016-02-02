@@ -33,7 +33,7 @@ class NoMatchingMimetype(Exception):
     pass
 
 
-@api.route('/api/messages/<md5>')
+@api.route('/marv/api/messages/<md5>')
 def messages(md5):
     # XXX: limit to storage we are running in
     fileset = Fileset.query.join(File)\

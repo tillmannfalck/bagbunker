@@ -5,6 +5,7 @@ Changelog (Bagbunker)
 3.0.0 (unreleased)
 ------------------
 
+- [BUGFIX] Fix bulk tagging
 - Added changelog
 - Added Makefile for docker image build and release management
 - [BUGFIX] bbmsg fixes, tool for playing ROS messages directly from bagbunker (formerly bbat)

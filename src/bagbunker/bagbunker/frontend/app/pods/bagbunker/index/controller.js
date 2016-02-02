@@ -238,7 +238,7 @@ export default Ember.Controller.extend({
                     if (!~tags.indexOf(tag)) {
                         p = p.then(() => {
                             this.set('bulkTagBeingSaved', rows.length-i);
-                            return execTag('/api/_tag', row.id, tag)
+                            return execTag('/marv/api/_tag', row.id, tag)
                                 .then(() => tags.pushObject(tag));
                         });
                     }
@@ -247,7 +247,7 @@ export default Ember.Controller.extend({
                     if (~tags.indexOf(tag)) {
                         p = p.then(() => {
                             this.set('bulkTagBeingSaved', rows.length-i);
-                            return execTag('/api/_untag', row.id, tag)
+                            return execTag('/marv/api/_untag', row.id, tag)
                                 .then(() => tags.removeObject(tag));
                         });
                     }

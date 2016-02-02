@@ -334,7 +334,7 @@ def create_app(config_obj, **kw):
     def update_listing(response):
         # XXX: The proper solution are session.event listeners. Newer
         # flask-sqlalchemy needed.
-        if response.status >= 300:
+        if response.status_code >= 300:
             return response
         if flask.request.method not in ('DELETE', 'POST'):
             return response

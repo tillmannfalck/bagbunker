@@ -173,7 +173,8 @@ def update_listing_entry(fileset=None, fileset_id=None):
     if fileset is None:
         fileset = Fileset.query.filter_by(id=fileset_id).first()
     remove_listing_entry(fileset)
-    add_listing_entry(fileset)
+    if not fileset.deleted:
+        add_listing_entry(fileset)
     db.session.commit()
 
 

@@ -41,7 +41,7 @@ requires = [
     ]
 
 setup(name='bagbunker',
-      version='3.0.0',
+      version='3.1.0dev',
       # description='',
       # long_description=README + '\n\n' + CHANGES,
       # FIXME: Add classifiers

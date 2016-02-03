@@ -1,8 +1,13 @@
 Changelog (Bagbunker)
 =====================
 
+3.1.0 (unreleased)
+------------------
 
-3.0.0 (unreleased)
+- setuptool-20.0, pip-8.0.2, pip-tools-1.6
+
+
+3.0.0 (2016-02-03)
 ------------------
 
 - [BUGFIX] Fix bulk tagging

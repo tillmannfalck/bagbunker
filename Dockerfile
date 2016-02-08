@@ -104,9 +104,9 @@ RUN mkdir -p $VENV && \
     chown -R $MARV_USER:$MARV_GROUP $VENV && \
     chmod -R g+w $VENV
 RUN su -c "virtualenv --system-site-packages -p python2.7 $VENV" $MARV_USER
-# For some reason this currently claims to fail, might be pip-7.1.2 coming with virtualenv 13.1.2
-#RUN su -c "$VENV/bin/pip install --upgrade 'pip==8.0.0'" $MARV_USER || true
-RUN su -c "$VENV/bin/pip install --upgrade 'pip-tools==1.4.4'" $MARV_USER
+RUN su -c "$VENV/bin/pip install --upgrade 'pip==8.0.2'" $MARV_USER || true
+RUN su -c "$VENV/bin/pip install --upgrade 'setuptools==20.0'" $MARV_USER || true
+RUN su -c "$VENV/bin/pip install --upgrade 'pip-tools==1.6'" $MARV_USER
 RUN su -c "source $VENV/bin/activate && pip-sync /requirements/req-*.txt" $MARV_USER
 
 

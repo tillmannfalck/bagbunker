@@ -39,3 +39,9 @@ push-latest:
 push-%: %
 	docker tag -f $(REPO):$< $(PUSH_REPO):$<
 	docker push $(PUSH_REPO):$<
+
+
+list-hashes:
+	docker inspect docker.ternaris.com/bagbunker/bagbunker:develop |grep -m1 Image
+	docker inspect docker.ternaris.com/bagbunker/bagbunker:latest |grep -m1 Image
+	docker inspect docker.ternaris.com/bagbunker/bagbunker:staging |grep -m1 Image

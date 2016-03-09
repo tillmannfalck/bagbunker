@@ -8,7 +8,7 @@ IMG=$(REPO):$(REV)
 
 
 current-revision:
-ifeq ($(shell docker inspect $(IMG)),[])
+ifeq ($(shell docker inspect $(IMG) 2>/dev/null),[])
 	docker build -t $(IMG) .
 else
 	@echo "IMAGE: $(IMG)"
@@ -42,6 +42,6 @@ push-%: %
 
 
 list-hashes:
-	docker inspect docker.ternaris.com/bagbunker/bagbunker:develop |grep -m1 Image
-	docker inspect docker.ternaris.com/bagbunker/bagbunker:latest |grep -m1 Image
-	docker inspect docker.ternaris.com/bagbunker/bagbunker:staging |grep -m1 Image
+	docker inspect docker.ternaris.com/bagbunker/bagbunker:develop |grep -m1 Image || true
+	docker inspect docker.ternaris.com/bagbunker/bagbunker:latest |grep -m1 Image || true
+	docker inspect docker.ternaris.com/bagbunker/bagbunker:staging |grep -m1 Image || true

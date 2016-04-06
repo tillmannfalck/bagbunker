@@ -1,0 +1,10 @@
+robot: bonirob-v3
+plot_name: RNG-051
+crop: wheat
+bbch_growth: 80
+row_spacing: # in cm
+  inter: 40
+  intra: 15
+weed_species: ['ackerfuchsschwanz', 'löwenzahn', 'butterblume']
+label_file: None
+additional_files: ['params.yml']

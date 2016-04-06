@@ -66,10 +66,14 @@ def summary(filesets):
 @bb.detail()
 @bb.table_widget()
 @bb.column('robot')
-@bb.column('use_case')
+@bb.column('plot')
+@bb.column('crop')
+@bb.column('bbch-growth')
+@bb.column('row-spacing')
 @bb.column('starttime', formatter='date')
 @bb.column('endtime', formatter='date')
 @bb.column('duration (s)')
+@bb.column('label-file')
 def deepfield_metadata(fileset):
     jobrun = fileset.get_latest_jobrun('deepfield::metadata')
     meta = Metadata.query.filter(Metadata.jobrun == jobrun).first() \
@@ -78,8 +82,12 @@ def deepfield_metadata(fileset):
     bag = fileset.bag
     return [{
         'robot': meta.robot_name if meta else None,
-        'use_case': meta.use_case if meta else None,
+        'plot': meta.plot if meta else None,
+        'crop': meta.crop if meta else None,
+        'bbch-growth': meta.bbch_growth if meta else None,
+        'row-spacing': '%s cm; %s cm' % (meta.row_spacing_inter, meta.row_spacing_intra) if meta else None,
         'starttime': bag.starttime if bag else None,
         'endtime': bag.endtime if bag else None,
         'duration (s)': bag.duration.total_seconds() if bag else None,
+        'label-file': meta.label_file if meta else None,
     }] if meta or bag else None

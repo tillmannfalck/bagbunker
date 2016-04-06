@@ -29,25 +29,57 @@ from marv.model import Fileset, Jobrun
 from bagbunker import bb_bag
 
 
-__version__ = '0.0.1'
-
+__version__ = '0.0.13'
 
 @bb.job_model()
 class Metadata(object):
     robot_name = db.Column(db.String(42), nullable=False)
-    use_case = db.Column(db.String(126), nullable=False)
-
+    plot = db.Column(db.String(126), nullable=False)
+    crop = db.Column(db.String(100), nullable=False)
+    bbch_growth = db.Column(db.Integer)
+    row_spacing_inter = db.Column(db.Integer)
+    row_spacing_intra = db.Column(db.Integer)
+    # FIXME: own table for weeds? -> store like tags
+    label_file = db.Column(db.String, nullable=True)
+    # FIXME: additional_file = db.Column(db.String, nullable=True)
 
 @bb.job()
 @bb_bag.messages(topics=())
 def job(fileset, messages):
     if not fileset.bag:
         return
-    path = fileset.dirpath.split(os.sep)
-    robot_name = path[3] if len(path) > 3 else 'unknown'
-    use_case = path[6] if len(path) > 6 else 'unknown'
-    logger.info('robot_name=%s, use_case=%s', robot_name, use_case)
-    yield Metadata(robot_name=robot_name, use_case=use_case)
+    import yaml
+
+    logger.info('job version: %s' % __version__)
+
+    metadata_filename = '%s/%s.yml' % (fileset.dirpath, fileset.name)
+    logger.info('looking for %s' % metadata_filename)
+    # default values
+    robot_name = '(unknown)'
+    plot= '(unknown)'
+    crop = '(unknown)'
+    bbch_growth = None
+    row_spacing_inter = None
+    row_spacing_intra = None
+    label_file = None
+
+    if os.path.isfile(metadata_filename):
+        with open(metadata_filename) as infile:
+            metadata = yaml.load(infile)
+        logger.info('metadata: %s' % metadata)
+        robot_name = metadata.get('robot', '(unknown)')
+        plot = metadata.get('plot_name', '(unknown)')
+        crop = metadata.get('crop', '(unknown)')
+        bbch_growth = int(metadata.get('bbch_growth', 0))
+        if 'row_spacing' in metadata:
+            rs = metadata['row_spacing']
+            row_spacing_inter = int(rs.get('inter', None))
+            row_spacing_intra = int(rs.get('intra', None))
+        label_file = metadata.get('label_file', None)
+
+    yield Metadata(robot_name=robot_name, plot=plot, crop=crop, bbch_growth=bbch_growth,
+                   row_spacing_inter=row_spacing_inter, row_spacing_intra=row_spacing_intra,
+                   label_file=label_file)
 
 
 @bb.filter()
@@ -57,14 +89,13 @@ def filter_robot(query, ListingEntry, robot):
 
 
 @bb.filter()
-@bb.filter_input('use_case', operators=['substring'])
-def filter_use_case(query, ListingEntry, use_case):
-    return query.filter(ListingEntry.use_case.contains(use_case.val))
-
+@bb.filter_input('plot', operators=['substring'])
+def filter_plot(query, ListingEntry, plot):
+    return query.filter(ListingEntry.plot.contains(plot.val))
 
 @bb.listing()
 @bb.listing_column('robot')
-@bb.listing_column('use_case')
+@bb.listing_column('plot')
 def listing(fileset):
     jobrun = fileset.get_latest_jobrun('deepfield::metadata')
     if jobrun is None:
@@ -75,5 +106,5 @@ def listing(fileset):
         return {}
     return {
         'robot': meta.robot_name,
-        'use_case': meta.use_case,
+        'plot': meta.plot,
     }

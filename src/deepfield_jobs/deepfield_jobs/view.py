@@ -69,6 +69,7 @@ def summary(filesets):
 @bb.column('plot')
 @bb.column('crop')
 @bb.column('bbch-growth')
+@bb.column('weeds')
 @bb.column('row-spacing')
 @bb.column('starttime', formatter='date')
 @bb.column('endtime', formatter='date')
@@ -85,6 +86,7 @@ def deepfield_metadata(fileset):
         'plot': meta.plot if meta else None,
         'crop': meta.crop if meta else None,
         'bbch-growth': meta.bbch_growth if meta else None,
+        'weeds': [w.name for w in meta.weeds] if meta else None,
         'row-spacing': '%s cm; %s cm' % (meta.row_spacing_inter, meta.row_spacing_intra) if meta else None,
         'starttime': bag.starttime if bag else None,
         'endtime': bag.endtime if bag else None,

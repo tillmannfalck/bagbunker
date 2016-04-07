@@ -28,20 +28,32 @@ from marv.bb import job_logger as logger
 from marv.model import Fileset, Jobrun
 from bagbunker import bb_bag
 
+__version__ = '0.0.14'
 
-__version__ = '0.0.13'
+# FIXME: might be better to associate weeds with filesets instead of metadata
+metadata_weeds = db.Table(
+    'metadata_weeds',
+     db.Column('metadata_id', db.Integer, db.ForeignKey('deepfield__metadata__metadata.id'), nullable=False),
+     db.Column('weed_id', db.Integer, db.ForeignKey('weed.id'), nullable=False))
 
 @bb.job_model()
 class Metadata(object):
+    # id column is created automatically by the decorator
+    #id = db.Column(db.Integer, primary_key=True)
     robot_name = db.Column(db.String(42), nullable=False)
     plot = db.Column(db.String(126), nullable=False)
     crop = db.Column(db.String(100), nullable=False)
     bbch_growth = db.Column(db.Integer)
     row_spacing_inter = db.Column(db.Integer)
     row_spacing_intra = db.Column(db.Integer)
-    # FIXME: own table for weeds? -> store like tags
-    label_file = db.Column(db.String, nullable=True)
+    weeds = db.relationship('Weed', secondary=metadata_weeds)
+    label_file = db.Column(db.String(100), nullable=True)
     # FIXME: additional_file = db.Column(db.String, nullable=True)
+
+class Weed(db.Model):
+    __tablename__ = 'weed'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(126), nullable=False, unique=True)
 
 @bb.job()
 @bb_bag.messages(topics=())
@@ -51,6 +63,7 @@ def job(fileset, messages):
     import yaml
 
     logger.info('job version: %s' % __version__)
+    logger.info('tablename: %s' % Metadata.__tablename__)
 
     metadata_filename = '%s/%s.yml' % (fileset.dirpath, fileset.name)
     logger.info('looking for %s' % metadata_filename)
@@ -62,6 +75,7 @@ def job(fileset, messages):
     row_spacing_inter = None
     row_spacing_intra = None
     label_file = None
+    weeds = []
 
     if os.path.isfile(metadata_filename):
         with open(metadata_filename) as infile:
@@ -76,11 +90,17 @@ def job(fileset, messages):
             row_spacing_inter = int(rs.get('inter', None))
             row_spacing_intra = int(rs.get('intra', None))
         label_file = metadata.get('label_file', None)
+        weed_list = metadata.get('weed_species', [])
+        for weedname in weed_list:
+            weed_qry = Weed.query.filter(Weed.name == weedname).first()
+            if weed_qry is None:
+                weeds.append(Weed(name=weedname))
+            else:
+                weeds.append(weed_qry)
 
     yield Metadata(robot_name=robot_name, plot=plot, crop=crop, bbch_growth=bbch_growth,
                    row_spacing_inter=row_spacing_inter, row_spacing_intra=row_spacing_intra,
-                   label_file=label_file)
-
+                   label_file=label_file, weeds=weeds)
 
 @bb.filter()
 @bb.filter_input('robot', operators=['substring'])

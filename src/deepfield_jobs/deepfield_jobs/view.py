@@ -75,6 +75,7 @@ def summary(filesets):
 @bb.column('endtime', formatter='date')
 @bb.column('duration (s)')
 @bb.column('label-file')
+@bb.column('additional-files')
 def deepfield_metadata(fileset):
     jobrun = fileset.get_latest_jobrun('deepfield::metadata')
     meta = Metadata.query.filter(Metadata.jobrun == jobrun).first() \
@@ -92,4 +93,5 @@ def deepfield_metadata(fileset):
         'endtime': bag.endtime if bag else None,
         'duration (s)': bag.duration.total_seconds() if bag else None,
         'label-file': meta.label_file if meta else None,
+        'additional-files': [f.name for f in meta.additional_files] if meta else None,
     }] if meta or bag else None

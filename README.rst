@@ -252,7 +252,7 @@ Develop existing and new packages
 
 To install any of the existing packages into development mode::
 
-  % docker exec -ti $COMPOSE_PROJECT bash -c "pip install -e code/bagbunker/src/deepfield_jobs"
+  % docker exec -ti $COMPOSE_PROJECT_NAME bash -c "pip install -e code/bagbunker/src/deepfield_jobs"
 
 After that, changes to files within ``deepfield_jobs`` will be immediately available for job runs within the docker container. You can also create your own job package: take ``deepfield_jobs`` as an example and adjust setup.py accordingly.
 

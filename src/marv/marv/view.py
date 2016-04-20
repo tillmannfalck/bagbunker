@@ -114,7 +114,7 @@ def base_listing(fileset):
     }
 
 
-@bb.detail()
+@bb.detail(state='collapsed')
 @bb.table_widget(title='Fileset Meta')
 @bb.column('name')
 @bb.column('md5')
@@ -130,7 +130,7 @@ def fileset_meta(fileset):
     }]
 
 
-@bb.detail(state='collapsed')
+@bb.detail(position_before='0')
 @bb.table_widget(title='File Meta')
 @bb.column('name', formatter='link')
 @bb.column('status', formatter='icon', list=True)

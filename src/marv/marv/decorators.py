@@ -105,11 +105,14 @@ def job_model():
 # register callbacks/widgets for specific views
 #
 
-def detail(namespace=None, name=None, cls=Detail, **kw):
+def detail(namespace=None, name=None, position_before=None, cls=Detail, **kw):
     """Register widget as detail serializer"""
     def decorator(widget):
         serializer = cls(namespace, name, widget, **kw)
-        DETAIL.append(serializer)
+        if position_before:
+            DETAIL.insert(int(position_before), serializer)
+        else:
+            DETAIL.append(serializer)
         return serializer
     return decorator
 

@@ -5,6 +5,7 @@ bb:
     volumes:
         - ${BB_DATA}:/var/lib/bagbunker
         - ${BB_BAGS}:/mnt/bags:ro
+        - ${BB_JOBS}:/mnt/jobs
     environment:
         DEBUG_START_SH:
         BB_BAGS:

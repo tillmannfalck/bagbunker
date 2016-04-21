@@ -5,6 +5,8 @@ Changelog (Bagbunker)
 ------------------
 
 - setuptool-20.0, pip-8.0.2, pip-tools-1.6
+- [FEATURE] take robot_name from dedicated topic
+- [BUGFIX] silence INFO logging of requests lib
 
 
 3.0.0 (2016-02-03)

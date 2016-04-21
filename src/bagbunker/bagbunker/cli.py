@@ -97,6 +97,7 @@ def bagbunker(ctx, config, loglevel):
     logger = logging.getLogger()
     logger.addHandler(handler)
     logger.setLevel(loglevel)
+    logging.getLogger('requests').setLevel(logging.WARNING)
     logging.getLogger('rospy').setLevel(logging.WARNING)
     if config.get('DEBUG'):
         logger.setLevel(logging.DEBUG)

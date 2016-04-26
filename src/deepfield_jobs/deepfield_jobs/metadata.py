@@ -29,7 +29,7 @@ from marv.model import Fileset, Jobrun
 from bagbunker import bb_bag
 
 
-__version__ = '0.0.1'
+__version__ = '0.0.2'
 
 
 @bb.job_model()
@@ -37,15 +37,23 @@ class Metadata(object):
     robot_name = db.Column(db.String(42), nullable=False)
     use_case = db.Column(db.String(126), nullable=False)
 
-
 @bb.job()
-@bb_bag.messages(topics=())
+@bb_bag.messages(topics='/robot_name/name')
 def job(fileset, messages):
     if not fileset.bag:
         return
+    # FIXME: currently, there is no way for a job to iterate over all messages so
+    # this job will only run for the newer bag files with a robot_name topic
     path = fileset.dirpath.split(os.sep)
-    robot_name = path[3] if len(path) > 3 else 'unknown'
     use_case = path[6] if len(path) > 6 else 'unknown'
+    robot_name = 'unknown'
+    # try to read the robot name from /robot_name/name
+    logger.info('looking for robot_name in topics')
+    for topic, msg, timestamp in messages:
+        if topic == u'/robot_name/name':
+            logger.info('found robot_name topic: %s' % msg)
+            robot_name = msg.robot_name
+            break
     logger.info('robot_name=%s, use_case=%s', robot_name, use_case)
     yield Metadata(robot_name=robot_name, use_case=use_case)
 

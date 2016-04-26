@@ -27,7 +27,7 @@ from marv.bb import job_logger as logger
 from marv.model import Jobrun
 from bagbunker import bb_bag
 
-__version__ = '0.0.7'
+__version__ = '0.0.6'
 
 # POSITION topics with descending priority: first found will be used.
 POSITION_TOPICS = (

@@ -28,16 +28,22 @@ from marv.bb import job_logger as logger
 from marv.model import Jobrun
 from bagbunker import bb_bag
 
-__version__ = '0.0.9'
+__version__ = '0.0.10'
 
 # global list of topics
-TOPICS = ('/camera/image_raw_webcam',
-          '/stereo_rgb/left/image_raw_sync',
-          '/stereo_nir/left/image_raw_sync',
-          '/stereo_rgb/right/image_raw_sync',
-          '/stereo_nir/right/image_raw_sync',
-          '/kinect2_center/ir/image_raw',
-          '/kinect2_center/rgb/image_raw')
+old_topics = ['/camera/image_raw_webcam',
+              '/stereo_rgb/left/image_raw_sync',
+              '/stereo_nir/left/image_raw_sync',
+              '/stereo_rgb/right/image_raw_sync',
+              '/stereo_nir/right/image_raw_sync',
+              '/kinect2_center/ir/image_raw',
+              '/kinect2_center/rgb/image_raw']
+cams = ['camA', 'camB', 'camC']
+new_topics = ['/%s/jai/rgb/image_raw' % cam for cam in cams] + \
+             ['/%s/jai/nir/image_raw' % cam for cam in cams] + \
+             ['/%s/kinect2/ir/image_raw' % cam for cam in cams] + \
+             ['/%s/kinect2/rgb/image_raw' % cam for cam in cams]
+TOPICS = tuple(old_topics + new_topics)
 
 
 # @bb.job_model()

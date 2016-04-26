@@ -24,7 +24,6 @@ from __future__ import absolute_import, division
 
 from marv import bb
 from marv.bb import job_logger as logger
-from marv.model import Jobrun
 from bagbunker import bb_bag
 
 __version__ = '0.0.6'
@@ -46,7 +45,7 @@ TOPICS = POSITION_TOPICS + ORIENTATION_TOPICS
 
 def detail_image_view(topic):
     @bb.detail()
-    @bb.image_widget(title='POSITION plot {}, {}'.format(topic, ORIENTATION_TOPICS))
+    @bb.image_widget(title='Position plot {}, {}'.format(topic, ORIENTATION_TOPICS))
     def detail_image(fileset):
         jobrun = fileset.get_latest_jobrun('deepfield::gps_track')
         if not jobrun:
@@ -129,19 +128,20 @@ def job(fileset, messages):
             self.orientation = []
 
         def update(self, msg):
-            if hasattr(msg, 'yaw'):
+            if hasattr(msg, 'yaw') and not np.isnan(msg.yaw):
                 self.orientation.append([
                     msg.header.stamp.to_sec(),
                     msg.yaw
-                ])
-            elif hasattr(msg, 'orientation'):
+                    ])
+            elif hasattr(msg, 'orientation') and not np.isnan(msg.orientation.x):
                 self.orientation.append([
                     msg.header.stamp.to_sec(),
                     self.yaw_angle(msg.orientation)
                 ])
 
         # calculate imu orientation
-        def yaw_angle(self, frame):
+        @staticmethod
+        def yaw_angle(frame):
             rot = np.zeros((3, 3))
 
             # consists of time, x, y, z, w
@@ -181,12 +181,12 @@ def job(fileset, messages):
             if hasattr(msg, 'status'):
                 positionMap[topic].update(msg)
             else:
-                raise Exception('Invalid POSITION topic')
+                raise Exception('Invalid position topic')
         elif topic in orientation_topics:
             orientationMap[topic].update(msg)
 
     if erroneous_msg_count:
-        logger.warn('Skipped %s erroneous gps messages on topic %s',
+        logger.warn('Skipped %s erroneous GNSS messages on topic %s',
                     erroneous_msg_count, position_topic)
 
     for position_topic in position_topics:
@@ -220,7 +220,7 @@ def job(fileset, messages):
             c = cm.prism(gps[:, 7]/2)
 
             ax1.scatter(gps[:, 4], gps[:, 5], c=c, edgecolor='none', s=3,
-                        label="green: RTK\nyellow: DPOSITION\nred: Single")
+                        label="green: RTK\nyellow: DGPS\nred: Single")
 
             xfmt = md.DateFormatter('%H:%M:%S')
             ax2.xaxis.set_major_formatter(xfmt)

@@ -348,6 +348,11 @@ def run_jobs(ctx, all, force, fileset, job):
                 cmds.append(((), cmd))
                 continue
 
+            if '*' in cmdtopics:
+                topics = topics.union(fileset_topics)
+                cmds.append((fileset_topics, cmd))
+                continue
+
             intersect = fileset_topics.intersection(cmdtopics)
             if intersect:
                 topics = topics.union(intersect)

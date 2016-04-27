@@ -83,7 +83,7 @@ class Storage(object):
 
     def _detect_missing(self, logger):
         """Detect missing files for active filesets"""
-        need_update = []
+        need_update = set()
         for fileset in self.active_filesets:
             for file in fileset.files:
                 missing = not os.path.exists(file.path)
@@ -93,9 +93,9 @@ class Storage(object):
                     else:
                         logger.info('Found missing file %r of %r', file, fileset)
                     file.missing = missing
-            need_update.append(fileset.id)
+                    need_update.add(fileset.id)
         db.session.commit()
-        trigger_update_listing_entries(need_update)
+        trigger_update_listing_entries(list(need_update))
 
     def read_pending(self, logger=getLogger(__name__)):
         reader = self.reader

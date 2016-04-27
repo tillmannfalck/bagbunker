@@ -163,7 +163,10 @@ def add_listing_entry(fileset):
     db.session.flush()
 
 
-def remove_listing_entry(fileset):
+def remove_listing_entry(fileset=None, fileset_id=None):
+    assert fileset is not None or fileset_id is not None
+    if fileset is None:
+        fileset = Fileset.query.filter_by(id=fileset_id).first()
     ListingEntry.query.filter(ListingEntry.id == fileset.md5).delete()
     db.session.commit()
 
@@ -205,6 +208,8 @@ def trigger_remove_listing_entries(ids):
     url = app.config.get('MARV_SIGNAL_URL')
     if not url:
         return
+    with open(app.config['MARV_UPDATE_LISTING_SECRET_FILE'], 'rb') as f:
+        secret = f.read()
     try:
         requests.post('{}/marv/_listing_entries/remove'.format(url),
                       data=json.dumps({'ids': ids, 'secret': secret}))

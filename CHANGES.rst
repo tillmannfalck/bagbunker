@@ -4,6 +4,8 @@ Changelog (Bagbunker)
 3.1.0 (unreleased)
 ------------------
 
+- [BUGFIX] only update fileset with changed missing state
+  [#71](https://github.com/bosch-ros-pkg/bagbunker/issues/71)
 - [FEATURE] verify md5 files
   [#60](https://github.com/bosch-ros-pkg/bagbunker/issues/60)
 - [FEATURE] update gps job to work with more topics and message types

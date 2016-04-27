@@ -84,7 +84,7 @@ def make_fileset(directory, format='foo', parts=3, set_idx=0,
         if i != missing_md5_idx:
             md5 = hashlib.md5(content).hexdigest()
             with open('{}.md5'.format(path), 'wb') as f:
-                f.write(md5)
+                f.write('{}  {}'.format(md5, filename))
 
 
 # list md5s of a storage on filesystem

@@ -22,6 +22,7 @@
 
 from __future__ import absolute_import, division
 
+import subprocess
 import os
 from datetime import datetime
 from itertools import chain

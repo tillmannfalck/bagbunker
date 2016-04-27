@@ -76,7 +76,7 @@ RUN su -c "rosdep update" $MARV_USER
 
 
 # Use system-wide pip only to install virtualenv, then deactivate it
-RUN pip install --upgrade virtualenv==13.1.2
+RUN pip install --upgrade virtualenv==15.0.1
 RUN chmod -x $(which pip)
 
 
@@ -104,9 +104,9 @@ RUN mkdir -p $VENV && \
     chown -R $MARV_USER:$MARV_GROUP $VENV && \
     chmod -R g+w $VENV
 RUN su -c "virtualenv --system-site-packages -p python2.7 $VENV" $MARV_USER
-RUN su -c "$VENV/bin/pip install --upgrade 'pip==8.0.2'" $MARV_USER || true
-RUN su -c "$VENV/bin/pip install --upgrade 'setuptools==20.0'" $MARV_USER || true
-RUN su -c "$VENV/bin/pip install --upgrade 'pip-tools==1.6'" $MARV_USER
+RUN su -c "$VENV/bin/pip install --upgrade 'pip==8.1.1'" $MARV_USER || true
+RUN su -c "$VENV/bin/pip install --upgrade 'setuptools==20.10.1'" $MARV_USER || true
+RUN su -c "$VENV/bin/pip install --upgrade 'pip-tools==1.6.1'" $MARV_USER
 RUN su -c "source $VENV/bin/activate && pip-sync /requirements/req-*.txt" $MARV_USER
 
 

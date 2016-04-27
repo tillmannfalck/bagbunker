@@ -4,6 +4,8 @@ Changelog (Bagbunker)
 3.1.0 (unreleased)
 ------------------
 
+- [FEATURE] verify md5 files
+  [#60](https://github.com/bosch-ros-pkg/bagbunker/issues/60)
 - [FEATURE] update gps job to work with more topics and message types
   [#72](https://github.com/bosch-ros-pkg/bagbunker/pull/72)
   [#68](https://github.com/bosch-ros-pkg/bagbunker/issues/68)

@@ -140,6 +140,10 @@ class Storage(object):
 
                     # New fileset?
                     if active is None:
+                        if not self.verify_md5(found):
+                            logger.warn('skipped MD5 mismatch %r', found)
+                            continue
+
                         self.instance.filesets.append(found)
                         db.session.commit()
                         trigger_update_listing_entries([found.id])
@@ -183,3 +187,12 @@ class Storage(object):
                              found, traceback.format_exc())
                 db.session.rollback()
         self._detect_missing(logger)
+
+    def verify_md5(self, fileset):
+        for file in fileset.files:
+            if subprocess.call(['md5sum', '-c', '{}.md5'.format(file.name)],
+                               cwd=fileset.dirpath,
+                               stderr=subprocess.PIPE,
+                               stdout=subprocess.PIPE) != 0:
+                return False
+        return True

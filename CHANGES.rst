@@ -4,8 +4,17 @@ Changelog (Bagbunker)
 3.1.0 (unreleased)
 ------------------
 
-- setuptool-20.0, pip-8.0.2, pip-tools-1.6
-- [FEATURE] take robot_name from dedicated topic
+- [FEATURE] update gps job to work with more topics and message types
+  [#72](https://github.com/bosch-ros-pkg/bagbunker/pull/72)
+  [#68](https://github.com/bosch-ros-pkg/bagbunker/issues/68)
+- [FEATURE] camera topics update for deepfield
+  [#74](https://github.com/bosch-ros-pkg/bagbunker/pull/74)
+- [FEATURE] metadata robot_name read from topic
+  [#73](https://github.com/bosch-ros-pkg/bagbunker/pull/73)
+  [#69](https://github.com/bosch-ros-pkg/bagbunker/issues/69)
+- [FEATURE] remove deprecated force flag from docker tag
+  [#64](https://github.com/bosch-ros-pkg/bagbunker/pull/64)
+- setuptool-20.10.1, pip-8.1.1, pip-tools-1.6.1
 - [BUGFIX] silence INFO logging of requests lib
 
 

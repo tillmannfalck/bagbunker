@@ -1,7 +1,11 @@
 Changelog (Bagbunker)
 =====================
 
-3.1.0 (unreleased)
+x.y.z (unreleased)
+------------------
+
+
+3.1.0 (2016-04-27)
 ------------------
 
 - [BUGFIX] only update fileset with changed missing state

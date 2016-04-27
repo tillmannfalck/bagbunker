@@ -22,6 +22,8 @@
 
 from __future__ import absolute_import, division
 
+from itertools import product
+from collections import defaultdict
 from marv import bb
 from marv.bb import job_logger as logger
 from bagbunker import bb_bag
@@ -43,9 +45,9 @@ ORIENTATION_TOPICS = (
 TOPICS = POSITION_TOPICS + ORIENTATION_TOPICS
 
 
-def detail_image_view(topic):
+def detail_image_view(topic, orient_topic):
     @bb.detail()
-    @bb.image_widget(title='Position plot {}, {}'.format(topic, ORIENTATION_TOPICS))
+    @bb.image_widget(title='Position plot {}, {}'.format(topic, orient_topic))
     def detail_image(fileset):
         jobrun = fileset.get_latest_jobrun('deepfield::gps_track')
         if not jobrun:
@@ -68,24 +70,25 @@ def detail_image_view(topic):
                             str(jobrun.id), jobfile.name]),
         }
 
+
 # We register a view for each gps topic, but so far the gps job can
 # only process one topic.
-for topic in POSITION_TOPICS:
-    detail_image_view(topic)
+for topic, orient_topic in product(POSITION_TOPICS, ORIENTATION_TOPICS):
+    detail_image_view(topic, orient_topic)
+
 
 @bb.job()
 @bb_bag.messages(topics=TOPICS)
 def job(fileset, messages):
     position_topics = [x.topic.name for x in fileset.bag.topics
-                  if x.topic.name in POSITION_TOPICS]
+                       if x.topic.name in POSITION_TOPICS]
     orientation_topics = [x.topic.name for x in fileset.bag.topics
-                  if x.topic.name in ORIENTATION_TOPICS]
+                          if x.topic.name in ORIENTATION_TOPICS]
     if not position_topics:
         logger.debug('no gps topic found')
         return []
-    for position_topic in position_topics:
-        for orientation_topic in orientation_topics:
-            logger.info('starting with {} and {}'.format(position_topic, orientation_topic))
+    logger.info('starting with {} and {}'.format(position_topics,
+                                                 orientation_topics))
 
     import datetime
     import pyproj
@@ -96,7 +99,7 @@ def job(fileset, messages):
 
     proj = pyproj.Proj(proj='utm', zone=32, ellps='WGS84')
 
-    class POSITION(object):
+    class Position(object):
         def __init__(self):
             self.e_offset = 0
             self.n_offset = 0
@@ -123,7 +126,7 @@ def job(fileset, messages):
                 np.sqrt(msg.position_covariance[0])
             ])
 
-    class ORIENTATION(object):
+    class Orientation(object):
         def __init__(self):
             self.orientation = []
 
@@ -165,9 +168,10 @@ def job(fileset, messages):
             # calculate the angle
             return np.arctan2(vec[1], vec[0])
 
-    positionMap = dict([(position_topic, POSITION()) for position_topic in position_topics])
-    orientationMap = dict([(orientation_topic, ORIENTATION()) for orientation_topic in orientation_topics])
-    erroneous_msg_count = 0
+    positionMap = {position_topic: Position() for position_topic in position_topics}
+    orientationMap = {orientation_topic: Orientation()
+                      for orientation_topic in orientation_topics}
+    erroneous_msg_count = defaultdict(int)
 
     for topic, msg, timestamp in messages:
         if topic in position_topics:
@@ -175,7 +179,7 @@ def job(fileset, messages):
             if np.isnan(msg.longitude) or \
                np.isnan(msg.latitude) or \
                np.isnan(msg.altitude):
-                erroneous_msg_count += 1
+                erroneous_msg_count[topic] += 1
                 continue
 
             if hasattr(msg, 'status'):
@@ -186,75 +190,79 @@ def job(fileset, messages):
             orientationMap[topic].update(msg)
 
     if erroneous_msg_count:
-        logger.warn('Skipped %s erroneous GNSS messages on topic %s',
-                    erroneous_msg_count, position_topic)
+        logger.warn('Skipped erroneous GNSS messages %r', erroneous_msg_count.items())
 
-    for position_topic in position_topics:
-        for orientation_topic in orientation_topics:
-            gps = np.array(positionMap[position_topic].gps)
+    for position_topic, orientation_topic in product(
+            position_topics, orientation_topics
+    ):
+        gps = np.array(positionMap[position_topic].gps)
 
-            if not len(gps):
-                logger.error('Aborting due to missing gps messages on topic %s', position_topic)
-                continue
+        if not len(gps):
+            logger.error('Aborting due to missing gps messages on topic %s',
+                         position_topic)
+            continue
 
-            if orientationMap[orientation_topic].orientation:
-                orientation = np.array(orientationMap[orientation_topic].orientation)
-            else:
-                logger.warn('No orientation messages on topic %s', orientation_topic)
+        if orientationMap[orientation_topic].orientation:
+            orientation = np.array(orientationMap[orientation_topic].orientation)
+        else:
+            logger.warn('No orientation messages on topic %s', orientation_topic)
 
+        # plotting
+        fig = plt.figure()
+        fig.subplots_adjust(wspace=0.3)
 
-            # plotting
-            fig = plt.figure()
-            fig.subplots_adjust(wspace=0.3)
+        ax1 = fig.add_subplot(1, 3, 1)  # e-n plot
+        ax2 = fig.add_subplot(2, 3, 2)  # orientation plot
+        ax3 = fig.add_subplot(2, 3, 3)  # e-time plot
+        ax4 = fig.add_subplot(2, 3, 5)  # up plot
+        ax5 = fig.add_subplot(2, 3, 6)  # n-time plot
 
-            ax1 = fig.add_subplot(1, 3, 1)  # e-n plot
-            ax2 = fig.add_subplot(2, 3, 2)  # orientation plot
-            ax3 = fig.add_subplot(2, 3, 3)  # e-time plot
-            ax4 = fig.add_subplot(2, 3, 5)  # up plot
-            ax5 = fig.add_subplot(2, 3, 6)  # n-time plot
+        # masking for finite values
+        gps = gps[np.isfinite(gps[:, 1])]
 
-            # masking for finite values
-            gps = gps[np.isfinite(gps[:, 1])]
+        # precompute plot vars
+        c = cm.prism(gps[:, 7]/2)
 
-            # precompute plot vars
-            c = cm.prism(gps[:, 7]/2)
+        ax1.scatter(gps[:, 4], gps[:, 5], c=c, edgecolor='none', s=3,
+                    label="green: RTK\nyellow: DGPS\nred: Single")
 
-            ax1.scatter(gps[:, 4], gps[:, 5], c=c, edgecolor='none', s=3,
-                        label="green: RTK\nyellow: DGPS\nred: Single")
+        xfmt = md.DateFormatter('%H:%M:%S')
+        ax2.xaxis.set_major_formatter(xfmt)
+        ax3.xaxis.set_major_formatter(xfmt)
+        ax4.xaxis.set_major_formatter(xfmt)
+        ax5.xaxis.set_major_formatter(xfmt)
 
-            xfmt = md.DateFormatter('%H:%M:%S')
-            ax2.xaxis.set_major_formatter(xfmt)
-            ax3.xaxis.set_major_formatter(xfmt)
-            ax4.xaxis.set_major_formatter(xfmt)
-            ax5.xaxis.set_major_formatter(xfmt)
+        if orientationMap[orientation_topic].orientation:
+            ax2.plot([datetime.datetime.fromtimestamp(timestamp)
+                      for timestamp in orientation[:, 0]], orientation[:, 1])
 
-            if orientationMap[orientation_topic].orientation:
-                ax2.plot([datetime.datetime.fromtimestamp(timestamp) for timestamp in orientation[:, 0]], orientation[:, 1])
+        ax3.plot([datetime.datetime.fromtimestamp(timestamp)
+                  for timestamp in gps[:, 0]], gps[:, 4])
+        ax4.plot([datetime.datetime.fromtimestamp(timestamp)
+                  for timestamp in gps[:, 0]], gps[:, 6])
+        ax5.plot([datetime.datetime.fromtimestamp(timestamp)
+                  for timestamp in gps[:, 0]], gps[:, 5])
 
-            ax3.plot([datetime.datetime.fromtimestamp(timestamp) for timestamp in gps[:, 0]], gps[:, 4])
-            ax4.plot([datetime.datetime.fromtimestamp(timestamp) for timestamp in gps[:, 0]], gps[:, 6])
-            ax5.plot([datetime.datetime.fromtimestamp(timestamp) for timestamp in gps[:, 0]], gps[:, 5])
+        fig.autofmt_xdate()
 
-            fig.autofmt_xdate()
+        # add the legends
+        ax1.legend(loc="best")
 
-            # add the legends
-            ax1.legend(loc="best")
+        ax1.set_ylabel('GNSS northing [m]')
+        ax1.set_xlabel('GNSS easting [m]')
+        ax2.set_ylabel('Heading over time [rad]')
+        ax3.set_ylabel('GNSS easting over time [m]')
+        ax4.set_ylabel('GNSS height over time [m]')
+        ax5.set_ylabel('GNSS northing over time [m]')
 
-            ax1.set_ylabel('GNSS northing [m]')
-            ax1.set_xlabel('GNSS easting [m]')
-            ax2.set_ylabel('Heading over time [rad]')
-            ax3.set_ylabel('GNSS easting over time [m]')
-            ax4.set_ylabel('GNSS height over time [m]')
-            ax5.set_ylabel('GNSS northing over time [m]')
+        fig.set_size_inches(16, 9)
+        path = bb.make_job_file(position_topic.replace("/", "_")+'.jpg')
 
-            fig.set_size_inches(16, 9)
-            path = bb.make_job_file(position_topic.replace("/", "_")+'.jpg')
-
-            try:
-                fig.savefig(path)
-            except:
-                logger.warn(gps[:, 4])
-                logger.warn(gps[:, 5])
-                logger.warn(gps[:, 6])
-                raise
+        try:
+            fig.savefig(path)
+        except:
+            logger.warn(gps[:, 4])
+            logger.warn(gps[:, 5])
+            logger.warn(gps[:, 6])
+            raise
     return []

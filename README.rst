@@ -1,3 +1,10 @@
+Contritubing
+============
+
+- Please do not prepend your branches with `feature`. All branches except `develop` and those starting with `hotfix-` and `release-` are feture branches.
+- Please make pull requests against `develop`.
+
+
 Getting started
 ===============
 

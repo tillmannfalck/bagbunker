@@ -26,6 +26,7 @@ import inspect
 import re
 from flask.ext.sqlalchemy import _BoundDeclarativeMeta as model_metaclass
 
+from .job import MODELS
 from .model import db
 from .filtering import FILTER, Filter, FilterInput
 from .listing import ListingColumn
@@ -58,6 +59,7 @@ def fileset():
         class_dict.update((k, v) for k, v in cls.__dict__.items()
                           if k[0] != '_')
         Model = model_metaclass(name, bases, class_dict)
+        MODELS.append(Model)
         return Model
     return decorator
 
@@ -97,6 +99,7 @@ def job_model():
         class_dict.update((k, v) for k, v in cls.__dict__.items()
                           if k[0] != '_')
         Model = model_metaclass(name, bases, class_dict)
+        MODELS.append(Model)
         return Model
     return decorator
 

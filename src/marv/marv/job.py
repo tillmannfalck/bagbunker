@@ -32,6 +32,9 @@ from .parameters import Config
 from .widgeting import ParameterBase, WidgetBase
 
 
+MODELS = []
+
+
 class JobContext(object):
     def __init__(self, jobrun_id, group, name):
         logger_name = '{}.{}.{}'.format(__name__, group, name)

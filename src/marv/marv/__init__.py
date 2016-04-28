@@ -44,7 +44,7 @@ from .listing import remove_listing_entry, update_listing_entry
 from .listing import remove_listing_entries, update_listing_entries
 from .listing import get_local_listing, set_remote_listing, serialize_listing_entry
 from .logrequest import logrequest
-from .model import db, Comment, File, Fileset, Jobrun, Storage, Tag, User
+from .model import db, Comment, File, Fileset, Jobrun, Jobfile, Storage, Tag, User
 
 from .registry import load_formats, load_jobs   # noqa
 from .serializer import fileset_detail, fileset_summary
@@ -316,9 +316,11 @@ def create_app(config_obj, **kw):
                               page_size=1000,
                               **kw)
         apimanager.create_api(Jobrun, **kw)
+        apimanager.create_api(Jobfile, **kw)
 
-        from bagbunker.model import Bag
-        apimanager.create_api(Bag, **kw)
+        from .job import MODELS
+        for model in MODELS:
+            apimanager.create_api(model, **kw)
 
     app.register_blueprint(frontend)
     app.register_blueprint(logrequest)

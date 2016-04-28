@@ -8,6 +8,8 @@ x.y.z (unreleased)
 3.1.0 (2016-04-27)
 ------------------
 
+- [BUGFIX] add missing api endpoint to query jobruns
+  `#70 <https://github.com/bosch-ros-pkg/bagbunker/issues/70>`_
 - [BUGFIX] warn about discarded incomplete filesets
   `#66 <https://github.com/bosch-ros-pkg/bagbunker/issues/66>`_
 - [BUGFIX] do not feed jobs that have finished early

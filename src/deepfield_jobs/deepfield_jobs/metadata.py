@@ -25,11 +25,10 @@ from __future__ import absolute_import, division
 import os
 from marv import bb, db
 from marv.bb import job_logger as logger
-from marv.model import Fileset, Jobrun
 from bagbunker import bb_bag
 
 
-__version__ = '0.0.1'
+__version__ = '0.0.3'
 
 
 @bb.job_model()
@@ -38,14 +37,33 @@ class Metadata(object):
     use_case = db.Column(db.String(126), nullable=False)
 
 
+# XXX: This will receive all messages. What we really want is to
+# receive only /robot_name/name messages, but be called also if there
+# are no messages.
 @bb.job()
-@bb_bag.messages(topics=())
+@bb_bag.messages(topics='*')
 def job(fileset, messages):
     if not fileset.bag:
         return
-    path = fileset.dirpath.split(os.sep)
-    robot_name = path[3] if len(path) > 3 else 'unknown'
-    use_case = path[6] if len(path) > 6 else 'unknown'
+
+    name_topic = '/robot_name/name'
+    messages = messages \
+        if any(True for x in fileset.bag.topics if x.topic.name == name_topic) \
+        else ()
+    for topic, msg, timestamp in messages:
+        if topic == name_topic:
+            try:
+                robot_name = msg.data
+            except AttributeError:
+                robot_name = msg.robot_name
+            logger.debug('found robot_name via topic: %s' % msg)
+            use_case = ''
+            break
+    else:
+        path = fileset.dirpath.split(os.sep)
+        robot_name = path[3] if len(path) > 3 else 'unknown'
+        use_case = path[6] if len(path) > 6 else 'unknown'
+
     logger.info('robot_name=%s, use_case=%s', robot_name, use_case)
     yield Metadata(robot_name=robot_name, use_case=use_case)
 

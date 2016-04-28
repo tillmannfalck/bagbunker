@@ -22,6 +22,7 @@
 
 from __future__ import absolute_import, division
 
+import subprocess
 import os
 from datetime import datetime
 from itertools import chain
@@ -83,7 +84,7 @@ class Storage(object):
 
     def _detect_missing(self, logger):
         """Detect missing files for active filesets"""
-        need_update = []
+        need_update = set()
         for fileset in self.active_filesets:
             for file in fileset.files:
                 missing = not os.path.exists(file.path)
@@ -93,9 +94,9 @@ class Storage(object):
                     else:
                         logger.info('Found missing file %r of %r', file, fileset)
                     file.missing = missing
-            need_update.append(fileset.id)
+                    need_update.add(fileset.id)
         db.session.commit()
-        trigger_update_listing_entries(need_update)
+        trigger_update_listing_entries(list(need_update))
 
     def read_pending(self, logger=getLogger(__name__)):
         reader = self.reader
@@ -140,6 +141,10 @@ class Storage(object):
 
                     # New fileset?
                     if active is None:
+                        if not self.verify_md5(found):
+                            logger.warn('skipped MD5 mismatch %r', found)
+                            continue
+
                         self.instance.filesets.append(found)
                         db.session.commit()
                         trigger_update_listing_entries([found.id])
@@ -183,3 +188,12 @@ class Storage(object):
                              found, traceback.format_exc())
                 db.session.rollback()
         self._detect_missing(logger)
+
+    def verify_md5(self, fileset):
+        for file in fileset.files:
+            if subprocess.call(['md5sum', '-c', '{}.md5'.format(file.name)],
+                               cwd=fileset.dirpath,
+                               stderr=subprocess.PIPE,
+                               stdout=subprocess.PIPE) != 0:
+                return False
+        return True

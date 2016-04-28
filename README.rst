@@ -1,3 +1,10 @@
+Contritubing
+============
+
+- Please do not prepend your branches with ``feature``. All branches except ``develop`` and those starting with ``hotfix-`` and ``release-`` are feature branches.
+- Please make pull requests against ``develop``.
+
+
 Getting started
 ===============
 
@@ -7,7 +14,7 @@ This document describes the setup using docker. For manual installation instruct
 Using a proxy
 -------------
 
-All tools should honor the ``http_proxy`` and ``https_proxy`` environment variables. If this does not work, please open a `new issue <https://github.com/bosch-ros-pkg/bagbunker/issues/new>`_. Make sure the proxy variables point to an IP address that is reachable from within the docker container, ``127.0.0.1` inside your docker container is a different ``127.0.0.1`` than outside. The IP address of the ``docker0`` interface works.
+All tools should honor the ``http_proxy`` and ``https_proxy`` environment variables. If this does not work, please open a `new issue <https://github.com/bosch-ros-pkg/bagbunker/issues/new>`_. Make sure the proxy variables point to an IP address that is reachable from within the docker container, ``127.0.0.1`` inside your docker container is a different ``127.0.0.1`` than outside. The IP address of the ``docker0`` interface works.
 
 
 System requirements
@@ -237,12 +244,12 @@ As a reminder, source the profile before running docker commands::
 Bagbunker group and adjust permissions for development
 ------------------------------------------------------
 
-For development the repository is mounted into the docker container and some or all packages are installed manually into development mode (see next section). For this to succeed the user within the docker container needs to be able to write ``*.egg-info`` directories:
+For development the repository is mounted into the docker container and some or all packages are installed manually into development mode (see next section). For this to succeed the user within the docker container needs to be able to write ``*.egg-info`` directories::
 
   % sudo chown :65533 src/*
   % sudo chmod g+w src/*
 
-Check for existing directories and remove them if the permissions are wrong:
+Check for existing directories and remove them if the permissions are wrong::
 
   % ls -l src/*/*.egg-info
 
@@ -252,7 +259,7 @@ Develop existing and new packages
 
 To install any of the existing packages into development mode::
 
-  % docker exec -ti $COMPOSE_PROJECT bash -c "pip install -e code/bagbunker/src/deepfield_jobs"
+  % docker exec -ti $COMPOSE_PROJECT_NAME bash -c "pip install -e code/bagbunker/src/deepfield_jobs"
 
 After that, changes to files within ``deepfield_jobs`` will be immediately available for job runs within the docker container. You can also create your own job package: take ``deepfield_jobs`` as an example and adjust setup.py accordingly.
 

@@ -46,8 +46,12 @@ def job(fileset, messages):
     if not fileset.bag:
         return
 
+    name_topic = '/robot_name/name'
+    messages = messages \
+        if any(True for x in fileset.bag.topics if x.topic.name == name_topic) \
+        else ()
     for topic, msg, timestamp in messages:
-        if topic == '/robot_name/name':
+        if topic == name_topic:
             try:
                 robot_name = msg.data
             except AttributeError:

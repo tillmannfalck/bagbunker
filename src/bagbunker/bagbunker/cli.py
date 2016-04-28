@@ -376,14 +376,14 @@ def run_jobs(ctx, all, force, fileset, job):
                                      config=jobconfig.get(cmd.name, {}))
                       for cmdtopics, cmd in cmds]
         logger.info('Created threads for: %s', [x.name for x in async_jobs])
-        milkers = []
+        milkers = {}
         for async_job in async_jobs:
             name = async_job.thread.name
             thread = Thread(target=async_job_milker, name=name,
                             args=(app, async_job,))
             thread.daemon = True
             thread.start()
-            milkers.append(thread)
+            milkers[name] = thread
 
         def messages():
             if not topics:
@@ -395,6 +395,9 @@ def run_jobs(ctx, all, force, fileset, job):
                     yield msg
 
         for msg in messages():
+            async_jobs = [x for x in async_jobs if milkers[x.thread.name].is_alive()]
+            if not async_jobs:
+                break
             for async_job in async_jobs:
                 # XXX: replace with namedtuple
                 topic, _, _ = msg
@@ -404,7 +407,7 @@ def run_jobs(ctx, all, force, fileset, job):
         for async_job in async_jobs:
             async_job.msg_queue.put(Done)
 
-        for milker in milkers:
+        for milker in milkers.values():
             milker.join()
 
         trigger_update_listing_entries([fileset.id])

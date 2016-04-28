@@ -23,9 +23,13 @@
 from __future__ import absolute_import, division
 
 import collections
+import logging
 import re
 from marv import bb
 from marv.scanner import FilesetInfo
+
+
+logger = logging.getLogger(__name__)
 
 
 @bb.scanner(pattern='*.bag')
@@ -47,6 +51,7 @@ def scanner(fileinfos):
         for basename, idx, fileinfo in sorted(dirfiles, reverse=True):
             if prev_idx is not None and idx != prev_idx - 1:
                 # broken set, discard files
+                logger.warn('Discarding incomplete fileset %r', indexed_files)
                 indexed_files = []
                 prev_idx = None
 
@@ -60,6 +65,8 @@ def scanner(fileinfos):
             else:
                 prev_idx = idx
 
+        if indexed_files:
+            logger.warn('Discarding incomplete fileset %r', indexed_files)
         # return sets in alphabetical order
         for set in sets:
             yield set

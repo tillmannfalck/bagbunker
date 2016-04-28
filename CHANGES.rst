@@ -8,6 +8,8 @@ x.y.z (unreleased)
 3.1.0 (2016-04-27)
 ------------------
 
+- [BUGFIX] warn about discarded incomplete filesets
+  `#66 <https://github.com/bosch-ros-pkg/bagbunker/issues/66>`_
 - [BUGFIX] do not feed jobs that have finished early
 - [BUGFIX] only update fileset with changed missing state
   `#71 <https://github.com/bosch-ros-pkg/bagbunker/issues/71>`_

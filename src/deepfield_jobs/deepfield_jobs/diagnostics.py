@@ -27,13 +27,14 @@ from marv import db, bb
 from bagbunker import bb_bag
 
 
-__version__ = '0.0.0'
+__version__ = '0.0.1'
 
 
 @bb.job_model()
 class Diagnostics(object):
     name = db.Column(db.Text)
     ok_count = db.Column(db.Integer)
+    warn_count = db.Column(db.Integer)
     error_count = db.Column(db.Integer)
 
 
@@ -56,6 +57,12 @@ def diagnostics_detail(fileset):
                 'count': diag.ok_count,
                 'status': 'OK',
             })
+        if diag.warn_count:
+            rows.append({
+                'name': diag.name,
+                'count': diag.warn_count,
+                'status': 'WARN',
+            })
         if diag.error_count:
             rows.append({
                 'name': diag.name,
@@ -74,16 +81,20 @@ def job(fileset, messages):
         def __init__(self):
             self.oks = 0
             self.errors = 0
+            self.warnings = 0
     diagcounters = defaultdict(DiagCounter)
 
     for topic, msg, timestamp in messages:
         for stat in msg.status:
             if stat.level == DiagnosticStatus.OK:
                 diagcounters[stat.name].oks += 1
+            elif stat.level == DiagnosticStatus.WARN:
+                diagcounters[stat.name].warnings += 1
             else:
                 diagcounters[stat.name].errors += 1
 
     for name, diagcounter in diagcounters.items():
         yield Diagnostics(name=name,
                           ok_count=diagcounter.oks,
+                          warn_count=diagcounter.warnings,
                           error_count=diagcounter.errors)

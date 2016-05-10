@@ -265,4 +265,6 @@ def job(fileset, messages):
             logger.warn(gps[:, 5])
             logger.warn(gps[:, 6])
             raise
+        finally:
+            plt.close()
     return []

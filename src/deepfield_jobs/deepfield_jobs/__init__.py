@@ -44,3 +44,4 @@ from . import extract_trajectories  # noqa
 from . import gps_track  # noqa
 from . import metadata  # noqa
 from . import onewire_temperature  # noqa
+from . import sanity_check_job  # noqa

@@ -27,39 +27,20 @@ from marv import model
 from marv.bb import job_logger as logger
 from bagbunker import bb_bag
 
-from deepfield_jobs.sanity_check import SanityCheck, Status
+import os, sys
 import json
 import yaml
 
+__version__ = '0.0.2'
 
-__version__ = '0.0.1'
+HOME_PATH = os.path.expanduser("~")
+# NOTE: this job requires a checkout of the full phenotyping repository in /home/bagbunker
+SANITY_CHECK_PATH=HOME_PATH + '/phenotyping/phenotyping_diagnostics/scripts/'
+sys.path.append(SANITY_CHECK_PATH)
+from sanity_check import SanityCheck, Status
 
-# FIXME: sanity check config hardcoded for now
-sanity_check_config = {'duration': {'min': 23},
-                       'filesize': {'max': 3, 'min': 1},
-                       'synced': {'jai': ['/camX/jai/nir/camera_info',
-                                          '/camX/jai/nir/image_raw',
-                                          '/camX/jai/rgb/camera_info',
-                                          '/camX/jai/rgb/image_raw']},
-                       'topics': {'/camX/jai/nir/camera_info': {'max': 21.5,
-                                                                'min': 18.5},
-                                  '/camX/jai/nir/image_raw': {'max': 21.5,
-                                                              'min': 18.5},
-                                  '/camX/jai/rgb/camera_info': {'max': 21.5,
-                                                                'min': 18.5},
-                                  '/camX/jai/rgb/image_raw': {'max': 21.5,
-                                                              'min': 18.5},
-                                  '/camX/siemens_logo/logo_light_state':
-                                  {'min': 0.9},
-                                  '/diagnostics_agg': {'min': 0},
-                                  '/gps/fix': {'max': 21, 'min': 19},
-                                  '/gps/heading': {'max': 21, 'min': 19},
-                                  '/gps/info': {'max': 21, 'min': 19},
-                                  '/gps/orientation': {'max': 21, 'min': 19},
-                                  '/gps/time_reference': {'max': 21, 'min': 19},
-                                  '/rosout_agg': {'min': 0},
-                                  '/tf': {'min': 15}},
-                       'tracklength': {'max': 7, 'min': 4.25}}
+def get_config_filename(mode):
+    return SANITY_CHECK_PATH + 'sanity_check_%s.yaml' % mode
 
 @bb.job_model()
 class SanityCheckResult(object):
@@ -67,11 +48,36 @@ class SanityCheckResult(object):
     success = db.Column(db.Boolean)
 
 
+# FIXME: workaround until we have the module_name and mode stored in the bag file
+def extract_mode(filename):
+    segments = filename.split('.')[0].split('__')
+    if filename.endswith('__main.bag'):
+        if len(segments) < 5:
+            return ''
+        return segments[-1]
+    else:
+        if len(segments) < 7:
+            return ''
+        return segments[-4]
+
+
+def extract_module_name(filename):
+    if not filename.endswith('.bag'):
+        return ''
+    basename = filename.split('/')[-1].split('.bag')[0]
+    module = basename.split('__')[-1]
+    if module in ['camA', 'camB', 'camC', 'main']:
+        return module
+    else:
+        return ''
+
+
 @bb.detail()
 @bb.table_widget(title='Sanity Check')
 @bb.column('name')
 @bb.column('value')
 @bb.column('status')
+@bb.column('expected')
 def sanity_check_detail(fileset):
     jobrun = fileset.get_latest_jobrun('deepfield::sanity_check_job')
     if jobrun is None:
@@ -88,6 +94,22 @@ def sanity_check_detail(fileset):
         Status.UNSYNCED: 'Unsynced',
         Status.ERROR: 'Error',
     }
+    # XXX: we only consider 'single bag' filesets
+    bagfilename = fileset.files[0].name
+    mode = extract_mode(bagfilename)
+    module_name = extract_module_name(bagfilename)
+    with open(get_config_filename(mode), 'r') as config_file:
+        check_config = yaml.load(config_file)
+
+    def get_cfg_interval(minmax):
+        interval = []
+        if 'min' in minmax or 'max' in minmax:
+            if 'min' in minmax:
+                interval.append('min: ' + str(minmax['min']))
+            if 'max' in minmax:
+                interval.append('max: ' + str(minmax['max']))
+        return interval
+
     for c in all_checks:
         res_json = c.results
         res = json.loads(res_json)
@@ -95,44 +117,33 @@ def sanity_check_detail(fileset):
             [name, value, status] = entry
             status_str = status_string_map[status]
             name_str = name
+            interval = []
             if name.startswith('/'):
-                # topic check
                 name_str = 'Topic ' + name
-                if name in sanity_check_config['topics']:
-                    minmax = sanity_check_config['topics'][name]
-                    if 'min' in minmax or 'max' in minmax:
-                        interval = []
-                        if 'min' in minmax:
-                            interval.append('min: ' + str(minmax['min']))
-                        if 'max' in minmax:
-                            interval.append('max: ' + str(minmax['max']))
-                        status_str = '%s [%s]' % (status_string_map[status], ', '.join(interval))
+                cfg_key = name
+                # in sanity check config, camX stands for camA,B,C topics
+                if name.startswith('/cam'):
+                    cfg_key = name.replace(module_name, 'camX')
+                if cfg_key in check_config['topics']:
+                    minmax = check_config['topics'][cfg_key]
+                    interval = get_cfg_interval(minmax)
+            else:
+                possible_cfg_key = name.lower()
+                if possible_cfg_key in check_config:
+                    minmax = check_config[possible_cfg_key]
+                    interval = get_cfg_interval(minmax)
             rows.append({
                 'name': name_str,
                 'value': str(value),
                 'status': status_str,
+                'expected': ', '.join(interval) if interval else '-',
             })
 
         rows.append({'name': '<b>Summary</b>',
                      'value': '<b>-</b>',
                      'status': '<b>OK</b>' if c.success else '<b>Failed</b>',
-                     })
+        })
     return rows
-
-
-# FIXME: workaround until we have the module_name stored in the bag file as well
-def extract_module_name(filename):
-    basename = filename.split('/')[-1].split('.bag')[0]
-    module = basename.split('__')[-1]
-    if module in ['camA', 'camB', 'camC', 'main']:
-        return module
-    else:
-        return ''
-
-# FIXME: uses hardcoded config
-def create_config(target_path):
-    with open(target_path, 'w') as outfile:
-        outfile.write(yaml.dump(sanity_check_config))
 
 
 @bb.job()
@@ -150,13 +161,18 @@ def job(fileset, messages):
     for f in fileset.files:
         module_name = extract_module_name(f.name)
         if not module_name:
+            logger.info('could not extract module name from %s, skipping' % f.name)
+            continue
+        mode = extract_mode(f.name)
+        if not mode:
+            logger.info('could not extract measurement mode from %s, skipping' % f.name)
             continue
         bagpath = fileset.dirpath + '/' + f.name
         logger.info('analysing bag file {0}, module name {1}'.format(bagpath,
                                                                      module_name))
         sc = SanityCheck()
-        input_yaml = '/tmp/sanity_check.yaml'
-        create_config(input_yaml)
+        # expects configurations to be in the same path
+        input_yaml = get_config_filename(mode)
         result = sc.analyse_bag_file(bagpath, input_yaml, module_name)
         success = True
         for check in result:

@@ -1,10 +1,8 @@
 from __future__ import absolute_import, division
 
-from collections import defaultdict
 from marv import db, bb
 from bagbunker import bb_bag
 import json
-import numpy as np
 
 __version__ = '0.0.1'
 
@@ -40,15 +38,24 @@ def diagnostics_detail(fileset):
     return rows
 
 def cpu_load_statistics(diagnostics_array):
+    import numpy as np
     cpu_load_history = list()
 
     for entry in diagnostics_array:
         cpu_load_set = list()
 
-        for cpu_core in range(0, CORES):
-            cpu_idle_str = "CPU " + str(cpu_core) + " Idle"
-            cpu_load = 100 - float(entry[cpu_idle_str])
-            cpu_load_set.append(cpu_load)
+        core_id = 0
+        valid_core = True
+
+        while valid_core:
+            try:
+                cpu_idle_str = "CPU " + str(core_id) + " Idle"
+                cpu_load = 100 - float(entry[cpu_idle_str])
+                cpu_load_set.append(cpu_load)
+                core_id += 1
+            except KeyError:
+                valid_core = False
+
         cpu_load_history.append(cpu_load_set)
 
     cpu_load_max = np.max([np.average(i) for i in cpu_load_history])
@@ -57,15 +64,24 @@ def cpu_load_statistics(diagnostics_array):
     return int(cpu_load_avg), int(cpu_load_max)
 
 def cpu_temp_statistics(diagnostics_array):
+    import numpy as np
     cpu_temp_history = list()
 
     for entry in diagnostics_array:
         cpu_temp_set = list()
 
-        for sensor in range(0, TEMP_SENSORS):
-            cpu_temp_str = "Core " + str(sensor) + " Temp"
-            cpu_temp = float(entry[cpu_temp_str])
-            cpu_temp_set.append(cpu_temp)
+        sensor_id = 0
+        valid_sensor = True
+
+        while valid_sensor:
+            try:
+                cpu_temp_str = "Core " + str(sensor_id) + " Temp"
+                cpu_temp = float(entry[cpu_temp_str])
+                cpu_temp_set.append(cpu_temp)
+                sensor_id += 1
+            except KeyError:
+                valid_sensor = False
+
         cpu_temp_history.append(cpu_temp_set)
 
     cpu_temp_max = np.max([np.max(i) for i in cpu_temp_history])
@@ -73,15 +89,12 @@ def cpu_temp_statistics(diagnostics_array):
 
     return int(cpu_temp_avg), int(cpu_temp_max)
 
-CORES = 4
-TEMP_SENSORS = 2
-
 @bb.job()
 @bb_bag.messages(topics=('/diagnostics_agg',))
 def job(_, messages):
-    load_statistics = defaultdict()
-    temp_statistics = defaultdict()
-    statistics = defaultdict()
+    load_statistics = dict()
+    temp_statistics = dict()
+    statistics = dict()
 
     for _, msg, _ in messages:
         for stat in msg.status:

@@ -45,3 +45,4 @@ from . import gps_track  # noqa
 from . import metadata  # noqa
 from . import onewire_temperature  # noqa
 from . import cpu_diagnostics # noqa
+from . import sanity_check_job  # noqa

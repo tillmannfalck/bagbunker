@@ -123,7 +123,7 @@ for topic in TOPICS:
 @bb.config('max_frames', default=50, help="Maximum number of frames to extract")
 @bb_bag.messages(topics=TOPICS)
 def job(fileset, messages, max_frames):
-    import cv
+    import cv2
     import cv_bridge
     bridge = cv_bridge.CvBridge()
 
@@ -147,7 +147,9 @@ def job(fileset, messages, max_frames):
                                                idx=frame_idx))
 
         cv_image = bridge.imgmsg_to_cv2(msg, "rgb8")
-        cv.SaveImage(image_name, cv.fromarray(cv_image))
+        scaled_img = cv2.resize(cv_image, (640, 480),
+                                interpolation=cv2.INTER_AREA)
+        cv2.imwrite(image_name, scaled_img, (cv2.IMWRITE_JPEG_QUALITY, 60))
         logger.debug('saved %s', image_name)
 
     return []

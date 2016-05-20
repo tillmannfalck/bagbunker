@@ -37,7 +37,6 @@ HOME_PATH = os.path.expanduser("~")
 # NOTE: this job requires a checkout of the full phenotyping repository in /home/bagbunker
 SANITY_CHECK_PATH=HOME_PATH + '/phenotyping/phenotyping_diagnostics/scripts/'
 sys.path.append(SANITY_CHECK_PATH)
-from sanity_check import SanityCheck, Status
 
 def get_config_filename(mode):
     return SANITY_CHECK_PATH + 'sanity_check_%s.yaml' % mode
@@ -79,6 +78,8 @@ def extract_module_name(filename):
 @bb.column('status')
 @bb.column('expected')
 def sanity_check_detail(fileset):
+    from sanity_check import Status
+
     jobrun = fileset.get_latest_jobrun('deepfield::sanity_check_job')
     if jobrun is None:
         return None
@@ -142,13 +143,20 @@ def sanity_check_detail(fileset):
         rows.append({'name': '<b>Summary</b>',
                      'value': '<b>-</b>',
                      'status': '<b>OK</b>' if c.success else '<b>Failed</b>',
-        })
+                    })
     return rows
 
 
 @bb.job()
 @bb_bag.messages(topics=('/4dscan/scanrun',))
 def job(fileset, messages):
+    try:
+        from sanity_check import SanityCheck, Status
+    except ImportError:
+        logger.info('Sanity check module not found. Is there a phenotyping checkout in %s?' %
+                    HOME_PATH)
+        raise
+
     # first, make sure that the 'invalid' tag exists
     tg_qry = model.Tag.query.filter(model.Tag.label == 'invalid').first()
     tg = None

@@ -4,14 +4,15 @@
 REV=$(shell git describe --tags)
 REPO=docker.ternaris.com/bagbunker/bagbunker
 PUSH_REPO=localhost:5001/bagbunker/bagbunker
-IMG=$(REPO):$(REV)
+IMG=bagbunker:$(REV)
 
 
 current-revision:
 ifeq ($(shell docker inspect $(IMG) 2>/dev/null),[])
 	docker build -t $(IMG) .
+	@echo "Image built: $(IMG)"
 else
-	@echo "IMAGE: $(IMG)"
+	@echo "Image already built: $(IMG)"
 endif
 
 

@@ -5,8 +5,8 @@ if [ -z "$CENV" ]; then
     umask 002
 
     export PGHOSTADDR=$POSTGRES_PORT_5432_TCP_ADDR
-    export PGUSER=bagbunker
-    export PGPASSWORD=bagbunker
+    export PGUSER=$POSTGRES_USER
+    export PGPASSWORD=$POSTGRES_PASSWORD
     export MATPLOTLIBRC=$MARV_INSTANCE_PATH
 
     # Python's urllib does not like these variables, if they are empty

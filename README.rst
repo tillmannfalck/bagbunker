@@ -20,21 +20,14 @@ All tools should honor the ``http_proxy`` and ``https_proxy`` environment variab
 System requirements
 -------------------
 
-Bagbunker needs rosbag and uses a postgresql database. So far we support docker and docker-compose to take care of dependencies, and systemd for service management in server setups. If you cannot use these tools, please open a `new issue <https://github.com/bosch-ros-pkg/bagbunker/issues/new>`_ describing your desired deployment.
+Bagbunker needs rosbag and uses a postgresql database. So far we support docker to take care of dependencies and service management. Alternatively, you can follow the `manual installation instructions <./doc/manual-setup.rst>`_.
 
 Install docker either via system package management or as outlined in the `official instructions <https://docs.docker.com/installation/>`_. Make sure you have at least docker version 1.8.1::
 
   % docker --version
-  Docker version 1.8.1, build d12ea79
+  Docker version 1.10.0, build a34a1d59
 
 Add your user to the docker group as described in `Create a Docker group <https://docs.docker.com/installation/ubuntulinux/#create-a-docker-group>`_. Otherwise you will have to use ``sudo docker`` instead of just ``docker``. Relogin or use ``newgrp docker`` to start a new shell. Make sure ``docker`` is listed when running ``groups``.
-
-Install docker-compose >=1.5.2 for example via python pip, on a debian-based system::
-
-  % sudo apt-get install python-pip
-  % sudo pip install 'docker-compose>=1.5.2'
-  % docker-compose --version
-  docker-compose version: 1.5.2
 
 
 Fetching the sources
@@ -74,52 +67,141 @@ The docker image contains the latest master branch of the bagbunker repository, 
 Setup
 =====
 
-docker-compose is used to start and link two containers, one for a postgres database and one for bagbunker itself. There are two configurations, one for `development <docker/compose/development.yml>`_ and for `production <docker/compose/production.yml>`_.
+Docker images
+-------------
 
-The configurations use environment variables (see below).
+We use two docker containers: one for the postgres database and one for bagbunker itself. You can use docker images provided by us or build them yourself.
 
+Postgres docker image
+~~~~~~~~~~~~~~~~~~~~~
 
-Create and source profile
--------------------------
+For postgres we use the official postgres images and publish a latest known good image::
 
-While it is possible to pass all configuration variables on the command-line, it is recommended to create a profile that is sourced, here by example of profile meant for production::
+  % docker pull docker.ternaris.com/bagbunker/postgres:latest
+  % docker tag docker.ternaris.com/bagbunker/postgres:latest postgres:latest
 
-  % cp docker/profile.sh bb_production-profile.sh
+To use the latest official image regardless of whether bagbunker was tested with it::
 
-Adjust the variables to your needs and then source the profile::
+  % docker pull postgres
 
-  % source bb_production-profile.sh
+Bagbunker docker image - prebuilt
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-docker-compose configs to be selected in the profile correspond to branches:
+To use the official stable bagbunker image::
 
-``production``
-  the ``master`` branch
+  % docker pull docker.ternaris.com/bagbunker/bagbunker:latest
+  % docker tag docker.ternaris.com/bagbunker/bagbunker:latest bagbunker:latest
 
-``staging``
-  the latest ``release-`` branch before being merged into ``master`` or the same as ``production`` if no release is pending.
+During an upcoming release there is also a ``staging`` image build from the release branch and sometimes there is a ``develop`` image build from the develop branch. To use these replace above all 3 occurrences of ``latest`` accordingly.
 
-``development``
-  at least as new as ``staging`` and sometimes containing a preview of ``develop``
+Bagbunker docker image - custom built
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The ``development`` profile also mounts the repository with the currently checked out branch and enables development of packages (see below).
+To build your own bagbunker image, checkout the desired branch and run make. Beware that only committed changes will make it into the image. To actually develop on bagbunker you'll mount the code from the outside and instruct the container to install the python packages in development mode (see Development below)::
+
+  % git checkout develop
+  % make
+  docker build -t bagbunker:3.1.0-17-g11ad3b2 .
+  Sending build context to Docker daemon 4.961 MB
+  Step 1 : FROM ubuntu:trusty
+  ---> 14b59d36bae0
+  ...
+  Image built: bagbunker:3.1.0-17-g11ad3b2
+
+Note the image name and revision, you'll need it to create the container in the next step.
 
 
 Create and run containers
 -------------------------
 
-Fetch all needed images and create and run containers::
+First off, the postgres and bagbunker container need a shared environment file::
 
-  % docker-compose up
+  % cat >bagbunker.env <<EOF
+  echo PGDATA=/var/lib/postgresql/data/pgdata
+  POSTGRES_PASSWORD=bagbunker
+  POSTGRES_USER=bagbunker
+  EOF
+  % chmod 600 bagbunker.env
 
-After this has finished without errors, bagbunker should be running on the ``$BB_LISTEN`` address you specified in the profile.
+Containers are created using ``docker run``; see https://docs.docker.com/engine/reference/run/ for more information. Containers are started and stopped using ``docker start <name>`` and ``docker stop <name>``. The chosen restart policy will start previously running containers after a reboot.
 
-While ``docker-compose up`` is running, commands can be executed within the docker container using ``docker exec`` in a different terminal::
 
-  % docker exec -it $COMPOSE_PROJECT_NAME bash -c 'bagbunker --help'
+Postgres container
+~~~~~~~~~~~~~~~~~~
+
+For **production**::
+
+  % docker run --restart unless-stopped --detach \
+      --name bbproduction-db \
+      --volume /var/lib/bagbunker:/var/lib/postgresql/data \
+      --env-file bagbunker.env \
+      bagbunker-postgres:latest
+
+For **development** you'll probably want to use a local folder instead of placing the database into ``/var/lib`` and give the container a different name::
+
+  % docker run --restart unless-stopped --detach \
+      --name bbdev-db \
+      --volume $PWD/data:/var/lib/postgresql/data \
+      --env-file bagbunker.env \
+      bagbunker-postgres:latest
+
+Bagbunker container
+~~~~~~~~~~~~~~~~~~~
+
+Independent of whether you use the ``latest``, ``staging``, or ``develop`` image or created one yourself, you can use this image to create a container for production, for production with the possibility to make hotfixes and for development. Replace ``bagbunker:latest`` with the desired image.
+
+For **production**::
+  
+  % docker run --restart unless-stopped --detach \
+      --name bbproduction \
+      --link bbproduction-db:postgres \
+      --volume /mnt/bags:/mnt/bags \
+      --volume /var/lib/bagbunker:/var/lib/bagbunker \
+      --publish 80:80 \
+      --env-file bagbunker.env \
+      bagbunker:latest
+
+The container contains a copy of bagbunker's source and can be instructed to install this in editable mode -- it uses ``pip install -e`` -- which enables you to make changes e.g. for hotfixes.
+
+  % docker run --restart unless-stopped --detach \
+      --name bbproduction \
+      --link bbproduction-db:postgres \
+      --volume /mnt/bags:/mnt/bags \
+      --volume /var/lib/bagbunker:/var/lib/bagbunker \
+      --publish 80:80 \
+      --env-file bagbunker.env \
+      --env DEVELOP="code/bagbunker/src/bagbunker code/bagbunker/src/deepfield_jobs" \
+      bagbunker:latest
+
+**WARNING**: Changes inside the container will be gone if you remove and recreate the container. It is possible to `commit a container <https://docs.docker.com/engine/reference/commandline/commit/>`_ to an image.
+
+For **development** the current working directory ``$PWD`` is mounted to hide the source checkout contained within the container ``/home/bagbunker/code/bagbunker`` and the container is instructed to install one or more of the python packages into develop mode; separated by spaces and enclosed in double quotes::
+
+  docker run --rm \
+    --name bbdev \
+    --link bbdev-db:postgres \
+    --volume /mnt/bags:/mnt/bags \
+    --volume $PWD/data:/var/lib/bagbunker \
+    --volume $PWD:/home/bagbunker/code/bagbunker \
+    --publish 5000:5000 \
+    --publish 8000:80 \
+    --env-file env \
+    --env DEVELOP="code/bagbunker/src/deepfield_jobs" \
+    bagbunker:latest
+
+For the development container is a throw-away container and will be removed when stopped.
+
+
+Interacting with a container
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+While a container is running, commands can be executed within using ``docker exec``::
+
+  % docker exec -it bbdev bash -c 'bagbunker --help'
 
 To start a shell within a docker container use::
 
-  % docker exec -it $COMPOSE_PROJECT_NAME bash
+  % docker exec -it bbdev bash
 
 
 Add users
@@ -127,53 +209,24 @@ Add users
 
 Create some bagbunker users for web login/access::
 
-  % docker exec -it $COMPOSE_PROJECT_NAME bash -c "sudo htpasswd -B /var/lib/bagbunker/users.txt john"
-
-
-Add startup config (production-only)
-------------------------------------
-
-Abort docker-compose, copy systemd service description, and start again via systemd::
-
-  CTRL-C
-  % sudo cp docker/bb-server/bagbunker@bb_production.service /etc/systemd/system/
-  % sudo cp docker/bb-server/bagbunker-database@bb_production.service /etc/systemd/system/
-  % sudo systemctl start bagbunker-database@bb_production bagbunker@bb_production
-
-Enable to start on boot::
-
-  % sudo systemctl enable bagbunker-database@bb_production bagbunker@bb_production
-
-The systemd service description files assume docker is installed in ``/usr/bin``, depending on how you installed docker you might need to adjust the path::
-
-  % which docker
-  /usr/bin/docker
-
-Starting services::
-
-  % sudo systemctl start bagbunker@bb_production bagbunker-database@bb_production
-
-Stoping services::
-
-  % sudo systemctl stop bagbunker@bb_production bagbunker-database@bb_production
-
+  % docker exec -it bbdev bash -c "sudo htpasswd -B /var/lib/bagbunker/users.txt john"
 
 Scan bags
 ---------
 
-The ``$BB_BAGS`` volume is mounted at /mnt/bags::
+::
 
-  % docker exec -it $COMPOSE_PROJECT_NAME bash -c "bagbunker scan /mnt/bags"
+  % docker exec -it bbdev bash -c "bagbunker scan /mnt/bags"
 
 Read metadata from bags (especially over NFS this may take a while)::
 
-  % docker exec -it $COMPOSE_PROJECT_NAME bash -c "bagbunker read-pending"
+  % docker exec -it bbdev bash -c "bagbunker read-pending"
 
 And run jobs (this will take a while)::
 
-  % docker exec -it $COMPOSE_PROJECT_NAME bash -c "bagbunker run-jobs --all"
+  % docker exec -it bbdev bash -c "bagbunker run-jobs --all"
 
-Between and during each of these steps you can visit bagbunker with your browser at the ``$BB_LISTEN`` address to check the progress.
+Between and during each of these steps you can visit bagbunker with your browser on the chosen port.
 
 
 Add cronjob for periodic scanning (production-only)
@@ -185,47 +238,36 @@ Edit crontab::
 
 and paste into crontab and adjust to your needs::
 
-  # read new files once a day (during off hours due to high network traffic)
-  0 20 * * * flock -n /tmp/bb_production-scan docker exec bb_production bash -c "bagbunker scan --read-pending --run-all-jobs /mnt/bags"
+  */15 * * * * flock -n /tmp/bbproduction-cron docker exec bbproduction bash -c "bagbunker scan --read-pending --run-all-jobs /mnt/bags"
 
 
 Backups
 =======
 
-All data that is extracted from bag files, generated by jobruns, and comments and tags created by users via web, is stored stored in the directory you configured as ``$BB_DATA``. In order to make a backup, stop backup services::
+All data that is extracted from bag files, generated by jobruns, and comments and tags created by users via web, is stored in ``/var/lib/bagbunker``, resp. ``$PWD/data``, resp. the directory you have chosen. In order to make a backup with minimum downtime::
 
-  % sudo systemctl stop bagbunker@bb_production bagbunker-database@bb_production
+  % rsync -n -vaHP --delete /var/lib/bagbunker/ /var/lib/bagbunker-backup/
 
-And double check that they are not listed as running services anymore with ``docker ps``.
+Verify that everything is to your liking and rerun without ``-n``::
 
-After that you can make a copy of your ``$BB_DATA`` directory and start bagbunker again.
-
+  % rsync -vaHP --delete /var/lib/bagbunker/ /var/lib/bagbunker-backup/
+  % docker stop bbproduction
+  % rsync -vaHP --delete /var/lib/bagbunker/ /var/lib/bagbunker-backup/
+  % docker start bbproduction
 
 Upgrades
 ========
 
-Before any upgrade make sure you have an up-to-date backup of your ``$BB_DATA`` directory and bagbunker is not running (see above).
-
-Source the profile you want to manage::
-
-  % source production-profile.sh
-
-Pull new images, delete old containers and create and run new containers::
-
-  % docker-compose pull
-  % docker-compose rm
-  % docker-compose up
+Before any upgrade make sure you have an up-to-date backup of your data directory and bagbunker is not running (see above). Pull or create new image and recreate containers like above.
 
 After an upgrade a database migration might be needed. Check the database in a different terminal::
 
-  % docker exec -ti $COMPOSE_PROJECT_NAME bash -c "bagbunker admin checkdb"
+  % docker exec -ti bbproduction bash -c "bagbunker admin checkdb"
 
 In case migration is needed you are greeted by instructions to perform the upgrade.
 
-Stop again and start via systemd::
 
-  CTRL-C
-  % sudo systemctl start bagbunker-database@bb_production bagbunker@bb_production
+**XXXXXX  Below might be outdated  XXXXXXX**
 
 
 Development

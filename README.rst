@@ -161,7 +161,7 @@ For **production**::
       --env-file bagbunker.env \
       bagbunker:latest
 
-The container contains a copy of bagbunker's source and can be instructed to install this in editable mode -- it uses ``pip install -e`` -- which enables you to make changes e.g. for hotfixes.
+The container contains a copy of bagbunker's source and can be instructed to install this in editable mode -- it uses ``pip install -e`` -- which enables you to make changes e.g. for hotfixes::
 
   % docker run --restart unless-stopped --detach \
       --name bbproduction \

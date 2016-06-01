@@ -1,4 +1,4 @@
-Contritubing
+Contributing
 ============
 
 - Please do not prepend your branches with ``feature``. All branches except ``develop`` and those starting with ``hotfix-`` and ``release-`` are feature branches.
@@ -117,7 +117,7 @@ Create and run containers
 First off, the postgres and bagbunker container need a shared environment file::
 
   % cat >bagbunker.env <<EOF
-  echo PGDATA=/var/lib/postgresql/data/pgdata
+  PGDATA=/var/lib/postgresql/data/pgdata
   POSTGRES_PASSWORD=bagbunker
   POSTGRES_USER=bagbunker
   EOF

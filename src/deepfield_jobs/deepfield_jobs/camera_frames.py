@@ -45,7 +45,6 @@ new_topics = ['/%s/jai/rgb/image_raw' % cam for cam in cams] + \
              ['/%s/kinect2/rgb/image_raw' % cam for cam in cams]
 TOPICS = tuple(old_topics + new_topics)
 
-
 # @bb.job_model()
 # class Video(object):
 #     frame_count = db.Column(db.Integer)
@@ -121,9 +120,11 @@ for topic in TOPICS:
 
 @bb.job()
 @bb.config('max_frames', default=50, help="Maximum number of frames to extract")
+@bb.config('image_width', default=320,
+           help="Preview image width. Height is calculated via the aspect ratio.")
 @bb_bag.messages(topics=TOPICS)
-def job(fileset, messages, max_frames):
-    import cv
+def job(fileset, messages, max_frames, image_width):
+    import cv2
     import cv_bridge
     bridge = cv_bridge.CvBridge()
 
@@ -147,7 +148,10 @@ def job(fileset, messages, max_frames):
                                                idx=frame_idx))
 
         cv_image = bridge.imgmsg_to_cv2(msg, "rgb8")
-        cv.SaveImage(image_name, cv.fromarray(cv_image))
+        ratio = float(image_width) / float(cv_image.shape[1])
+        scaled_img = cv2.resize(cv_image, (image_width, int(cv_image.shape[0]*ratio)),
+                                interpolation=cv2.INTER_AREA)
+        cv2.imwrite(image_name, scaled_img, (cv2.IMWRITE_JPEG_QUALITY, 60))
         logger.debug('saved %s', image_name)
 
     return []

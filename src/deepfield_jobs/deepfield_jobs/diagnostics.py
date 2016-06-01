@@ -41,8 +41,9 @@ class Diagnostics(object):
 @bb.detail()
 @bb.table_widget(title='Diagnostics', sort='name')
 @bb.column('name')
-@bb.column('count')
-@bb.column('status')
+@bb.column('OK count')
+@bb.column('WARN count')
+@bb.column('ERROR count')
 def diagnostics_detail(fileset):
     jobrun = fileset.get_latest_jobrun('deepfield::diagnostics')
     if jobrun is None:
@@ -51,24 +52,12 @@ def diagnostics_detail(fileset):
     diags = Diagnostics.query.filter(Diagnostics.jobrun == jobrun)
     rows = []
     for diag in diags:
-        if diag.ok_count:
-            rows.append({
-                'name': diag.name,
-                'count': diag.ok_count,
-                'status': 'OK',
-            })
-        if diag.warn_count:
-            rows.append({
-                'name': diag.name,
-                'count': diag.warn_count,
-                'status': 'WARN',
-            })
-        if diag.error_count:
-            rows.append({
-                'name': diag.name,
-                'count': diag.error_count,
-                'status': 'ERROR',
-            })
+        rows.append({
+            'name': diag.name,
+            'OK count': diag.ok_count,
+            'WARN count': diag.warn_count,
+            'ERROR count': diag.error_count,
+        })
     return rows
 
 

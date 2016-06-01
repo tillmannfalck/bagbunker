@@ -1,4 +1,11 @@
 {{#if sorted.length}}
+    {{#unless (is-equal numPages 1)}}
+        <p class="text-center">
+            <button {{action "prevPage"}}>Prev</button>
+            {{plus-one page}} / {{numPages}}
+            <button {{action "nextPage"}}>Next</button>
+        </p>
+    {{/unless}}
     <table class="table table-striped">
         <thead>
             <tr>

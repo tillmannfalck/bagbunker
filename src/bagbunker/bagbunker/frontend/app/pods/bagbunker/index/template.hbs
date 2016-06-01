@@ -56,7 +56,7 @@
             <button class="btn btn-xs btn-default" disabled={{isNothingChecked}} {{action "downloadUrlList"}}>download url list</button>
         {{/if}}
 
-        {{widget-table model=model.listing rowClicked="show" link=true isSelecting=isSelecting checked="checked"}}
+        {{widget-table model=model.listing pagesize=3 rowClicked="show" link=true isSelecting=isSelecting checked="checked"}}
     </div>
 </div>
 

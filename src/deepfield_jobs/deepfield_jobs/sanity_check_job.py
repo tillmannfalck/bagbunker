@@ -31,7 +31,7 @@ import os, sys
 import json
 import yaml
 
-__version__ = '0.0.2'
+__version__ = '0.0.3'
 
 HOME_PATH = os.path.expanduser("~")
 # NOTE: this job requires a checkout of the full phenotyping repository in /home/bagbunker
@@ -89,11 +89,13 @@ def sanity_check_detail(fileset):
     all_checks = checks.all()
     status_string_map = {
         Status.OK: 'OK',
-        Status.TOHIGH: 'Too High',
-        Status.TOLOW: 'Too low',
+        Status.TOOHIGH: 'Too High',
+        Status.TOOLOW: 'Too low',
         Status.NONEXIST: 'Does not exist',
         Status.UNSYNCED: 'Unsynced',
         Status.ERROR: 'Error',
+        Status.SPEEDTOOLOW: 'Speed too low',
+        Status.SPEEDTOOHIGH: 'Speed too high',
     }
     # XXX: we only consider 'single bag' filesets
     bagfilename = fileset.files[0].name

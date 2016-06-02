@@ -31,7 +31,7 @@ import os, sys
 import json
 import yaml
 
-__version__ = '0.0.3'
+__version__ = '0.0.4'
 
 HOME_PATH = os.path.expanduser("~")
 # NOTE: this job requires a checkout of the full phenotyping repository in /home/bagbunker
@@ -186,7 +186,7 @@ def job(fileset, messages):
         result = sc.analyse_bag_file(bagpath, input_yaml, module_name)
         success = True
         for check in result:
-            if check[2] != Status.OK and check[2] != Status.TOHIGH:
+            if check[2] != Status.OK:
                 success = False
                 break
         logger.info('result: %s' % json.dumps(result))

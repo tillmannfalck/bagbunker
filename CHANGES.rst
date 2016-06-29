@@ -4,6 +4,21 @@ Changelog (Bagbunker)
 x.y.z (unreleased)
 ------------------
 
+3.2.0 (2016-06-29)
+------------------
+
+- [BUGFIX] fix gps plot memory leak
+  `#84 https://github.com/bosch-ros-pkg/bagbunker/pull/84`_
+- [BUGFIX] update .dockerignore for docker 1.11.1
+  `#87 https://github.com/bosch-ros-pkg/bagbunker/pull/87`_
+- [FEATURE] add 4dscan sanity check job
+  `#85 https://github.com/bosch-ros-pkg/bagbunker/pull/85`_
+- [FEATURE] add cpu diagnostics job
+  `#88 https://github.com/bosch-ros-pkg/bagbunker/pull/88`_
+- [FEATURE] reduce camera preview images resolution & quality
+  `#90 https://github.com/bosch-ros-pkg/bagbunker/pull/88`_
+- replace docker-compose with basic docker commands
+
 
 3.1.0 (2016-04-27)
 ------------------

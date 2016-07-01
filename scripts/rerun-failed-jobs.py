@@ -36,7 +36,7 @@ def main(dry_run, job, list_only):
         print '%i/%i running %s for %s' % (i, row_count - 1, job, md5sum)
         cmd = ['bagbunker', 'run-jobs', '--fileset', md5sum,
                '--job', job, '--force']
-        print 'running command: %s', cmd
+        print 'running command: %s' % cmd
         if not dry_run:
             subprocess.check_call(cmd)
 

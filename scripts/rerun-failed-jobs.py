@@ -16,7 +16,7 @@ def main(dry_run, job, list_only):
     from a local bagbunker instance and re-runs the job on them.
     It needs to be run from within the bagbunker docker container.
     """
-    # fetch the list of failed filesets and safe it to a file
+    # fetch the failed filesets and save them to a file
     tmp_filename = tempfile._get_default_tempdir() + '/' + next(tempfile._get_candidate_names())
     print 'getting the list of filesets where the job "%s" failed; writing the results to %s' % (job, tmp_filename)
     subprocess.check_call(['psql', '-c', "\copy (SELECT fileset.md5,fileset.name from fileset,jobrun where fileset.id=jobrun.fileset_id and jobrun.failed=true and jobrun.name='%s') to %s with CSV" % (job, tmp_filename)])

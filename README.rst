@@ -78,11 +78,12 @@ Postgres docker image
 For postgres we use the official postgres images and publish a latest known good image::
 
   % docker pull docker.ternaris.com/bagbunker/postgres:latest
-  % docker tag docker.ternaris.com/bagbunker/postgres:latest postgres:latest
+  % docker tag docker.ternaris.com/bagbunker/postgres:latest bagbunker-postgres:latest
 
 To use the latest official image regardless of whether bagbunker was tested with it::
 
-  % docker pull postgres
+  % docker pull postgres:latest
+  % docker tag postgres:latest bagbunker-postgres:latest
 
 Bagbunker docker image - prebuilt
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -161,7 +162,7 @@ For **production**::
       --env-file bagbunker.env \
       bagbunker:latest
 
-The container contains a copy of bagbunker's source and can be instructed to install this in editable mode -- it uses ``pip install -e`` -- which enables you to make changes e.g. for hotfixes::
+The container contains a copy of bagbunker's source and can be instructed to install this in editable mode - it uses ``pip install -e`` - which enables you to make changes e.g. for hotfixes::
 
   % docker run --restart unless-stopped --detach \
       --name bbproduction \

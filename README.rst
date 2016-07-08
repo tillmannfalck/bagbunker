@@ -267,21 +267,11 @@ After an upgrade a database migration might be needed. Check the database in a d
 In case migration is needed you are greeted by instructions to perform the upgrade.
 
 
-**XXXXXX  Below might be outdated  XXXXXXX**
-
 
 Development
 ===========
 
 In addition to everything explained above, there are a couple of things relevant only for development.
-
-As mentioned earlier the development setup uses your local clone of the bagbunker repository (in contrast to the one contained in the pre-built docker image).
-
-As a reminder, source the profile before running docker commands::
-
-  % source bb_dev-profile.sh
-  % docker-compose up
-
 
 Bagbunker group and adjust permissions for development
 ------------------------------------------------------
@@ -301,7 +291,7 @@ Develop existing and new packages
 
 To install any of the existing packages into development mode::
 
-  % docker exec -ti $COMPOSE_PROJECT_NAME bash -c "pip install -e code/bagbunker/src/deepfield_jobs"
+  % docker exec -ti bbdev bash -c "pip install -e code/bagbunker/src/deepfield_jobs"
 
 After that, changes to files within ``deepfield_jobs`` will be immediately available for job runs within the docker container. You can also create your own job package: take ``deepfield_jobs`` as an example and adjust setup.py accordingly.
 
@@ -325,9 +315,9 @@ Development webserver
 
 If you are developing on view code, you might want the development webserver which automatically reloads changed files. Run in separate terminal::
 
-  % docker exec -ti bb_dev bash -c "bagbunker webserver --public"
+  % docker exec -ti bbdev bash -c "bagbunker webserver --public"
 
-It is served at ``$BB_DEV_LISTEN``, by default ``127.0.0.1:5000``.
+It is served by default at ``127.0.0.1:5000``.
 
 
 Deleting database
@@ -335,14 +325,14 @@ Deleting database
 
 In order to delete the database just remove the data directory::
 
-  % docker exec -ti bb_dev bash -c 'sudo rm -fr /opt/bagbunker/data'
-
-abort ``docker-compose`` with CTRL-C and start it again::
-
-  % docker-compose up
-  ...
-  CTRL-C
-  % docker-compose up
+***TODO:***
+```
+  $ docker stop bbdev
+  $ docker stop bbdev-db
+  $ docker exec -ti bbdev bash -c 'sudo rm -fr /opt/bagbunker/data'
+  $ docker start bbdev-db
+  $ docker start bbdev
+```
 
 
 Job development
@@ -352,7 +342,7 @@ Jobs have a `__version__` which needs to be increased in order to run a job agai
 
   % ./bin/bagbunker run-jobs --force deepfield::metadata
 
-In order to develop your own jobs, add them to ``src/deepfield_jobs`` package with appropriate copyright headers and make sure to import your jobs from the package's ``__init__.py``. In the future we will rename ``deepfield_jobs`` to ``bagbunker_jobs``. Pull requests with new jobs are welcome! Creating your own jobs in a separate repository will be supported in 3.1.0.
+In order to develop your own jobs, add them to ``src/deepfield_jobs`` package with appropriate copyright headers and make sure to import your jobs from the package's ``__init__.py``. In the future we will rename ``deepfield_jobs`` to ``bagbunker_jobs``. Pull requests with new jobs are welcome! Creating your own jobs in a separate repository is in the development, see: https://github.com/bosch-ros-pkg/bagbunker/pull/91.
 
 
 Coverage report
@@ -360,13 +350,13 @@ Coverage report
 
 To get a coverage report::
 
-  % docker exec -it bb_dev bash -c 'cd $BB_CODE && nosetests --with-coverage'
+  % docker exec -it bbdev bash -c 'cd $BB_CODE && nosetests --with-coverage'
 
 In development setups, the coverage report is created in ``./cover/index.html`` and a summary is displayed in the terminal. For this to succeed the bagbunker group (65533) needs to have write permissions on the repository checkout.
 
 In order to access the coverage report in a production environment, you have to copy it out of the docker container::
 
-  % docker cp $COMPOSE_PROJECT_NAME:/opt/bagbunker/cover ./
+  % docker cp bbdev:/opt/bagbunker/cover ./
 
 
 Custom jobs in production / build docker image

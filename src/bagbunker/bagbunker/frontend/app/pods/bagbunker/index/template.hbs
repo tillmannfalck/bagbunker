@@ -40,7 +40,7 @@
 
 <div class="panel panel-default">
     <div class="panel-heading">
-        <h4 class="panel-title">Datasets ({{model.rows.length}} found)</h4>
+        <h4 class="panel-title">Datasets ({{model.listing.rows.length}} found)</h4>
     </div>
     <div class="panel-body">
         <button class="btn btn-xs btn-success {{if isSelecting "active"}}" {{action "toggleSelecting"}}>bulk operations</button>
@@ -56,7 +56,7 @@
             <button class="btn btn-xs btn-default" disabled={{isNothingChecked}} {{action "downloadUrlList"}}>download url list</button>
         {{/if}}
 
-        {{widget-table model=model.listing rowClicked="show" link=true isSelecting=isSelecting checked="checked"}}
+        {{widget-table model=model.listing pagesize=20 rowClicked="show" link=true isSelecting=isSelecting checked="checked"}}
     </div>
 </div>
 

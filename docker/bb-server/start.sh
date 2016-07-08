@@ -19,6 +19,12 @@ check_retcode() {
     fi
 }
 
+if [ -n "$DEVELOP" ]; then
+    for x in $DEVELOP; do
+        pip install -e $x || true
+    done
+fi
+
 if [ $(stat -c "%G" $MARV_INSTANCE_PATH) != "$MARV_GROUP" ]; then
     sudo chown :$MARV_GROUP $MARV_INSTANCE_PATH
     sudo chmod g+w $MARV_INSTANCE_PATH

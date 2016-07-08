@@ -92,7 +92,7 @@ def job_model():
             'jobrun_id': db.Column(db.Integer, db.ForeignKey('jobrun.id')),
             'jobrun': db.relationship(
                 'Jobrun', uselist=False,
-                backref=db.backref(tablename, uselist=False)
+                backref=db.backref(tablename, uselist=True)
             ),
             'as_dict': property(_model_to_dict)
         }

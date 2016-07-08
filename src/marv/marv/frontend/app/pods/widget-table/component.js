@@ -138,20 +138,43 @@ export default Ember.Component.extend({
         return sorted.concat(notdefined);
     }),
 
-    allChecked: Ember.computed('sorted.@each.checked', function() {
-        return this.get('sorted').isEvery('checked', true);
+    page: 0,
+    pagesize: null,
+
+    numPages: Ember.computed('sorted', 'pagesize', function() {
+        const pagesize = this.get('pagesize');
+        if (pagesize === null) {
+            return 1;
+        }
+        return Math.ceil(this.get('sorted').length / this.get('pagesize'));
     }),
 
-    tbody: Ember.computed('isSelecting', 'sorted', function() {
+    paginated: Ember.computed('sorted', 'page', 'pagesize', function() {
+        const page = this.get('page');
+        const pagesize = this.get('pagesize');
+        if (pagesize === null) {
+            return this.get('sorted');
+        }
+        return this.get('sorted').slice(page * pagesize, (page + 1) * pagesize);
+    }),
+
+    allChecked: Ember.computed('paginated.@each.checked', function() {
+        return this.get('paginated').isEvery('checked', true);
+    }),
+
+    tbody: Ember.computed('isSelecting', 'paginated', function() {
         var isSelecting = this.get('isSelecting');
         Ember.run.next(function() {
             Ember.$('[data-toggle="tooltip"]').tooltip();
         });
-        return this.get('sorted').reduce(function(l, r, i) {
+
+        const page = this.get('page');
+        const pagesize = this.get('pagesize') || 0;
+        return this.get('paginated').reduce(function(l, r, i) {
             var select = isSelecting ?
                 '<td><span class="m-checkbox' +
                     (r.checked?' checked':'') +
-                    '" data-index="'+ i +'"></span></td>' :
+                    '" data-index="'+ (page * pagesize + i) +'"></span></td>' :
                 '';
             return l.concat([
                 '<tr>',
@@ -180,6 +203,19 @@ export default Ember.Component.extend({
     },
 
     actions: {
+        prevPage() {
+            const page = this.get('page');
+            if (page > 0) {
+                this.decrementProperty('page');
+            }
+        },
+        nextPage() {
+            const page = this.get('page');
+            const numPages = this.get('numPages');
+            if (page < numPages - 1) {
+                this.incrementProperty('page');
+            }
+        },
         sort: function(index) {
             var prev = this.get('sort');
             if (prev === index) {

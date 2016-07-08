@@ -2,4 +2,6 @@
 !.git
 !docker
 !Dockerfile
-!src/*/requirements.txt
+!src/bagbunker/requirements.txt
+!src/deepfield_jobs/requirements.txt
+!src/marv/requirements.txt

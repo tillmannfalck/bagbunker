@@ -253,7 +253,9 @@ Verify that everything is to your liking and rerun without ``-n``::
 
   % rsync -vaHP --delete /var/lib/bagbunker/ /var/lib/bagbunker-backup/
   % docker stop bbproduction
+  % docker stop bbproduction-db
   % rsync -vaHP --delete /var/lib/bagbunker/ /var/lib/bagbunker-backup/
+  % docker start bbproduction-db
   % docker start bbproduction
 
 Upgrades

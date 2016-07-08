@@ -326,13 +326,12 @@ Deleting database
 In order to delete the database just remove the data directory::
 
 ***TODO:***
-```
-  $ docker stop bbdev
-  $ docker stop bbdev-db
-  $ docker exec -ti bbdev bash -c 'sudo rm -fr /opt/bagbunker/data'
-  $ docker start bbdev-db
-  $ docker start bbdev
-```
+
+  % docker stop bbdev
+  % docker stop bbdev-db
+  % docker exec -ti bbdev bash -c 'sudo rm -fr /opt/bagbunker/data'
+  % docker start bbdev-db
+  % docker start bbdev
 
 
 Job development

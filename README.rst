@@ -186,7 +186,7 @@ For **development** the current working directory ``$PWD`` is mounted to hide th
     --volume $PWD:/home/bagbunker/code/bagbunker \
     --publish 5000:5000 \
     --publish 8000:80 \
-    --env-file env \
+    --env-file bagbunker.env \
     --env DEVELOP="code/bagbunker/src/deepfield_jobs" \
     bagbunker:latest
 

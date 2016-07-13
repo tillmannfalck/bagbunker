@@ -4,6 +4,10 @@ Contributing
 - Please do not prepend your branches with ``feature``. All branches except ``develop`` and those starting with ``hotfix-`` and ``release-`` are feature branches.
 - Please make pull requests against ``develop``.
 
+Try out Bagbunker in Sandbox
+============
+See https://github.com/bosch-ros-pkg/bagbunker/wiki/Sandbox for details.
+
 
 Getting started
 ===============

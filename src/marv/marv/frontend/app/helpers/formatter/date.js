@@ -24,9 +24,9 @@ import Ember from 'ember';
 import moment from 'moment';
 
 export function helper([date], kwargs) {
-    const format = kwargs.format || 'YYYY-MM-DD hh:mm:ss';
+    const format = kwargs.format || 'YYYY-MM-DD HH:mm:ss';
     if (date) {
-        return moment(date).format(format);
+        return moment.parseZone(date).format(format);
     } else {
         return '';
     }

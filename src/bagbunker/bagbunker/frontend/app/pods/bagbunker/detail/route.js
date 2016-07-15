@@ -34,6 +34,7 @@ export default Ember.Route.extend(ResetScroll, {
             contentType: 'application/vnd.api+json'
         }).then(r => {
             return this.store.findRecord('fileset', r.data.id).then(fileset => {
+                document.title = 'BB: ' + r.data.name;
                 r.data.fileset = fileset;
                 return r.data;
             });

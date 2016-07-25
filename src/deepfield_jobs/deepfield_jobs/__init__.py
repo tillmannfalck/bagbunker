@@ -37,12 +37,12 @@ from __future__ import absolute_import, division
 from . import view  # noqa
 
 from . import annotations  # noqa
+from . import camera_frames  # noqa
+from . import cpu_diagnostics  # noqa
 from . import diagnostics  # noqa
 from . import events  # noqa
-from . import camera_frames  # noqa
 from . import extract_trajectories  # noqa
 from . import gps_track  # noqa
 from . import metadata  # noqa
 from . import onewire_temperature  # noqa
-from . import cpu_diagnostics # noqa
 from . import sanity_check_job  # noqa

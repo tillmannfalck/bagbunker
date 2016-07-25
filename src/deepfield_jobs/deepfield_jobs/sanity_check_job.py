@@ -78,11 +78,11 @@ def extract_module_name(filename):
 @bb.column('status')
 @bb.column('expected')
 def sanity_check_detail(fileset):
-    from sanity_check import Status
-
     jobrun = fileset.get_latest_jobrun('deepfield::sanity_check_job')
     if jobrun is None:
         return None
+
+    from sanity_check import Status
 
     checks = SanityCheckResult.query.filter(SanityCheckResult.jobrun == jobrun)
     rows = []

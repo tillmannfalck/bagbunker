@@ -135,6 +135,14 @@ class Gallery(Widget):
         return dct
 
 
+class OSM(Widget):
+    def serialize(self, dct, geo_json):
+        dct.update({
+            'geoJSON': geo_json
+        })
+        return dct
+
+
 class Row(Widget):
     def serialize(self, dct, row):
         dct.update({

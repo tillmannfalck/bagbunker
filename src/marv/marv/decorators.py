@@ -33,7 +33,7 @@ from .listing import ListingColumn
 from .registry import MODULE_NAME_MAP
 from .serializer import Detail, Summary
 from .serializer import DETAIL, SUMMARY
-from .widget import Column, Image, Gallery, Row, Text, Table, Widget
+from .widget import Column, Image, Gallery, OSM, Row, Text, Table, Widget
 
 
 def fileset():
@@ -178,6 +178,12 @@ def gallery_widget(name=None, cls=Gallery, **kw):
 
 
 def filter_widget(name=None, cls=Filter, **kw):
+    def decorator(f):
+        return _make_widget(f, name, cls, kw)
+    return decorator
+
+
+def osm_widget(name=None, cls=OSM, **kw):
     def decorator(f):
         return _make_widget(f, name, cls, kw)
     return decorator

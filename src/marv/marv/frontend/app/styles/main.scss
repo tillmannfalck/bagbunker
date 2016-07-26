@@ -23,6 +23,7 @@
 /*@import '../../bower_components/bootstrap/dist/css/bootstrap.css';*/
 @import '@bootstrap';
 @import '@bootstrap-datetimepicker';
+@import '@leaflet';
 
 $primary-fg: #00a9de;
 $primary-bg: #fff;
@@ -130,6 +131,9 @@ table.table th {
     cursor: pointer;
 }
 
+.widget-osm .map {
+    height: 80vh;
+}
 
 /*
 .footer {

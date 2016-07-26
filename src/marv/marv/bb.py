@@ -26,6 +26,7 @@ from .decorators import fileset, job_model               # noqa
 from .decorators import summary, detail      # noqa
 from .decorators import table_widget, text_widget, image_widget   # noqa
 from .decorators import gallery_widget  # noqa
+from .decorators import osm_widget  # noqa
 from .decorators import column, listing_column    # noqa
 from .decorators import filter, filter_input    # noqa
 

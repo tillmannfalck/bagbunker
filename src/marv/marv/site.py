@@ -175,10 +175,11 @@ class Site(object):
             pkg = ep.load()
             overlays.append(resource_filename(pkg.__name__, 'frontend'))
             stylefiles.append('{}.scss'.format(ep.name))
+        stylefiles = ','.join(['app/styles/{}'.format(x) for x in stylefiles])
 
         bejson = resource_stream('marv', 'frontend/be.json.in').read()
         bejson = bejson.replace('OVERLAYS', json.dumps(overlays))
-        bejson = bejson.replace('STYLEFILES', json.dumps(stylefiles))
+        bejson = bejson.replace('STYLEFILES', json.dumps('{%s}' % stylefiles))
         with open(self.bejson, 'wb') as f:
             f.write(bejson)
 

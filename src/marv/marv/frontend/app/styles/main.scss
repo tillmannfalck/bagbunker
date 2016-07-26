@@ -21,17 +21,17 @@
  */
 
 /*@import '../../bower_components/bootstrap/dist/css/bootstrap.css';*/
-@import 'bootstrap.scss';
-@import '../../bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css';
+@import '@bootstrap';
+@import '@bootstrap-datetimepicker';
 
 $primary-fg: #00a9de;
 $primary-bg: #fff;
 
-@import 'gallery.scss';
-@import 'grid.scss';
-@import 'loader.scss';
-@import 'm-checkbox.scss';
-@import 'm-tag.scss';
+@import 'gallery';
+@import 'grid';
+@import 'loader';
+@import 'm-checkbox';
+@import 'm-tag';
 
 
 

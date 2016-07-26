@@ -81,14 +81,9 @@ RUN chmod -x $(which pip)
 
 
 # Frontend tooling -- should this happen as non-root?
-RUN cd /opt && curl https://nodejs.org/dist/v5.2.0/node-v5.2.0-linux-x64.tar.gz |tar xz
-RUN cd /usr/local/bin && ln -s /opt/node-v*/bin/node && ln -s /opt/node-v*/bin/npm
-RUN node -v && npm -v
-RUN cd /opt && curl https://ternaris.com/bungle/bngl-20160201.tar.gz |tar xz
-RUN cd /opt/bngl/bungle-ember && npm --loglevel info install
-RUN cd /usr/local/bin && ln -s /opt/bngl/bungle-ember/bin/bungle-ember
-RUN rm -Rf /tmp/npm-*
-
+RUN curl -sL https://deb.nodesource.com/setup_6.x | bash -
+RUN apt-get install -y nodejs
+RUN npm install -g bungle-ember@0.4.1
 
 ENV PIP_FIND_LINKS https://ternaris.com/pypi https://ternaris.com/wheels
 
@@ -135,8 +130,7 @@ RUN su -c "source $VENV/bin/activate && marv --help && bagbunker --help"
 ENV DOCKER_IMAGE_MARV_SKEL_SITE /opt/bagbunker-skel-site
 RUN mkdir -p $DOCKER_IMAGE_MARV_SKEL_SITE && chown $MARV_USER:$MARV_GROUP $DOCKER_IMAGE_MARV_SKEL_SITE
 RUN su -c "$VENV/bin/marv init $DOCKER_IMAGE_MARV_SKEL_SITE" $MARV_USER
-RUN su -c "cd $DOCKER_IMAGE_MARV_SKEL_SITE/frontend && \
-    bungle-ember build" $MARV_USER
+RUN su -c "cd $DOCKER_IMAGE_MARV_SKEL_SITE/frontend && bungle-ember -p build" $MARV_USER
 RUN rm -rf /tmp/bagbunker
 
 

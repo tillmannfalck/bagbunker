@@ -33,7 +33,7 @@ from .listing import ListingColumn
 from .registry import MODULE_NAME_MAP
 from .serializer import Detail, Summary
 from .serializer import DETAIL, SUMMARY
-from .widget import C3, Column, Image, Gallery, Row, Text, Table, Widget
+from .widget import Column, Image, Gallery, Row, Text, Table, Widget
 
 
 def fileset():
@@ -163,12 +163,6 @@ def _make_widget(f, name, cls, kw):
     kw['help'] = help
     return cls(name=name or f.__name__.lower(),
                callback=f, params=params, **kw)
-
-
-def c3_widget(name=None, cls=C3, **kw):
-    def decorator(f):
-        return _make_widget(f, name, cls, kw)
-    return decorator
 
 
 def image_widget(name=None, cls=Image, **kw):

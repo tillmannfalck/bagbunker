@@ -2,7 +2,6 @@
   "name": "bagbunker",
   "dependencies": {
     "bootstrap": "3.3.6",
-    "c3": "0.4.10",
     "d3": "3.5.0",
     "ember": "2.5.1",
     "ember-data": "2.5.2",

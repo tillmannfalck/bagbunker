@@ -190,6 +190,7 @@ For **development** the current working directory ``$PWD`` is mounted to hide th
     --volume $PWD/data:/var/lib/bagbunker \
     --volume $PWD:/home/bagbunker/code/bagbunker \
     --publish 5000:5000 \
+    --publish 8613:8613 \
     --publish 8000:80 \
     --env-file bagbunker.env \
     --env DEVELOP="code/bagbunker/src/deepfield_jobs" \
@@ -294,16 +295,6 @@ Check for existing directories and remove them if the permissions are wrong::
   % ls -l src/*/*.egg-info
 
 
-Develop existing and new packages
----------------------------------
-
-Using ``--env DEVELOP="code/bagbunker/src/deepfield_jobs`` for ``docker run`` will instruct the docker container to install ``deepfield_jobs`` into development mode (see above). Alternatively, you can do so manually::
-
-  % docker exec -ti bbdev bash -c "pip install -e code/bagbunker/src/deepfield_jobs"
-
-After that, changes to files within ``deepfield_jobs`` will be immediately available for job runs within the docker container. You can also create your own job package: take ``deepfield_jobs`` as an example and adjust setup.py accordingly.
-
-
 Switching between branches and after upgrades
 ---------------------------------------------
 
@@ -318,6 +309,16 @@ Python creates bytecode versions of all modules. In case you or we removed a mod
   find . -name '*.pyc' -delete >/dev/null 2>&1 || true
 
 
+Develop existing and new packages
+---------------------------------
+
+Using ``--env DEVELOP="code/bagbunker/src/deepfield_jobs`` for ``docker run`` will instruct the docker container to install ``deepfield_jobs`` into development mode (see above). Alternatively, you can do so manually::
+
+  % docker exec -ti bbdev bash -c "pip install -e code/bagbunker/src/deepfield_jobs"
+
+After that, changes to files within ``deepfield_jobs`` will be immediately available for job runs within the docker container. You can also create your own job package: take ``deepfield_jobs`` as an example and adjust setup.py accordingly.
+
+
 Development webserver
 ---------------------
 
@@ -326,6 +327,32 @@ If you are developing on view code, you might want the development webserver whi
   % docker exec -ti bbdev bash -c "bagbunker webserver --public"
 
 It is served by default at ``127.0.0.1:5000``.
+
+
+Frontend development
+--------------------
+
+After having installed ``marv`` and/or ``bagbunker`` into development mode (see above), ``frontend/be.json`` needs to be updated to use the frontend files from these locations. In the default setup this is achieved by running::
+
+  % docker exec -ti bbdev bash -c 'marv init /opt/bagbunker-skel-site'
+
+And verify::
+
+  % docker exec -ti bbdev bash -c "grep overlays /opt/bagbunker-skel-site/frontend/be.json"
+    "overlays": ["/home/bagbunker/code/bagbunker/src/marv/marv/frontend", \
+                 "/home/bagbunker/code/bagbunker/src/bagbunker/bagbunker/frontend"],
+
+After making changes to frontend code in `marv <src/marv/marv/frontend>`_ and `bagbunker <src/bagbunker/bagbunker/frontend>`_ the frontend needs to be rebuild::
+
+  % docker exec -ti bbdev bash -c 'cd /opt/bagbunker-skel-site/frontend/ && bungle-ember -p build'
+
+During development it is more fun to use ``bungle-ember`` in development mode, which is much faster and picks up changes automatically::
+
+  % docker exec -ti bbdev bash -c 'cd /opt/bagbunker-skel-site/frontend/ && bungle-ember'
+
+NOTE: Currently there is a bug in ``bungle`` that prevents ``bungle-ember`` from picking up changes automatically. It therefore needs to be restarted manually, which is still more fun than building the bundles.
+
+To use the ``bungle-ember`` development webserver access http://localhost:8613/, bagbunker's development webserver needs to be running as well (see above) and port ``8613`` needs to be published when running the docker container.
 
 
 Deleting database

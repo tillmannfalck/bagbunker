@@ -31,14 +31,14 @@ export default Ember.Component.extend({
     boot: Ember.on('didInsertElement', function() {
         const map = L.map(this.$().find('.map')[0], {
             minZoom: 0,
-            maxZoom: 20,
+            maxZoom: 22,
             attributionControl: false,
             maxBounds: L.LatLngBounds(L.latLng([75,-180]), L.latLng([-75, 180]))
         });
         this.set('map', map);
 
         L.tileLayer(`${window.location.protocol}//{s}.osm.ternaris.com/mapbox-studio-osm-bright/{z}/{x}/{y}${L.Browser.retina ? '@2x' : ''}.png`, {
-            maxZoom: 20
+            maxZoom: 22
         }).addTo(map);
 
         const geo = L.geoJson([], {

@@ -297,7 +297,7 @@ Check for existing directories and remove them if the permissions are wrong::
 Develop existing and new packages
 ---------------------------------
 
-To install any of the existing packages into development mode::
+Using ``--env DEVELOP="code/bagbunker/src/deepfield_jobs`` for ``docker run`` will instruct the docker container to install ``deepfield_jobs`` into development mode (see above). Alternatively, you can do so manually::
 
   % docker exec -ti bbdev bash -c "pip install -e code/bagbunker/src/deepfield_jobs"
 

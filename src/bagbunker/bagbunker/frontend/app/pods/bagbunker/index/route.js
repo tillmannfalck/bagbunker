@@ -40,6 +40,8 @@ export default Ember.Route.extend(ResetScroll, {
             };
         }
 
+        document.title = 'Bagbunker';
+
         return {
             summary: await app.api('/marv/api/_fileset-summary', attrs),
             listing: await app.api('/marv/api/_fileset-listing', attrs)

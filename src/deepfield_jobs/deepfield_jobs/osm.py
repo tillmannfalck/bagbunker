@@ -59,7 +59,7 @@ def job(fileset, messages):
 
 
 @bb.detail()
-@bb.osm_widget(title='OpenStreetMap Trajectory')
+@bb.osm_widget(title='Trajectories')
 def osm_detail(fileset):
     jobrun = fileset.get_latest_jobrun('deepfield::osm')
     points = Points.query.filter(Points.jobrun == jobrun).first() \

@@ -29,36 +29,41 @@ export default Ember.Component.extend({
     classNames: ['widget-osm'],
 
     boot: Ember.on('didInsertElement', function() {
-        const map = L.map(this.$().find('.map')[0], {
-            minZoom: 0,
-            maxZoom: 22,
-            attributionControl: false,
-            maxBounds: L.LatLngBounds(L.latLng([75,-180]), L.latLng([-75, 180]))
-        });
-        this.set('map', map);
-
-        L.tileLayer(`${window.location.protocol}//{s}.osm.ternaris.com/mapbox-studio-osm-bright/{z}/{x}/{y}${L.Browser.retina ? '@2x' : ''}.png`, {
+        const roadmap = L.tileLayer(`${window.location.protocol}//{s}.osm.ternaris.com/mapbox-studio-osm-bright/{z}/{x}/{y}${L.Browser.retina ? '@2x' : ''}.png`, {
+            attribution: '© <a href="https://www.mapbox.com/map-feedback/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
             maxZoom: 22
-        }).addTo(map);
-
-        const geo = L.geoJson([], {
+        });
+        const esri = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: '© <a href="http://www.esri.com/">Esri</a> i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+            maxZoom: 22
+        });
+        const trajectories = L.geoJson([], {
             style(feature) {
                 return feature.properties.style || {};
             }
-        }).addTo(map);
-        this.set('geo', geo);
+        });
+        const map = L.map(this.$().find('.map')[0], {
+            layers: [roadmap, trajectories],
+            zoom: 18,
+            minZoom: 0,
+            maxZoom: 22,
+            maxBounds: L.LatLngBounds(L.latLng([75,-180]), L.latLng([-75, 180]))
+        });
+        L.control.layers({'Roadmap': roadmap, 'Satellite': esri}, {'Trajectories': trajectories}).addTo(map);
+        this.set('map', map);
+        this.set('trajectories', trajectories);
         this.onModelChange();
     }),
 
     onModelChange: Ember.observer('model', function() {
-        const geo = this.get('geo');
-        if (!geo) {
+        const trajectories = this.get('trajectories');
+        if (!trajectories) {
             return;
         }
-        geo.clearLayers();
-        geo.addData(this.get('model.geoJSON') || []);
+        trajectories.clearLayers();
+        trajectories.addData(this.get('model.geoJSON') || []);
 
-        const bounds = geo.getBounds();
+        const bounds = trajectories.getBounds();
         if (bounds.isValid()) {
             this.get('map').fitBounds(bounds, {
                 padding: [100, 100]

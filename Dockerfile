@@ -33,7 +33,7 @@ ENV DEBIAN_FRONTEND noninteractive
 # from a registry and environment variables can be set during runime
 # (see README.md)
 # The no_proxy variable allows Bagbunker internal communication.
-ENV no_proxy 127.0.0.1
+#ENV no_proxy 127.0.0.1
 #ENV http_proxy http://172.17.0.1:3128/
 #ENV https_proxy http://172.17.0.1:3128/
 

@@ -1,6 +1,6 @@
-Manual steps installation
-=========================
+Manual steps
+============
 
-It is possible to use bagbunker without docker and perform the install manually, for example in a virtualenv.
+For manual installation instructions without docker see `Manual Setup <../../doc/manual-setup.rst>`_.
 
 The "manual-steps" Dockerfile is for testing these manual installation steps.

@@ -228,7 +228,7 @@ Scan bags
 Note that there is a certain structure expected for bags inside ``/mnt/bags``:
 
 - every bag **must** be accompanied by a file containing bag's md5 sum and bag's basename separated by a whitespace. For example use ``md5sum foo.bag > foo.bag.md5`` to generate such an accompanying file.
-- every bag must be world readable, e.g. ``chmod o+r *.bag``.
+- every bag and md5 file must be world readable, e.g. ``chmod o+r *.bag``.
 - scan command expects bagfiles which end in _<digit>.bag to be part of a fileset (split bagfiles) and so there has to be a continous numbering of the digits starting with **zero**.
 
 Read metadata from bags (especially over NFS this may take a while)::

@@ -141,6 +141,10 @@ class Storage(object):
 
                     # New fileset?
                     if active is None:
+                        if not self.verify_readable(found):
+                            logger.warn('one or more files of this fileset are not readable, check permissions %r', found)
+                            continue
+
                         if not self.verify_md5(found):
                             logger.warn('skipped MD5 mismatch %r', found)
                             continue
@@ -195,5 +199,11 @@ class Storage(object):
                                cwd=fileset.dirpath,
                                stderr=subprocess.PIPE,
                                stdout=subprocess.PIPE) != 0:
+                return False
+        return True
+
+    def verify_readable(self, fileset):
+        for file in fileset.files:
+            if not os.access(file.path, os.R_OK):
                 return False
         return True

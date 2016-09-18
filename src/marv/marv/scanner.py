@@ -68,6 +68,10 @@ class EmptyFile(BrokenFileset):
     pass
 
 
+class UnreadleFile(BrokenFileset):
+    pass
+
+
 def detect_filesets(basedir, scanners):
     """Walk basedir using scanners to detect filesets, return filesetinfos"""
     logger = getLogger(__name__)
@@ -86,6 +90,9 @@ def detect_filesets(basedir, scanners):
 def make_file(fileinfo):
     """Make File model from FileInfo"""
     path = os.path.join(fileinfo.dirpath, fileinfo.name)
+
+    if not os.access(path, os.R_OK):
+        raise UnreadleFile(fileinfo.dirpath, fileinfo.name)
 
     md5file = '{}.md5'.format(path)
     try:

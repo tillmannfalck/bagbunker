@@ -26,7 +26,7 @@ import json
 from marv import bb, db
 from bagbunker import bb_bag
 
-__version__ = '0.0.2'
+__version__ = '0.0.3'
 
 
 @bb.job_model()
@@ -34,9 +34,17 @@ class Points(object):
     # json serialized [(quality, (lon, lat)), ...]
     data = db.Column(db.String, nullable=False)
 
+TOPICS = [
+    '/zeno/gps/navsatfix',
+    '/fredeluga/gps',
+    '/gps/fix',
+    '/nibbio/fcu/gps',
+    '/sensor/gps/evk7ppp/ublox_gps_evk7ppp/fix',
+    '/sensor/gps/leica530/fix',
+]
 
 @bb.job()
-@bb_bag.messages(topics=('/zeno/gps/navsatfix',))
+@bb_bag.messages(topics=TOPICS)
 def job(fileset, messages):
     points = []
     for i, (topic, msg, timestamp) in enumerate(messages):

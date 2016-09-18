@@ -27,8 +27,9 @@ from marv import db, bb
 from marv.bb import job_logger as logger
 from marv.model import Jobrun
 from bagbunker import bb_bag
+import numpy as np
 
-__version__ = '0.0.10'
+__version__ = '0.0.12'
 
 # global list of topics
 old_topics = ['/camera/image_raw_webcam',
@@ -43,7 +44,30 @@ new_topics = ['/%s/jai/rgb/image_raw' % cam for cam in cams] + \
              ['/%s/jai/nir/image_raw' % cam for cam in cams] + \
              ['/%s/kinect2/ir/image_raw' % cam for cam in cams] + \
              ['/%s/kinect2/rgb/image_raw' % cam for cam in cams]
-TOPICS = tuple(old_topics + new_topics)
+flourish_topics = [
+    '/fredeluga/cam0/image_raw',
+    '/fredeluga/cam1/image_raw',
+    '/guidance/left_image',
+    '/guidance/right_image',
+    'mono_rgb/image_raw',
+    '/nibbio/camera/image_raw',
+    '/nibbio/camera/image_raw_dropped',
+    '/nibbio/camera/image_raw_sync',
+    '/nibbio/tag_detections_image_dropped',
+    '/sensor/jai/bayer/image_raw_sync',
+    '/sensor/jai/nir/image_raw_sync',
+    '/sensor/kinect2/sd/image_color_rect',
+    '/sensor/kinect2/sd/image_depth',
+    '/sensor/kinect2/sd/image_ir',
+    '/sensor/laser/fx8/ir_image',
+    '/sensor/laser/fx8/range_image',
+    '/stereo_nir/left/image_raw_sync',
+    '/stereo_rgb/left/image_raw_sync',
+    '/thin_visensor_node/camera_left/image_raw',
+    '/thin_visensor_node/camera_right/image_raw',
+    '/ximea_asl/image_raw',
+]
+TOPICS = tuple(old_topics + new_topics + flourish_topics)
 
 # @bb.job_model()
 # class Video(object):
@@ -147,7 +171,11 @@ def job(fileset, messages, max_frames, image_width):
             'topic{name}_{idx:03d}.jpg'.format(name=topic.replace('/', '_'),
                                                idx=frame_idx))
 
-        cv_image = bridge.imgmsg_to_cv2(msg, "rgb8")
+        if msg.encoding == '16UC1':
+            cv_image = bridge.imgmsg_to_cv2(msg, "passthrough")
+            cv_image = np.right_shift(cv_image, 8).astype(dtype=np.uint8)
+        else:
+            cv_image = bridge.imgmsg_to_cv2(msg, "rgb8")
         ratio = float(image_width) / float(cv_image.shape[1])
         scaled_img = cv2.resize(cv_image, (image_width, int(cv_image.shape[0]*ratio)),
                                 interpolation=cv2.INTER_AREA)

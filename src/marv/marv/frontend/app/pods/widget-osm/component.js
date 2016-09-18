@@ -29,13 +29,15 @@ export default Ember.Component.extend({
     classNames: ['widget-osm'],
 
     boot: Ember.on('didInsertElement', function() {
-        const roadmap = L.tileLayer(`${window.location.protocol}//{s}.osm.ternaris.com/mapbox-studio-osm-bright/{z}/{x}/{y}${L.Browser.retina ? '@2x' : ''}.png`, {
-            attribution: '© <a href="https://www.mapbox.com/map-feedback/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-            maxZoom: 22
+        const roadmap = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+            maxZoom: 22,
+            maxNativeZoom: 19
         });
         const esri = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
             attribution: '© <a href="http://www.esri.com/">Esri</a> i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
-            maxZoom: 22
+            maxZoom: 22,
+            maxNativeZoom: 18
         });
         const trajectories = L.geoJson([], {
             style(feature) {
@@ -44,7 +46,7 @@ export default Ember.Component.extend({
         });
         const map = L.map(this.$().find('.map')[0], {
             layers: [roadmap, trajectories],
-            zoom: 18,
+            zoom: 16,
             minZoom: 0,
             maxZoom: 22,
             maxBounds: L.LatLngBounds(L.latLng([75,-180]), L.latLng([-75, 180]))
@@ -66,7 +68,8 @@ export default Ember.Component.extend({
         const bounds = trajectories.getBounds();
         if (bounds.isValid()) {
             this.get('map').fitBounds(bounds, {
-                padding: [100, 100]
+                padding: [100, 100],
+                maxZoom: 18
             });
         }
     })

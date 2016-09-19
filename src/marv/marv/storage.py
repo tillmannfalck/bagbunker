@@ -142,11 +142,15 @@ class Storage(object):
                     # New fileset?
                     if active is None:
                         if not self.verify_readable(found):
-                            logger.warn('one or more files of this fileset are not readable, check permissions %r', found)
+                            logger.warn('one or more files of this fileset are'
+                                        ' not readable, check permissions %r', found)
                             continue
 
-                        if not self.verify_md5(found):
-                            logger.warn('skipped MD5 mismatch %r', found)
+                        try:
+                            self.verify_md5(found)
+                            print found
+                        except IOError, e:
+                            logger.warn(e.message + ' %r', found)
                             continue
 
                         self.instance.filesets.append(found)
@@ -195,12 +199,21 @@ class Storage(object):
 
     def verify_md5(self, fileset):
         for file in fileset.files:
-            if subprocess.call(['md5sum', '-c', '{}.md5'.format(file.name)],
-                               cwd=fileset.dirpath,
-                               stderr=subprocess.PIPE,
-                               stdout=subprocess.PIPE) != 0:
-                return False
-        return True
+            try:
+                subprocess.check_output(
+                    ['md5sum', '-c', '{}.md5'.format(file.name)],
+                    cwd=fileset.dirpath,
+                    stderr=subprocess.STDOUT)
+            except subprocess.CalledProcessError, e:
+                if 'checksum did NOT match' in e.output:
+                    raise IOError('MD5 checksum mismatch')
+                elif 'FAILED open or read' in e.output:
+                    raise IOError('Filename specified in md5 file could not be'
+                                  ' found. Check that it contains the filename'
+                                  ' only, not a path.')
+                else:
+                    raise IOError('Failed to verify MD5 sum. Error message was'
+                                  ' "{}"'.format(e.output))
 
     def verify_readable(self, fileset):
         for file in fileset.files:

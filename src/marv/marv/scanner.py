@@ -68,7 +68,11 @@ class EmptyFile(BrokenFileset):
     pass
 
 
-class UnreadleFile(BrokenFileset):
+class UnreadableFile(BrokenFileset):
+    pass
+
+
+class MalformattedMD5(BrokenFileset):
     pass
 
 
@@ -92,12 +96,16 @@ def make_file(fileinfo):
     path = os.path.join(fileinfo.dirpath, fileinfo.name)
 
     if not os.access(path, os.R_OK):
-        raise UnreadleFile(fileinfo.dirpath, fileinfo.name)
+        raise UnreadableFile(fileinfo.dirpath, fileinfo.name)
 
     md5file = '{}.md5'.format(path)
     try:
         with open(md5file, 'rb') as f:
-            md5 = f.read(32)
+            md5str = f.readline()
+        md5 = md5str[:32]
+
+        if md5str[32:].strip() != fileinfo.name:
+            raise MalformattedMD5(fileinfo.dirpath, fileinfo.name)
     except IOError:
         raise MissingMD5(fileinfo.dirpath, fileinfo.name)
 
